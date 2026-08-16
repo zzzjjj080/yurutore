@@ -40,6 +40,10 @@ final class AppStore {
         self.viewYear = today.year
         self.viewMonth = today.month
         load()
+        #if DEBUG
+        DemoData.fill(self)
+        if DemoData.isEnabled { showOnboarding = false }
+        #endif
         journal.settleAll(today: today, activities: activities, settings: settings)
     }
 

@@ -138,7 +138,21 @@ struct ContentView: View {
 
     // MARK: - 指標
 
+    @ViewBuilder
     private var stats: some View {
+        // 年表示のときは年の集計に切り替える。月の数字のままだと、
+        // 何を見ている数字なのか分からなくなる。
+        if store.viewMode == .year {
+            let y = store.yearSummary
+            return HStack(spacing: 7) {
+                statTile(L.ySumPass(lang), value: "\(y.passedDays)",
+                         unit: L.t("日", "d", lang), sub: "", tint: store.accent(dark: dark))
+                statTile(L.ySumLogged(lang), value: "\(y.loggedDays)",
+                         unit: L.t("日", "d", lang), sub: "", tint: .primary)
+                statTile(L.statScore(lang), value: y.averageScore.map { "\($0)" } ?? "—",
+                         unit: y.averageScore != nil ? L.pts(lang) : nil, sub: "", tint: .primary)
+            }
+        }
         let s = store.monthSummary
         return HStack(spacing: 7) {
             statTile(L.statPass(lang),

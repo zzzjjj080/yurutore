@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ゆるトレ日記 — サポート</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 4rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", sans-serif;
+    line-height: 1.85;
+    color: #1a1e26;
+    background: #f4f6fa;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { color: #eaeef5; background: #0f1218; }
+    a { color: #8ab4f8; }
+    .lead, .faq { background: #182234; }
+    hr { border-top-color: #262c36; }
+  }
+  h1 { font-size: 1.6rem; margin-bottom: .25rem; }
+  h2 { font-size: 1.05rem; margin-top: 2.25rem; }
+  h3 { font-size: .95rem; margin-bottom: .3rem; }
+  .updated { color: #667085; font-size: .85rem; margin-top: 0; }
+  a { color: #2563eb; }
+  hr { border: none; border-top: 1px solid #dbe1ea; margin: 3rem 0; }
+  .lead { background: #e8eefb; padding: 1rem 1.25rem; border-radius: .75rem; }
+  .faq { background: #e8eefb; padding: .1rem 1.25rem 1rem; border-radius: .75rem; margin-top: 1rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .95rem; }
+  th, td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid #dbe1ea; }
+  @media (prefers-color-scheme: dark) { th, td { border-bottom-color: #262c36; } }
+  th { color: #667085; font-weight: 600; font-size: .85rem; }
+</style>
+</head>
+<body>
+
+<h1>ゆるトレ日記</h1>
+<p class="updated">サポートページ</p>
+
+<p class="lead">
+  ある程度は体を動かしたい。でも重さも回数も記録するアプリは、正直3日で嫌になりました。<br><br>
+  ほしかったのは、<strong>5秒で入れられて、1か月を一目で見渡せるもの</strong>。
+  なかったので自分用に作りました。
+</p>
+
+<h2>できること</h2>
+<ul>
+  <li>歩数はヘルスケアから自動で入ります</li>
+  <li>押すのは「動かした部位」と「その他の運動」だけ。重さも回数も入れません</li>
+  <li>その日の点数が0〜100で自動計算され、<strong>80点以上で合格</strong></li>
+  <li>カレンダーの色が変わるので、月末に「今月は何日できたか」が一目で分かります</li>
+  <li>1年をまるごと見渡す画面もあります</li>
+  <li>記録はCSVで書き出せます</li>
+</ul>
+
+<h2>点数の決まり方</h2>
+<p>その日の歩数と運動の数から計算します。</p>
+<table>
+  <tr><th></th><th>0つ</th><th>1つ</th><th>2つ</th><th>3つ以上</th></tr>
+  <tr><th>8,000歩</th><td>20</td><td>45</td><td>65</td><td><strong>80</strong></td></tr>
+  <tr><th>10,000歩</th><td>35</td><td>60</td><td><strong>80</strong></td><td><strong>95</strong></td></tr>
+  <tr><th>13,000歩</th><td>58</td><td><strong>83</strong></td><td><strong>100</strong></td><td><strong>100</strong></td></tr>
+  <tr><th>16,000歩</th><td><strong>80</strong></td><td><strong>100</strong></td><td><strong>100</strong></td><td><strong>100</strong></td></tr>
+</table>
+<p>
+  太字が合格です。歩くだけでも、運動するだけでも合格に届きます。
+  <strong>満点を狙う必要はありません。</strong>80点をぼちぼち超えていくだけで十分です。
+</p>
+
+<h2>よくある質問</h2>
+
+<div class="faq">
+<h3>歩数が入りません</h3>
+<p>
+  ヘルスケアへのアクセスが許可されていない可能性があります。
+  iPhoneの「設定」→「プライバシーとセキュリティ」→「ヘルスケア」→「ゆるトレ日記」から、
+  歩数の読み取りをオンにしてください。
+</p>
+
+<h3>過去の点数が変わりません</h3>
+<p>
+  仕様です。<strong>3日経った日の点数は確定</strong>し、以後は設定を変えても動きません。
+  採点モードや歩数の目安を変えたときに、過去のカレンダーが丸ごと書き換わらないようにするためです。
+  確定した日でも、その日の記録を編集すればその日だけ計算し直されます。
+</p>
+
+<h3>今日が達成率に入っていません</h3>
+<p>
+  集計は「昨日まで」です。まだ歩き終わっていない今日を混ぜると、平均が下がってしまうためです。
+</p>
+
+<h3>点数の基準が自分に合いません</h3>
+<p>
+  設定の「点数」から、歩数の目安（下限・上限）と運動の種類を変えられます。
+  普段5,000歩の人と15,000歩の人で同じ基準はおかしいので、
+  <strong>1〜2週間使ってみて、厳しい・ゆるいと感じたら調整してください。</strong>
+</p>
+
+<h3>「その他の運動」の量はどう決めればいいですか</h3>
+<p>
+  筋トレ1種目（3セット×10回）と同じくらいの運動量になる量を入れてください。
+  走り回る運動は歩数にも入るので、そのぶん多めにします（球技が30分なのはこのためです）。
+</p>
+
+<h3>機種変更のとき記録を移せますか</h3>
+<p>
+  設定の「データ」からCSVで書き出し、新しい端末で読み込んでください。
+  書き出したファイルは表計算ソフトでもそのまま開けます。
+</p>
+
+<h3>記録を消したい</h3>
+<p>
+  アプリを削除すると、端末内の記録と設定もすべて削除されます。
+</p>
+</div>
+
+<h2>お問い合わせ</h2>
+<p>
+  不具合や要望は <a href="mailto:zzzjjj080@gmail.com">zzzjjj080@gmail.com</a> までお願いします。
+</p>
+
+<hr>
+<p><a href="./privacy.html">プライバシーポリシー</a></p>
+
+</body>
+</html>

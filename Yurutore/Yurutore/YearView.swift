@@ -27,8 +27,6 @@ struct YearGrid: View {
                 }
                 Divider()
                 chart
-                Divider()
-                summary
             }
             .padding(10)
         }
@@ -107,20 +105,4 @@ struct YearGrid: View {
         }
     }
 
-    private var summary: some View {
-        let y = store.yearSummary
-        return HStack {
-            item(L.ySumPass(lang), "\(y.passedDays)", tint: store.accent(dark: dark))
-            item(L.statScore(lang), y.averageScore.map { "\($0)" } ?? "—", tint: .primary)
-            item(L.ySumLogged(lang), "\(y.loggedDays)", tint: .primary)
-        }
-    }
-
-    private func item(_ key: String, _ value: String, tint: Color) -> some View {
-        VStack(spacing: 3) {
-            Text(key).font(.system(size: 10, weight: .bold)).foregroundStyle(.secondary)
-            Text(value).font(.system(size: 17, weight: .heavy)).foregroundStyle(tint)
-        }
-        .frame(maxWidth: .infinity)
-    }
 }
