@@ -5,6 +5,7 @@ struct ContentView: View {
     @Bindable var store: AppStore
     @Environment(\.colorScheme) private var scheme
     @State private var health = HealthStore()
+    @State private var healthError: String?
 
     private var dark: Bool { store.isDark(scheme) }
     private var lang: AppLanguage { store.language }
@@ -53,7 +54,12 @@ struct ContentView: View {
         .sheet(isPresented: $store.showDetail) { DetailSheet(store: store) }
         .sheet(isPresented: $store.showSettings) { SettingsSheet(store: store) }
         .fullScreenCover(isPresented: $store.showOnboarding) { OnboardingView(store: store) }
-        .task { await syncHealth() }
+        .task {
+            // 初回起動でも許可を尋ねる。バナーからしか出ないと、
+            // 歩数が入らない理由がユーザーに分からない。
+            await health.requestAuthorization()
+            await syncHealth()
+        }
     }
 
     // MARK: - 上部
@@ -111,8 +117,10 @@ struct ContentView: View {
     private var healthBanner: some View {
         Button {
             Task {
-                _ = await health.requestAuthorization()
+                await health.requestAuthorization()
                 await syncHealth()
+                // 許可を押したのに何も起きない、という状態を作らない
+                healthError = store.healthAuthorized ? nil : health.lastError
             }
         } label: {
             HStack(spacing: 10) {
@@ -120,8 +128,9 @@ struct ContentView: View {
                     .foregroundStyle(.orange)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(L.hkBanner(lang)).font(.system(size: 12, weight: .heavy))
-                    Text(L.hkBannerSub(lang)).font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(.secondary)
+                    Text(healthError ?? L.hkBannerSub(lang))
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(healthError == nil ? Color.secondary : Color.orange)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer()
@@ -197,11 +206,13 @@ struct ContentView: View {
 
     private func syncHealth() async {
         guard health.isAvailable else { return }
+        store.healthAuthorized = false
         // 起点より前は読んでも使わないので、直近1年ぶんだけ取る
         let from = store.today.adding(days: -400)
         let steps = await health.dailySteps(from: from, to: store.today)
+        // 歩数が0件でも、読み取れたなら許可は済んでいる
+        store.healthAuthorized = health.isAuthorized
         guard !steps.isEmpty else { return }
-        store.healthAuthorized = true
         for (date, count) in steps {
             // 確定済みの日は歩数を上書きしない。過去の点数が動くため。
             if store.journal[date]?.lockedScore != nil { continue }

@@ -6,26 +6,35 @@ import YurutoreCore
 ///
 /// 読んだ値は端末の外に出さない。ネットワーク通信はアプリ全体で行っていない。
 @MainActor
+@Observable
 final class HealthStore {
     private let store = HKHealthStore()
     private let stepType = HKQuantityType(.stepCount)
 
+    /// 失敗したときは黙って諦めず、理由を残す。
+    /// 無反応が一番たちが悪い（実際にエンタイトルメント漏れを見逃した）。
+    private(set) var lastError: String?
+
     var isAvailable: Bool { HKHealthStore.isHealthDataAvailable() }
+
+    private var lastReadSucceeded = false
 
     /// 許可されているか。HealthKitは読み取り許可の有無を直接は教えないので、
     /// 実際に読めたかどうかで判断する。
-    var isAuthorized: Bool {
-        store.authorizationStatus(for: stepType) == .sharingAuthorized
-            || lastReadSucceeded
-    }
-    private var lastReadSucceeded = false
+    var isAuthorized: Bool { lastReadSucceeded }
 
+    @discardableResult
     func requestAuthorization() async -> Bool {
-        guard isAvailable else { return false }
+        guard isAvailable else {
+            lastError = "この端末ではヘルスケアを利用できません"
+            return false
+        }
         do {
             try await store.requestAuthorization(toShare: [], read: [stepType])
+            lastError = nil
             return true
         } catch {
+            lastError = error.localizedDescription
             return false
         }
     }
@@ -56,9 +65,13 @@ final class HealthStore {
                 let c = cal.dateComponents([.year, .month, .day], from: stats.startDate)
                 out[YMD(c.year!, c.month!, c.day!)] = Int(sum.doubleValue(for: .count()))
             }
-            lastReadSucceeded = !out.isEmpty
+            // 歩数が1件も無くても、問い合わせ自体が通れば許可はされている。
+            // 「許可したのにバナーが消えない」を防ぐため、ここで許可済みとみなす。
+            lastReadSucceeded = true
+            lastError = nil
             return out
         } catch {
+            lastError = error.localizedDescription
             return [:]
         }
     }

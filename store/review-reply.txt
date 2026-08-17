@@ -1,0 +1,44 @@
+Thank you for the review. A new build has been uploaded that fixes a HealthKit permission issue found while preparing this reply. Please review the latest build.
+
+1. SCREEN RECORDING
+Attached, captured on a physical iPhone 15 running iOS 26.6. It starts from launching the app and shows the full typical flow, including the HealthKit permission prompt.
+The app has no account registration, login, deletion, paid content, in-app purchases, subscriptions, or user-generated content.
+
+2. DEVICES AND OS TESTED
+- iPhone 15 (physical device), iOS 26.6
+- iPhone 17 Pro Max (Simulator), iOS 26.5
+iPhone only. Supports iOS 18.0 and later.
+
+3. FUNCTION AND TARGET AUDIENCE
+A lightweight calendar for maintaining a basic level of daily activity.
+Problem: most fitness apps require logging weights, reps and durations. That is too much for people who simply want to stay reasonably active, and they quit within days.
+Instead, this app records only two things per day: the step count, read automatically from HealthKit, and which body parts and other exercises were done, each entered with a single tap. From those it calculates a score of 0 to 100. A score of 80 or above is a "pass" and the calendar cell changes colour, so the user sees at a glance how many days they managed in a month. A year view shows all twelve months at once.
+Target audience: general adults who want to keep a moderate level of daily activity. Not aimed at athletes or bodybuilders.
+
+4. HOW TO ACCESS THE MAIN FEATURES
+No account, login or credentials are required, and no setup is needed.
+Please note: the app reads step counts from HealthKit. A review device usually has no step history, so every day shows 20 points, the baseline for a day below the lower step target. This is expected and is not a malfunction. All features work fully without any Health data.
+a. Launch. A four-page introduction appears. Tap Next, or Skip.
+b. Allow or deny the HealthKit prompt. Both paths work. If denied, a banner appears and steps count as 0.
+c. Tap today's date, or any past date, in the calendar to open the input sheet.
+d. Tap any of the six body-part buttons. Each tap cycles none, x1, x2, x3. The score updates immediately.
+e. Tap any of the six other-exercise buttons the same way.
+f. Three exercises in total reaches 80 points and the score turns blue, indicating a pass.
+g. Tap the score to set it manually from 20 to 100 in steps of 10, or return to automatic.
+h. Tap "Rest day" to mark an intentional day off, then "Done".
+i. Tap the month title to switch to the year view. Tap any month to return to it.
+j. Tap the gear icon for Settings: Display, Scoring, and Data (CSV export and import).
+k. Tap the question mark icon to view the introduction again.
+
+5. EXTERNAL SERVICES
+None. The app makes no network connections at all. No backend, no API, no cloud storage, no account system, no analytics, no advertising or tracking SDKs, no third-party libraries, no AI services, no payment processors.
+It uses only Apple frameworks: SwiftUI, Swift Charts, HealthKit, and UserNotifications. All data is stored on the device only, and the app has no capability to transmit it anywhere. HealthKit is used to read the step count only; the app never writes to HealthKit. Notifications are local only and off by default.
+
+6. REGIONAL DIFFERENCES
+None. The app behaves identically everywhere and has no region-specific content or features. The interface is available in Japanese and English, selectable inside the app. Offered in Japan only.
+
+7. REGULATED INDUSTRY OR PROTECTED MATERIAL
+Neither applies. This is not a medical or healthcare service. It does not diagnose, treat, or give medical advice, and makes no health claims. It records a step count and self-reported exercise, and shows a simple arithmetic score.
+It contains no third-party protected material. All text, the icon, the graphics and the source code were created by the developer.
+
+Please let us know if anything further is needed.

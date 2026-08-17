@@ -1,0 +1,18 @@
+No account, login, or credentials are required. No in-app purchases, no subscriptions, no user-generated content, and no network connections of any kind.
+
+IMPORTANT FOR REVIEW: the app reads step counts from HealthKit. On a review device there is usually no step history, so every day shows 20 points (the baseline for a day below the lower step target). This is expected and does not indicate a malfunction. All features work fully without any Health data.
+
+How to exercise the app:
+1. Launch. A four-page introduction appears; tap Next or Skip.
+2. Allow or deny the HealthKit prompt. Both paths work.
+3. Tap today's date in the calendar to open the input sheet.
+4. Tap the body-part buttons (Chest, Back, Shldr, Arms, Legs, Core). Each tap cycles none, x1, x2, x3.
+5. Tap the other-exercise buttons the same way. Three exercises in total reaches 80 points, which is a pass, and the score turns blue.
+6. Tap the score to set it manually (20-100 in steps of 10), or Rest day, then Done.
+7. Tap the month title to switch to the year view. Tap the gear icon for Settings (Display / Scoring / Data).
+
+External services: none. Only Apple frameworks (SwiftUI, Swift Charts, HealthKit read-only, local UserNotifications). All data stays on the device.
+
+Regional differences: none. Japanese and English UI, selectable in-app.
+
+Not a medical app. No diagnosis, treatment, or health claims. No third-party protected material.
