@@ -52,6 +52,24 @@ final class AppStore {
         return YMD(c.year!, c.month!, c.day!)
     }
 
+    /// 日付が変わったら「今日」を進める。
+    /// 起動時に一度決めるだけだと、開きっぱなしで日をまたいだとき昨日のまま止まる。
+    @discardableResult
+    func refreshToday() -> Bool {
+        let now = Self.currentDate()
+        guard now != today else { return false }
+        // 今日の月を見ていたなら一緒に送る。別の月を見ているなら邪魔しない。
+        let follow = isViewingToday
+        today = now
+        if follow {
+            viewYear = now.year
+            if viewMode == .month { viewMonth = now.month }
+        }
+        journal.settleAll(today: now, activities: activities, settings: settings)
+        save()
+        return true
+    }
+
     // MARK: - 派生値
 
     func log(_ date: YMD) -> DayLog { journal[date] ?? DayLog() }

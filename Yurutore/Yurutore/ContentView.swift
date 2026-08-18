@@ -1,11 +1,14 @@
 import SwiftUI
+import Combine
 import YurutoreCore
 
 struct ContentView: View {
     @Bindable var store: AppStore
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.scenePhase) private var phase
     @State private var health = HealthStore()
     @State private var healthError: String?
+    @State private var syncing = false
 
     private var dark: Bool { store.isDark(scheme) }
     private var lang: AppLanguage { store.language }
@@ -58,7 +61,18 @@ struct ContentView: View {
             // 初回起動でも許可を尋ねる。バナーからしか出ないと、
             // 歩数が入らない理由がユーザーに分からない。
             await health.requestAuthorization()
-            await syncHealth()
+            await refresh()
+        }
+        // 戻ってくるたびに読み直す。起動時だけだと、
+        // 裏に回している間に歩いたぶんが増えない。
+        .onChange(of: phase) { _, new in
+            guard new == .active else { return }
+            Task { await refresh() }
+        }
+        // 開いたまま日をまたいだとき用。前面にいると上の通知は来ない。
+        .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)
+            .receive(on: RunLoop.main)) { _ in
+            Task { await refresh() }
         }
     }
 
@@ -203,6 +217,16 @@ struct ContentView: View {
     }
 
     // MARK: - ヘルスケア
+
+    /// 日付を進めてから歩数を読む。順番が逆だと、日付が変わった直後に
+    /// 「昨日まで」を読んでしまい、今日のセルが空のままになる。
+    private func refresh() async {
+        guard !syncing else { return }
+        syncing = true
+        defer { syncing = false }
+        store.refreshToday()
+        await syncHealth()
+    }
 
     private func syncHealth() async {
         guard health.isAvailable else { return }
