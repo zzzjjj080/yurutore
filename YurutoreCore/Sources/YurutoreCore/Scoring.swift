@@ -23,11 +23,16 @@ public struct ScoringSettings: Codable, Equatable, Sendable {
     /// 調子がよければこれくらい、という線。ここで打ち止め。
     public var upperSteps: Int
     public var mode: ScoringMode
+    /// 「この日から記録を始めた」と本人が決めた日。
+    /// nil なら、最初に運動を記録した日から自動で数える。
+    public var startOverride: YMD?
 
-    public init(lowerSteps: Int = 8000, upperSteps: Int = 16000, mode: ScoringMode = .balanced) {
+    public init(lowerSteps: Int = 8000, upperSteps: Int = 16000,
+                mode: ScoringMode = .balanced, startOverride: YMD? = nil) {
         self.lowerSteps = lowerSteps
         self.upperSteps = upperSteps
         self.mode = mode
+        self.startOverride = startOverride
     }
 
     public static let `default` = ScoringSettings()

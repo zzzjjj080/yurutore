@@ -45,12 +45,15 @@ public struct Journal: Codable, Equatable, Sendable {
 
     // MARK: - 集計の起点
 
-    /// 本人が最初に入力した日（運動を記録した日、または休養日にした日）。
+    /// 集計の起点。
     ///
+    /// override が指定されていればそれを使う。無ければ、本人が最初に入力した日
+    /// （運動を記録した日、または休養日にした日）。
     /// 歩数はヘルスケアから何年ぶんでも入りうるので、
     /// これを起点にしないと過去が全部0%になる。
-    public func startDate(activities: [Activity]) -> YMD? {
-        days.filter { $0.value.state(activities: activities) != .unlogged }
+    public func startDate(activities: [Activity], override: YMD? = nil) -> YMD? {
+        if let override { return override }
+        return days.filter { $0.value.state(activities: activities) != .unlogged }
             .keys.min()
     }
 
@@ -59,7 +62,8 @@ public struct Journal: Codable, Equatable, Sendable {
     /// 今日は含めない。まだ歩き終わっていない日を混ぜると平均が下がるため。
     public func countedRange(year: Int, month: Int,
                              today: YMD,
-                             activities: [Activity]) -> ClosedRange<Int>? {
+                             activities: [Activity],
+                             override: YMD? = nil) -> ClosedRange<Int>? {
         // 未来の月
         if (year, month) > (today.year, today.month) { return nil }
         let daysInMonth = YMD.daysInMonth(year: year, month: month)
@@ -68,7 +72,7 @@ public struct Journal: Codable, Equatable, Sendable {
             : daysInMonth
         guard last >= 1 else { return nil }
 
-        guard let start = startDate(activities: activities) else { return nil }
+        guard let start = startDate(activities: activities, override: override) else { return nil }
         if (year, month) < (start.year, start.month) { return nil }
         let first = (year == start.year && month == start.month) ? start.day : 1
         guard first <= last else { return nil }
@@ -114,7 +118,9 @@ extension Journal {
         BodyPart.allCases.forEach { parts[$0] = 0 }
         activities.forEach { acts[$0.id] = 0 }
 
-        guard let range = countedRange(year: year, month: month, today: today, activities: activities) else {
+        guard let range = countedRange(year: year, month: month, today: today,
+                                       activities: activities,
+                                       override: settings.startOverride) else {
             return MonthSummary(countedDays: 0, passedDays: 0, totalSteps: 0,
                                 averageScore: nil, partCounts: parts, activityCounts: acts)
         }
@@ -150,7 +156,9 @@ extension Journal {
                                  activities: activities, settings: settings)
             rates.append(s.passRate)
             passed += s.passedDays
-            if let range = countedRange(year: year, month: m, today: today, activities: activities) {
+            if let range = countedRange(year: year, month: m, today: today,
+                                        activities: activities,
+                                        override: settings.startOverride) {
                 for d in range {
                     guard let log = days[YMD(year, m, d)] else { continue }
                     sum += Scorer.score(log, activities: activities, settings: settings)

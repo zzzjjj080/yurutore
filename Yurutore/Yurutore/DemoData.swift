@@ -36,6 +36,10 @@ enum DemoData {
             j[d] = log
         }
         store.journal = j
+        // 開始日より前が濃いグレーになるのを確認するための仕込み
+        if ProcessInfo.processInfo.environment["YURUTORE_DEMO_START"] == "1" {
+            store.settings.startOverride = today.adding(days: -8)
+        }
         store.healthAuthorized = true
         store.journal.settleAll(today: today,
                                 activities: store.activities, settings: store.settings)

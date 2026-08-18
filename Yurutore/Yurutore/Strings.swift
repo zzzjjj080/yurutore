@@ -128,6 +128,17 @@ enum L {
         }
     }
     static func stepGoal(_ l: AppLanguage) -> String { t("歩数の目安", "Step targets", l) }
+    static func startLabel(_ l: AppLanguage) -> String { t("記録の開始日", "Start date", l) }
+    static func startAuto(_ l: AppLanguage) -> String { t("自動", "Automatic", l) }
+    static func startManual(_ l: AppLanguage) -> String { t("指定する", "Choose", l) }
+    static func startHint(_ l: AppLanguage) -> String {
+        t("この日から記録を始めた、という日です。それより前の日は濃いグレーになり、点数も達成率にも入りません。\n「自動」にすると、初めて運動を記録した日から数えます。機種変更でヘルスケアに古い歩数が残っている場合は、ここで指定してください。",
+          "The day you started keeping this diary. Days before it turn dark grey and are excluded from scores and the pass rate.\n\"Automatic\" counts from the first day you logged exercise. If old step data carried over from a previous phone, set the date here.", l)
+    }
+    static func startCurrent(_ d: YMD, _ l: AppLanguage) -> String {
+        t("\(d.year)年\(d.month)月\(d.day)日から集計します",
+          "Counting from \(monthShort(d.month, l)) \(d.day), \(d.year)", l)
+    }
     static func stepHint(_ lo: Int, _ l: AppLanguage) -> String {
         t("下限＝最低これだけは毎日歩きたい、という線。ここが\(lo)点になる。\n上限＝調子がよければこれくらい歩きたい、という線。ここで打ち止め。\n2つを離すほど、歩数の差が点数に出にくくなる。",
           "Min — the least you want to walk every day, worth \(lo) points.\nMax — what you walk on a good day. Scores stop rising here.\nThe wider the gap, the less each step matters.", l)

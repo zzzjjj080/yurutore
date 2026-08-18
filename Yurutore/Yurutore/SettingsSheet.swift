@@ -217,6 +217,37 @@ struct SettingsSheet: View {
                 }.onChange(of: store.settings.upperSteps) { store.save() }
             }
 
+            section(L.startLabel(lang)) {
+                hint(L.startHint(lang))
+                Picker("", selection: Binding(
+                    get: { store.settings.startOverride != nil },
+                    set: { manual in
+                        Haptics.light()
+                        store.settings.startOverride = manual
+                            ? (store.startDate ?? store.today) : nil
+                        store.save()
+                    })) {
+                    Text(L.startAuto(lang)).tag(false)
+                    Text(L.startManual(lang)).tag(true)
+                }
+                .pickerStyle(.segmented)
+
+                if store.settings.startOverride != nil {
+                    DatePicker(L.startLabel(lang),
+                               selection: Binding(
+                                get: { (store.settings.startOverride ?? store.today).asDate },
+                                set: { store.settings.startOverride = YMD(from: $0); store.save() }),
+                               in: ...store.today.asDate,
+                               displayedComponents: .date)
+                        .datePickerStyle(.compact)
+                }
+                if let s = store.startDate {
+                    Text(L.startCurrent(s, lang))
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                }
+            }
+
             section(L.otherEx(lang)) {
                 hint(L.actHint(lang))
                 ForEach(Array(store.activities.enumerated()), id: \.element.id) { i, act in

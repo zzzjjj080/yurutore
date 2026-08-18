@@ -201,3 +201,63 @@ struct JournalTests {
         #expect(seen == [1, 2, 3, 0, 1])
     }
 }
+
+/// 「この日から記録を始めた」を本人が指定できる。
+/// 機種変前の歩数がヘルスケアに残っていると、勝手に古い日から数え始めてしまうため。
+struct StartOverrideTests {
+
+    let acts = Activity.defaults
+    let today = YMD(2026, 8, 17)
+
+    func sample() -> Journal {
+        var j = Journal()
+        j[YMD(2026, 6, 10)] = DayLog(steps: 9000, parts: [.chest: .one])
+        j[YMD(2026, 8, 3)]  = DayLog(steps: 11000, parts: [.back: .two])
+        j[YMD(2026, 8, 12)] = DayLog(steps: 8000, parts: [.leg: .one])
+        return j
+    }
+
+    @Test("指定した日が起点になる")
+    func overrideWins() {
+        let j = sample()
+        #expect(j.startDate(activities: acts) == YMD(2026, 6, 10))
+        #expect(j.startDate(activities: acts, override: YMD(2026, 8, 1)) == YMD(2026, 8, 1))
+    }
+
+    @Test("指定より前の月は集計しない")
+    func rangeRespectsOverride() {
+        let j = sample()
+        #expect(j.countedRange(year: 2026, month: 6, today: today, activities: acts) != nil)
+        #expect(j.countedRange(year: 2026, month: 6, today: today,
+                               activities: acts, override: YMD(2026, 8, 1)) == nil)
+    }
+
+    @Test("指定した月は、その日から集計する")
+    func rangeStartsAtOverride() {
+        let j = sample()
+        let r = j.countedRange(year: 2026, month: 8, today: today,
+                               activities: acts, override: YMD(2026, 8, 5))
+        #expect(r == 5...16)
+    }
+
+    @Test("設定に入れた起点が月次集計に効く")
+    func settingsCarryOverride() {
+        let j = sample()
+        var s = ScoringSettings.default
+        #expect(j.monthSummary(year: 2026, month: 6, today: today,
+                               activities: acts, settings: s).countedDays > 0)
+        s.startOverride = YMD(2026, 8, 1)
+        #expect(j.monthSummary(year: 2026, month: 6, today: today,
+                               activities: acts, settings: s).countedDays == 0)
+    }
+
+    @Test("記録より後ろの日を指定しても壊れない")
+    func overrideAfterAllRecords() {
+        let j = sample()
+        let s = ScoringSettings(startOverride: YMD(2026, 12, 1))
+        let m = j.monthSummary(year: 2026, month: 8, today: today,
+                               activities: acts, settings: s)
+        #expect(m.countedDays == 0)
+        #expect(m.passRate == nil)
+    }
+}

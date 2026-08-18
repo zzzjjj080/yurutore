@@ -66,6 +66,7 @@ struct YearGrid: View {
     }
 
     private func fill(_ date: YMD) -> Color {
+        if store.isBeforeStart(date) { return Color(.systemGray3) }
         guard !store.isFuture(date), let s = store.score(date) else {
             return Color(.tertiarySystemGroupedBackground)
         }

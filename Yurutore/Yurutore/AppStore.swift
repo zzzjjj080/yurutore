@@ -57,17 +57,18 @@ final class AppStore {
     func log(_ date: YMD) -> DayLog { journal[date] ?? DayLog() }
 
     func score(_ date: YMD) -> Int? {
-        guard let l = journal[date] else { return nil }
+        guard !isBeforeStart(date), let l = journal[date] else { return nil }
         return Scorer.score(l, activities: activities, settings: settings)
     }
 
     func isPass(_ date: YMD) -> Bool {
-        guard let l = journal[date] else { return false }
+        guard !isBeforeStart(date), let l = journal[date] else { return false }
         return Scorer.isPass(l, activities: activities, settings: settings)
     }
 
     func state(_ date: YMD) -> DayState {
-        journal[date]?.state(activities: activities) ?? .unlogged
+        if isBeforeStart(date) { return .unlogged }
+        return journal[date]?.state(activities: activities) ?? .unlogged
     }
 
     func isFuture(_ date: YMD) -> Bool { date > today }
@@ -84,7 +85,15 @@ final class AppStore {
         journal.yearSummary(year: viewYear, today: today,
                             activities: activities, settings: settings)
     }
-    var startDate: YMD? { journal.startDate(activities: activities) }
+    var startDate: YMD? {
+        journal.startDate(activities: activities, override: settings.startOverride)
+    }
+
+    /// 記録を始める前の日。点数を出さず、カレンダーでは濃いグレーにする。
+    func isBeforeStart(_ date: YMD) -> Bool {
+        guard let s = startDate else { return false }
+        return date < s
+    }
 
     // MARK: - 編集
 
@@ -189,7 +198,7 @@ final class AppStore {
     }
 
     func resetScoringSettings() {
-        settings = .default
+        settings = .default   // startOverride も nil に戻る
         activities = Activity.defaults
         save()
     }
@@ -275,4 +284,16 @@ final class AppStore {
 
     func accent(dark: Bool) -> Color { passColor.ramp(dark: dark).ink }
     func onAccent(dark: Bool) -> Color { passColor.ramp(dark: dark).onInk }
+}
+
+
+extension YMD {
+    /// DatePicker とやり取りするための変換。表示だけに使う。
+    var asDate: Date {
+        Calendar.current.date(from: DateComponents(year: year, month: month, day: day)) ?? Date()
+    }
+    init(from date: Date) {
+        let c = Calendar.current.dateComponents([.year, .month, .day], from: date)
+        self.init(c.year!, c.month!, c.day!)
+    }
 }

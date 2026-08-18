@@ -28,7 +28,8 @@ struct MonthGrid: View {
                     if let date {
                         DayCell(store: store, date: date, dark: dark)
                             .onTapGesture {
-                                guard !store.isFuture(date) else { return }
+                                // 未来と、記録を始める前の日は編集できない
+                                guard !store.isFuture(date), !store.isBeforeStart(date) else { return }
                                 Haptics.light()
                                 store.editingDate = date
                             }
@@ -52,10 +53,13 @@ struct DayCell: View {
 
     private var isToday: Bool { date == store.today }
     private var future: Bool { store.isFuture(date) }
-    private var score: Int? { future ? nil : store.score(date) }
+    private var beforeStart: Bool { store.isBeforeStart(date) }
+    private var score: Int? { (future || beforeStart) ? nil : store.score(date) }
     private var state: DayState { store.state(date) }
 
     private var fill: Color {
+        // 記録を始める前の日は、空きマスより濃いグレーで「対象外」だと示す
+        if beforeStart { return Color(.systemGray3) }
         guard let score else { return Color(.tertiarySystemGroupedBackground) }
         return store.cellColor(score: score, dark: dark)
     }
@@ -63,7 +67,7 @@ struct DayCell: View {
 
     /// 例: 9230歩・運動2つ → "9k(2)" / 休養日 → "3k(休)"
     private var subLabel: String? {
-        guard !future, let log = store.journal[date] else { return nil }
+        guard !future, !beforeStart, let log = store.journal[date] else { return nil }
         let s = log.steps >= 1000 ? "\(Int((Double(log.steps) / 1000).rounded()))k" : "\(log.steps)"
         switch state {
         case .rest:   return "\(s)(\(store.language == .en ? "R" : "休"))"
@@ -79,7 +83,7 @@ struct DayCell: View {
                 .strokeBorder(borderColor, style: .init(lineWidth: borderWidth, dash: dashed ? [3, 2] : []))
 
             VStack(spacing: 2) {
-                Text(score.map(String.init) ?? "·")
+                Text(score.map(String.init) ?? (beforeStart ? "" : "·"))
                     .font(.system(size: 19, weight: .heavy))
                     .foregroundStyle(ink)
                 if let subLabel {
@@ -118,15 +122,20 @@ struct DayCell: View {
     /// 合格色と同じ枠だと塗りに同化して見えなくなる。
     private var borderColor: Color {
         if isToday { return .primary }
-        return state == .unlogged && !future ? Color.secondary.opacity(0.6) : .clear
+        return state == .unlogged && !future && !beforeStart
+            ? Color.secondary.opacity(0.6) : .clear
     }
     private var borderWidth: CGFloat { isToday ? 3 : 1.5 }
-    private var dashed: Bool { !isToday && state == .unlogged && !future }
+    private var dashed: Bool { !isToday && state == .unlogged && !future && !beforeStart }
 
     /// 色だけに頼らず、読み上げでも合否が分かるようにする
     private var a11y: String {
         let en = store.language == .en
         var parts: [String] = []
+        if beforeStart {
+            return (en ? "\(date.month)/\(date.day) before you started"
+                       : "\(date.month)月\(date.day)日 記録開始前")
+        }
         if isToday { parts.append(en ? "Today" : "今日") }
         parts.append(en ? "\(date.month)/\(date.day)" : "\(date.month)月\(date.day)日")
         if let score {
