@@ -116,6 +116,28 @@ struct ScoringTests {
         #expect(Scorer.exerciseScore(count: 6, settings: hard) == 60)
     }
 
+    @Test("合格ラインを上げると、目標ラインも一緒に押し出される")
+    func passLinePushesGoal() {
+        var s = ScoringSettings.default        // 10000 / 16000、2 / 3
+        s.setPassSteps(20000)
+        #expect(s.goalSteps == 26000, "6000の差が保たれていない")
+        #expect(Scorer.stepScore(steps: 20000, settings: s) == 40)
+
+        s.setPassExercises(4)
+        #expect(s.goalExercises == 5)
+        #expect(Scorer.exerciseScore(count: 4, settings: s) == 40)
+
+        // 下げるときは目標を動かさない
+        s.setPassSteps(5000)
+        #expect(s.goalSteps == 26000)
+
+        // 選択肢の上限を超えない
+        var top = ScoringSettings.default
+        top.setPassSteps(30000)
+        #expect(top.goalSteps <= 30000)
+        #expect(Scorer.stepScore(steps: 30000, settings: top) <= Scorer.goalPoints)
+    }
+
     @Test("合格ラインを両方満たせば、設定をどう変えても80点")
     func passLineHoldsForAnySettings() {
         let cases = [

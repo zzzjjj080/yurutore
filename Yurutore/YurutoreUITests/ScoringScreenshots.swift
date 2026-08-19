@@ -21,6 +21,26 @@ final class ScoringScreenshots: XCTestCase {
         add(a)
     }
 
+    /// 初回説明の最後（合格ラインを決める画面）まで進んで撮る。
+    /// 事前に `xcrun simctl uninstall` しておくこと。記録が残っていると出ない。
+    func testOnboardingSetup() {
+        let app = XCUIApplication()
+        app.launch()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15))
+
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let deny = springboard.buttons["許可しない"]
+        if deny.waitForExistence(timeout: 6) { deny.tap() }
+        sleep(1)
+
+        for i in 0..<3 {
+            save(app, "ob-\(i)")
+            app.buttons["次へ"].firstMatch.tap()
+            sleep(1)
+        }
+        save(app, "ob-3-setup")
+    }
+
     func testScoringTab() {
         let app = XCUIApplication()
         app.launchEnvironment["YURUTORE_DEMO"] = "1"

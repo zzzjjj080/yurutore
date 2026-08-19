@@ -42,6 +42,23 @@ public struct ScoringSettings: Codable, Equatable, Sendable {
     public var safeGoalSteps: Int { max(passSteps + 1000, goalSteps) }
     public var safeGoalExercises: Int { max(passExercises + 1, goalExercises) }
 
+    /// 合格ラインだけを動かすときは、目標ラインも押し出す。
+    ///
+    /// 設定画面は「目標より下」しか選ばせないので問題にならないが、
+    /// 初回設定では合格ラインだけを聞く。そこで目標を追い越せてしまうと、
+    /// 本人の知らないところで目標ラインが無効になる。
+    public mutating func setPassSteps(_ v: Int) {
+        let gap = max(1000, goalSteps - passSteps)
+        passSteps = v
+        if goalSteps <= v { goalSteps = min(Self.stepChoices.last ?? v + gap, v + gap) }
+    }
+
+    public mutating func setPassExercises(_ v: Int) {
+        let gap = max(1, goalExercises - passExercises)
+        passExercises = v
+        if goalExercises <= v { goalExercises = min(Self.exerciseChoices.last ?? v + gap, v + gap) }
+    }
+
     // MARK: - 保存データの読み込み
 
     private enum CodingKeys: String, CodingKey {

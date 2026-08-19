@@ -213,8 +213,8 @@ enum L {
                   body: "Steps come in automatically from Health.\nAll you tap is which body parts you worked and other exercise. Each tap cycles ×1 → ×2 → ×3.\n\nNo weights, no reps, not even duration."),
             .init(title: "80 is a pass",
                   body: "Steps and exercise are each worth 40 points when they reach their pass line, so a day that reaches both scores 80 and passes. The calendar colour changes, and at the end of the month you can see how many days you managed.\n\nWalking alone is not a pass, and neither is exercise alone. The point is to keep doing both."),
-            .init(title: "Then tune it to you",
-                  body: "The pass lines and the list of exercises can all be changed later in settings. The same target cannot suit someone who walks 5,000 steps and someone who walks 15,000.\n\nUse the defaults for a week or two, and if it feels too strict or too easy, go and adjust them.")
+            .init(title: "Set your pass line",
+                  body: "The same target cannot suit someone who walks 5,000 steps and someone who walks 15,000. So decide yours now.\n\nIf you are not sure, leave it as it is. Everything here can be changed later in settings.")
         ] : [
             .init(title: "健康を、ざっくり続けるために",
                   body: "ある程度は体を動かしたい。でも重さも回数も記録するアプリは、正直3日で嫌になりました。\n\nほしかったのは、5秒で入れられて、1か月を一目で見渡せるもの。なかったので自分用に作りました。"),
@@ -222,11 +222,17 @@ enum L {
                   body: "歩数はヘルスケアから勝手に入ります。\nあなたが押すのは動かした部位とその他の運動だけ。押すたびに ×1 → ×2 → ×3 と増えます。\n\n重さも回数も、時間すら入れません。"),
             .init(title: "80点が合格",
                   body: "歩数と運動には、それぞれ「合格ライン」があります。どちらも届くと40点＋40点で80点、その日は合格です。カレンダーの色が変わるので、月末に「今月は何日できたか」が一目で分かります。\n\n歩いただけ、運動しただけでは合格になりません。両方をぼちぼち続けるためです。"),
-            .init(title: "あとは自分に合わせて",
-                  body: "合格ラインも運動の種類も、あとから設定でいくらでも変えられます。普段5000歩の人と15000歩の人で、同じ基準はおかしいからです。\n\n最初の1〜2週間は既定のまま使ってみて、「ちょっと厳しいな」「ゆるすぎるな」と思ったら設定を触ってください。それでちょうどよくなります。")
+            .init(title: "合格ラインを決めましょう",
+                  body: "普段5000歩の人と15000歩の人で、同じ基準はおかしいからです。ここで自分の線を決めてください。\n\n迷ったらそのままで大丈夫です。あとから設定でいくらでも変えられます。")
         ]
     }
     static func obNext(_ l: AppLanguage) -> String  { t("次へ", "Next", l) }
-    static func obStart(_ l: AppLanguage) -> String { t("はじめる", "Start", l) }
+    static func obStart(_ l: AppLanguage) -> String { t("この設定ではじめる", "Start with this", l) }
     static func obSkip(_ l: AppLanguage) -> String  { t("とばす", "Skip", l) }
+    static func obWalk(_ l: AppLanguage) -> String  { t("1日にこれくらい歩きたい", "Steps I want each day", l) }
+    static func obMove(_ l: AppLanguage) -> String  { t("1日にこれくらい運動したい", "Exercise I want each day", l) }
+    static func obLater(_ l: AppLanguage) -> String {
+        t("目標ライン（\(Scorer.goalPoints)点）や運動の種類は、設定であとから決められます。",
+          "Goal lines (\(Scorer.goalPoints) points) and the exercise list can be set later.", l)
+    }
 }
