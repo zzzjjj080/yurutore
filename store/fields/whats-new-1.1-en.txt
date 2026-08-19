@@ -1,0 +1,20 @@
+Scoring is now yours to set.
+
+■ Set your own pass line
+Steps and exercise each get a pass line and a goal line. The pass line is worth 40 points, the goal line 60. A day that reaches both pass lines scores 80 — a pass.
+So "10,000 steps and two exercises is a good day" goes in exactly as you would say it.
+Settings now shows a score table in 1,000-step rows. Move a line and the table redraws, so you can see what your days will score before you commit.
+The old scoring modes (balanced, steps first, exercise first) have been removed.
+
+■ Choose the day you started
+Set the day you began keeping the diary. Days before it turn dark grey and stay out of your scores and pass rate.
+This matters if you moved to a new phone and Health carried over months of old step data.
+
+■ Fixed: step count not refreshing
+If you left the app open past midnight, the calendar kept yesterday as "today". Steps were also not re-read when you came back from another app.
+Both now refresh when the date changes and whenever you return to the app.
+
+■ About past scores
+Changing the pass lines does not move scores on days already settled (older than three days), so your history stays put. If you do want past days recalculated, there is a button for it under Settings → Scoring.
+
+Note: this update resets the step settings to their defaults (pass 10,000, goal 16,000), because the way scores are calculated has changed. Your records are kept.
