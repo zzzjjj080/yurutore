@@ -48,7 +48,7 @@ struct CSVTests {
         let csv = CSVFormat.export(j, activities: acts, settings: settings)
 
         // 設定を変えてから読み込む
-        var changed = settings; changed.mode = .exerciseFirst; changed.lowerSteps = 4000
+        var changed = settings; changed.passSteps = 4000; changed.goalSteps = 7000
         let result = try CSVFormat.import(csv, activities: acts)
         let after = Scorer.score(result.journal[date]!, activities: acts, settings: changed)
         #expect(after == before, "読み込みで過去の点数が書き換わった")

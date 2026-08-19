@@ -33,14 +33,14 @@ struct JournalTests {
         #expect(j[YMD(2026, 8, 14)]?.lockedScore == nil)  // 今日
     }
 
-    @Test("確定した日は採点モードを変えても動かない")
-    func lockedScoreSurvivesModeChange() {
+    @Test("確定した日は合格ラインを変えても動かない")
+    func lockedScoreSurvivesSettingsChange() {
         var j = sample()
         j.settleAll(today: today, activities: acts, settings: settings)
         let settled = Scorer.score(j[YMD(2026, 8, 1)]!, activities: acts, settings: settings)
         let unsettled = Scorer.score(j[YMD(2026, 8, 13)]!, activities: acts, settings: settings)
 
-        var changed = settings; changed.mode = .exerciseFirst
+        var changed = settings; changed.passSteps = 4000; changed.goalSteps = 7000
         #expect(Scorer.score(j[YMD(2026, 8, 1)]!, activities: acts, settings: changed) == settled,
                 "確定済みの日が動いた")
         #expect(Scorer.score(j[YMD(2026, 8, 13)]!, activities: acts, settings: changed) != unsettled,

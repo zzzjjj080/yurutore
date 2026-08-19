@@ -177,44 +177,74 @@ struct SettingsSheet: View {
 
     private var scoringTab: some View {
         Group {
-            section(L.scoreMode(lang)) {
-                ForEach(ScoringMode.allCases, id: \.self) { m in
-                    Button {
-                        Haptics.medium(); store.settings.mode = m; store.save()
-                    } label: {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(L.modeName(m, lang)).font(.system(size: 14, weight: .heavy))
-                                    .foregroundStyle(store.settings.mode == m
-                                                     ? store.accent(dark: dark) : .primary)
-                                Text(L.modeDesc(m, lang)).font(.system(size: 11, weight: .semibold))
-                                    .foregroundStyle(.secondary)
-                            }
-                            Spacer()
-                            Text("\(m.stepSpan) / \(m.exerciseSpan)")
-                                .font(.system(size: 10, weight: .bold)).foregroundStyle(.secondary)
-                        }
-                        .padding(12)
-                        .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 12))
-                        .overlay(RoundedRectangle(cornerRadius: 12)
-                            .strokeBorder(store.settings.mode == m ? store.accent(dark: dark) : .clear,
-                                          lineWidth: 1.5))
+            // 最初にやる作業がこれなので、いちばん上に置く。
+            section(L.lineTitle(lang)) {
+                hint(L.lineHint(lang))
+
+                lineGroup(L.stepsGroup(lang), systemImage: "figure.walk") {
+                    // 目標が合格を下回る組み合わせは、そもそも選択肢に出さない
+                    lineRow(L.passLineLabel(lang)) {
+                        Picker("", selection: $store.settings.passSteps) {
+                            ForEach(ScoringSettings.stepChoices.filter { $0 < store.settings.goalSteps },
+                                    id: \.self) { Text("\($0.formatted())").tag($0) }
+                        }.onChange(of: store.settings.passSteps) { store.save() }
                     }
-                    .buttonStyle(.plain)
+                    lineRow(L.goalLineLabel(lang)) {
+                        Picker("", selection: $store.settings.goalSteps) {
+                            ForEach(ScoringSettings.stepChoices.filter { $0 > store.settings.passSteps },
+                                    id: \.self) { Text("\($0.formatted())").tag($0) }
+                        }.onChange(of: store.settings.goalSteps) { store.save() }
+                    }
                 }
+
+                lineGroup(L.exGroup(lang), systemImage: "dumbbell.fill") {
+                    lineRow(L.passLineLabel(lang)) {
+                        Picker("", selection: $store.settings.passExercises) {
+                            ForEach(ScoringSettings.exerciseChoices.filter { $0 < store.settings.goalExercises },
+                                    id: \.self) { Text(L.exCount($0, lang)).tag($0) }
+                        }.onChange(of: store.settings.passExercises) { store.save() }
+                    }
+                    lineRow(L.goalLineLabel(lang)) {
+                        Picker("", selection: $store.settings.goalExercises) {
+                            ForEach(ScoringSettings.exerciseChoices.filter { $0 > store.settings.passExercises },
+                                    id: \.self) { Text(L.exCount($0, lang)).tag($0) }
+                        }.onChange(of: store.settings.goalExercises) { store.save() }
+                    }
+                    Text(L.perExercise(Scorer.passPoints / max(1, store.settings.passExercises), lang))
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                }
+
+                // いま何が合格なのかを1行で。設定をいじる間ずっと見えている。
+                Text(L.lineSummary(steps: store.settings.passSteps,
+                                   ex: store.settings.passExercises, lang))
+                    .font(.system(size: 13, weight: .heavy))
+                    .foregroundStyle(store.accent(dark: dark))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(12)
+                    .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 12))
             }
 
-            section(L.stepGoal(lang)) {
-                hint(L.stepHint(Scorer.baseScore, lang))
-                // 上限が下限を下回る組み合わせは、そもそも選択肢に出さない
-                Picker(L.lower(lang), selection: $store.settings.lowerSteps) {
-                    ForEach(ScoringSettings.stepChoices.filter { $0 < store.settings.upperSteps },
-                            id: \.self) { Text($0.formatted()).tag($0) }
-                }.onChange(of: store.settings.lowerSteps) { store.save() }
-                Picker(L.upper(lang), selection: $store.settings.upperSteps) {
-                    ForEach(ScoringSettings.stepChoices.filter { $0 > store.settings.lowerSteps },
-                            id: \.self) { Text($0.formatted()).tag($0) }
-                }.onChange(of: store.settings.upperSteps) { store.save() }
+            section(L.matrixTitle(lang)) {
+                hint(L.matrixHint(lang))
+                ScoreMatrix(store: store, dark: dark)
+            }
+
+            section(L.recalcTitle(lang)) {
+                hint(L.recalcHint(lang))
+                Button {
+                    Haptics.medium()
+                    let n = store.recomputeAffectedDays
+                    confirm = .init(title: L.recalcConfirmTitle(lang),
+                                    message: L.recalcConfirmBody(n, lang)) {
+                        store.recomputeAllScores()
+                    }
+                } label: {
+                    Text(L.recalcBtn(lang)).font(.system(size: 14, weight: .heavy))
+                        .frame(maxWidth: .infinity).frame(height: 46)
+                        .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 12))
+                        .foregroundStyle(.orange)
+                }
             }
 
             section(L.startLabel(lang)) {
@@ -263,16 +293,36 @@ struct SettingsSheet: View {
                 }
             }
 
-            section(L.matrixTitle(lang)) {
-                hint(L.matrixHint(lang))
-                ScoreMatrix(store: store, dark: dark)
-            }
-
             resetButton(L.resetDefaults(lang),
-                        message: L.t("採点モード・歩数の目安・その他の運動を、最初の設定に戻します。見た目の設定と記録はそのままです。",
-                                     "Reset scoring mode, step targets and exercises. Display settings and your records are kept.", lang)) {
+                        message: L.t("合格ライン・目標ライン・記録の開始日・その他の運動を、最初の設定に戻します。見た目の設定と記録はそのままです。",
+                                     "Reset the pass and goal lines, the start date and the exercise list. Display settings and your records are kept.", lang)) {
                 store.resetScoringSettings()
             }
+        }
+    }
+
+    /// 「歩数」「運動の数」のように、合格ラインと目標ラインを1組にして囲う。
+    /// 2つで1つの意味なので、離して並べると読み違える。
+    private func lineGroup<C: View>(_ title: String, systemImage: String,
+                                    @ViewBuilder content: () -> C) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Label(title, systemImage: systemImage)
+                .font(.system(size: 12, weight: .heavy))
+                .foregroundStyle(store.accent(dark: dark))
+            content()
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 12))
+    }
+
+    /// Picker に渡したラベルはメニュー形式だと表示されないので、自分で左に置く。
+    /// 「合格」と「目標」のどちらを触っているのか分からなくなるのを防ぐ。
+    private func lineRow<C: View>(_ label: String, @ViewBuilder picker: () -> C) -> some View {
+        HStack(spacing: 8) {
+            Text(label).font(.system(size: 13, weight: .bold))
+            Spacer(minLength: 4)
+            picker()
         }
     }
 
@@ -436,36 +486,54 @@ struct ScoreMatrix: View {
     let store: AppStore
     let dark: Bool
 
+    private var pass: Int { store.settings.passSteps }
+    private var goal: Int { store.settings.safeGoalSteps }
+    private var maxExercises: Int { Scorer.exerciseCap(store.settings) }
+
+    /// 1000歩刻み。合格ラインの手前から目標ラインの少し先まで。
+    /// 全部載せると長すぎるので、意味のある帯だけ見せる。
     private var rows: [Int] {
-        let lo = store.settings.lowerSteps, hi = store.settings.safeUpperSteps
-        let step = Double(hi - lo) / 4
-        var v = [Double(lo) - step]
-        v += (0...4).map { Double(lo) + step * Double($0) }
-        v.append(Double(hi) + step)
-        return Array(Set(v.map { max(0, Int(($0 / 100).rounded()) * 100) })).sorted()
+        stride(from: max(0, pass - 3000), through: goal + 2000, by: 1000).map { $0 }
+    }
+
+    /// 行の左端に付ける印。どの行が合格でどの行が目標かを分かるようにする。
+    private func mark(_ steps: Int) -> String? {
+        if steps == pass { return "\(Scorer.passPoints)" }
+        if steps == goal { return "\(Scorer.goalPoints)" }
+        return nil
     }
 
     var body: some View {
         Grid(horizontalSpacing: 3, verticalSpacing: 3) {
             GridRow {
-                Text("").frame(width: 46)
-                ForEach(0...3, id: \.self) { c in
-                    Text(c == 3 ? "3+" : "\(c)")
+                Text("").frame(width: 68)
+                ForEach(0...maxExercises, id: \.self) { c in
+                    Text(c == maxExercises ? "\(c)+" : "\(c)")
                         .font(.system(size: 10, weight: .heavy)).foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity)
                 }
             }
             ForEach(rows, id: \.self) { steps in
                 GridRow {
-                    Text(steps.formatted())
-                        .font(.system(size: 10, weight: .bold)).monospacedDigit()
-                        .foregroundStyle(.secondary)
-                        .frame(width: 46, alignment: .trailing)
-                    ForEach(0...3, id: \.self) { n in
+                    HStack(spacing: 3) {
+                        if let m = mark(steps) {
+                            Text(m).font(.system(size: 8, weight: .heavy))
+                                .foregroundStyle(store.onAccent(dark: dark))
+                                .padding(.horizontal, 3).padding(.vertical, 1)
+                                .background(store.accent(dark: dark), in: .rect(cornerRadius: 3))
+                        }
+                        Text(steps.formatted())
+                            .font(.system(size: 10, weight: mark(steps) != nil ? .heavy : .bold))
+                            .monospacedDigit()
+                            .lineLimit(1)          // 印が付く行で折り返さないように
+                            .foregroundStyle(mark(steps) != nil ? Color.primary : .secondary)
+                    }
+                    .frame(width: 68, alignment: .trailing)
+                    ForEach(0...maxExercises, id: \.self) { n in
                         let s = sample(steps: steps, exercises: n)
                         Text("\(s)")
                             .font(.system(size: 13, weight: .heavy)).monospacedDigit()
-                            .frame(maxWidth: .infinity).frame(height: 33)
+                            .frame(maxWidth: .infinity).frame(height: 30)
                             .background(store.cellColor(score: s, dark: dark),
                                         in: .rect(cornerRadius: 7))
                             .foregroundStyle(Color.cellInk)

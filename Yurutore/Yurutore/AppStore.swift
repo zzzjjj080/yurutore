@@ -221,6 +221,26 @@ final class AppStore {
         save()
     }
 
+    // MARK: - 過去の点数の付け直し
+
+    /// 設定を変えても確定済みの日は動かない。それが既定の動きなので、
+    /// 過去も新しい設定で揃えたいときだけ、ここから明示的にやる。
+    func recomputeAllScores() {
+        for date in journal.days.keys {
+            journal.days[date]?.lockedScore = nil
+        }
+        journal.settleAll(today: today, activities: activities, settings: settings)
+        save()
+    }
+
+    /// 付け直すと点数が変わる日の数。実行前に見せる。
+    var recomputeAffectedDays: Int {
+        journal.days.values.reduce(into: 0) { n, log in
+            guard let locked = log.lockedScore else { return }
+            if Scorer.liveScore(log, activities: activities, settings: settings) != locked { n += 1 }
+        }
+    }
+
     // MARK: - 保存
 
     private struct Persisted: Codable {

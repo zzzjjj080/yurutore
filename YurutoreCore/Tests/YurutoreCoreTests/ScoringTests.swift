@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import YurutoreCore
 
@@ -20,44 +21,62 @@ struct ScoringTests {
         return log
     }
 
-    // MARK: - 決めた5点
+    // MARK: - 合格ラインの決まり
 
-    @Test("設計時に決めた5つの条件をすべて満たす")
-    func anchors() {
-        #expect(Scorer.autoScore(day(steps: 8000,  exercises: 0), activities: acts, settings: settings) == 20)
-        #expect(Scorer.autoScore(day(steps: 10000, exercises: 2), activities: acts, settings: settings) == 80)
-        #expect(Scorer.autoScore(day(steps: 16000, exercises: 0), activities: acts, settings: settings) == 80)
-        #expect(Scorer.autoScore(day(steps: 8000,  exercises: 3), activities: acts, settings: settings) == 80)
-        #expect(Scorer.autoScore(day(steps: 13000, exercises: 3), activities: acts, settings: settings) == 100)
+    @Test("合格ライン同士を足すとちょうど80点になる")
+    func passLineIsTheSumOfBothPassLines() {
+        #expect(Scorer.passLine == 80)
+        #expect(Scorer.stepScore(steps: settings.passSteps, settings: settings) == 40)
+        #expect(Scorer.exerciseScore(count: settings.passExercises, settings: settings) == 40)
+        #expect(Scorer.autoScore(day(steps: 10000, exercises: 2),
+                                 activities: acts, settings: settings) == 80)
+        #expect(Scorer.isPass(day(steps: 10000, exercises: 2), activities: acts, settings: settings))
     }
 
-    @Test("合格ラインは80で固定")
-    func passLineIsFixed() {
-        #expect(Scorer.passLine == 80)
-        #expect(Scorer.isPass(day(steps: 10000, exercises: 2), activities: acts, settings: settings))
-        #expect(!Scorer.isPass(day(steps: 10000, exercises: 1), activities: acts, settings: settings))
+    @Test("目標ラインはどちらも60点")
+    func goalLineIsSixty() {
+        #expect(Scorer.stepScore(steps: settings.goalSteps, settings: settings) == 60)
+        #expect(Scorer.exerciseScore(count: settings.goalExercises, settings: settings) == 60)
+    }
+
+    @Test("片方だけでは合格できない")
+    func oneAxisAloneCannotPass() {
+        // 歩数をいくら伸ばしても60点止まり
+        #expect(Scorer.autoScore(day(steps: 40000, exercises: 0),
+                                 activities: acts, settings: settings) == 60)
+        // 運動だけでも同じ
+        #expect(Scorer.autoScore(day(steps: 0, exercises: 6),
+                                 activities: acts, settings: settings) == 60)
+    }
+
+    @Test("既定の設定での代表的な組み合わせ")
+    func defaultTable() {
+        #expect(Scorer.autoScore(day(steps: 0,     exercises: 0), activities: acts, settings: settings) == 0)
+        #expect(Scorer.autoScore(day(steps: 5000,  exercises: 0), activities: acts, settings: settings) == 20)
+        #expect(Scorer.autoScore(day(steps: 10000, exercises: 1), activities: acts, settings: settings) == 60)
+        #expect(Scorer.autoScore(day(steps: 8000,  exercises: 3), activities: acts, settings: settings) == 92)
+        #expect(Scorer.autoScore(day(steps: 13000, exercises: 3), activities: acts, settings: settings) == 100)
     }
 
     // MARK: - 打ち止め
 
-    @Test("歩数は上限を超えても伸びない")
+    @Test("歩数は目標ラインを超えても伸びない")
     func stepsCap() {
         let at   = Scorer.stepScore(steps: 16000, settings: settings)
         let over = Scorer.stepScore(steps: 40000, settings: settings)
-        #expect(at == 80)
+        #expect(at == 60)
         #expect(at == over)
     }
 
-    @Test("歩数は下限を下回っても20点より下がらない")
+    @Test("歩数0は0点")
     func stepsFloor() {
-        #expect(Scorer.stepScore(steps: 8000, settings: settings) == 20)
-        #expect(Scorer.stepScore(steps: 0,    settings: settings) == 20)
+        #expect(Scorer.stepScore(steps: 0, settings: settings) == 0)
     }
 
-    @Test("運動は3つで頭打ち", arguments: [3, 4, 8, 15])
+    @Test("運動は目標ラインで頭打ち", arguments: [3, 4, 8, 15])
     func exerciseCap(_ n: Int) {
-        #expect(Scorer.autoScore(day(steps: 8000, exercises: n),
-                                 activities: acts, settings: settings) == 80)
+        #expect(Scorer.exerciseScore(count: n, settings: settings) == 60)
+        #expect(Scorer.exerciseCap(settings) == 3)
     }
 
     @Test("合計は100を超えない")
@@ -66,32 +85,50 @@ struct ScoringTests {
                                  activities: acts, settings: settings) == 100)
     }
 
-    // MARK: - モード
+    // MARK: - 設定を変えたとき
 
-    @Test("モードは配分だけを変え、下駄と満点は共通")
-    func modes() {
-        for mode in ScoringMode.allCases {
-            var s = settings; s.mode = mode
-            #expect(Scorer.autoScore(day(steps: 8000, exercises: 0), activities: acts, settings: s) == 20,
-                    "\(mode) の下駄が20でない")
-            #expect(Scorer.stepScore(steps: 8000, settings: s) == 20)
-            #expect(Scorer.maxStepScore(settings: s) == 20 + mode.stepSpan)
+    @Test("歩数のラインを変えると、その2点がちょうど40点と60点になる")
+    func customStepLines() {
+        var s = ScoringSettings(passSteps: 6000, goalSteps: 12000)
+        #expect(Scorer.stepScore(steps: 6000,  settings: s) == 40)
+        #expect(Scorer.stepScore(steps: 12000, settings: s) == 60)
+        #expect(Scorer.stepScore(steps: 3000,  settings: s) == 20)  // 合格ラインの半分
+        #expect(Scorer.stepScore(steps: 9000,  settings: s) == 50)  // 合格と目標の中間
+
+        // 目標が合格を下回っても壊れない
+        s = ScoringSettings(passSteps: 10000, goalSteps: 3000)
+        #expect(Scorer.stepScore(steps: 10000, settings: s) == 40)
+        #expect(Scorer.stepScore(steps: 99999, settings: s) == 60)
+    }
+
+    @Test("運動のラインを変えると、1種目あたりの点が変わる")
+    func customExerciseLines() {
+        // 合格1種目・目標2種目にすると、1種目で40点
+        let easy = ScoringSettings(passExercises: 1, goalExercises: 2)
+        #expect(Scorer.exerciseScore(count: 1, settings: easy) == 40)
+        #expect(Scorer.exerciseScore(count: 2, settings: easy) == 60)
+        #expect(Scorer.exerciseScore(count: 3, settings: easy) == 60)
+
+        // 合格4種目・目標6種目にすると、1種目は10点
+        let hard = ScoringSettings(passExercises: 4, goalExercises: 6)
+        #expect(Scorer.exerciseScore(count: 1, settings: hard) == 10)
+        #expect(Scorer.exerciseScore(count: 4, settings: hard) == 40)
+        #expect(Scorer.exerciseScore(count: 6, settings: hard) == 60)
+    }
+
+    @Test("合格ラインを両方満たせば、設定をどう変えても80点")
+    func passLineHoldsForAnySettings() {
+        let cases = [
+            ScoringSettings(passSteps: 4000,  goalSteps: 9000,  passExercises: 1, goalExercises: 2),
+            ScoringSettings(passSteps: 12000, goalSteps: 20000, passExercises: 3, goalExercises: 5),
+            ScoringSettings(passSteps: 7000,  goalSteps: 8000,  passExercises: 5, goalExercises: 6),
+        ]
+        for s in cases {
+            let log = day(steps: s.passSteps, exercises: s.passExercises)
+            #expect(Scorer.autoScore(log, activities: acts, settings: s) == 80,
+                    "\(s.passSteps)歩 + \(s.passExercises)種目 が80点にならない")
+            #expect(Scorer.isPass(log, activities: acts, settings: s))
         }
-    }
-
-    @Test("歩数重視では歩かないと合格できない")
-    func stepsFirstMode() {
-        var s = settings; s.mode = .stepsFirst
-        // 運動を上限までやっても、下限歩数のままでは届かない
-        #expect(Scorer.autoScore(day(steps: 8000, exercises: 3), activities: acts, settings: s) < 80)
-        #expect(Scorer.autoScore(day(steps: 16000, exercises: 0), activities: acts, settings: s) >= 80)
-    }
-
-    @Test("運動重視では歩くだけでは合格できない")
-    func exerciseFirstMode() {
-        var s = settings; s.mode = .exerciseFirst
-        #expect(Scorer.autoScore(day(steps: 30000, exercises: 0), activities: acts, settings: s) < 80)
-        #expect(Scorer.autoScore(day(steps: 8000, exercises: 3), activities: acts, settings: s) >= 80)
     }
 
     // MARK: - 部位とその他の運動の等価性
@@ -114,10 +151,10 @@ struct ScoringTests {
 
     @Test("設定から消された運動は数に入らない")
     func unknownActivityIgnored() {
-        var log = DayLog(steps: 8000)
-        log.activities = ["radio": .three, "deleted-one": .three]
-        // radio しか設定に無いので3つぶんだけ数える
-        #expect(log.exerciseCount(activities: acts) == 3)
+        var log = DayLog(steps: 10000)
+        log.activities = ["radio": .two, "deleted-one": .three]
+        // radio しか設定に無いので2つぶんだけ数える
+        #expect(log.exerciseCount(activities: acts) == 2)
         #expect(Scorer.autoScore(log, activities: acts, settings: settings) == 80)
     }
 
@@ -138,24 +175,41 @@ struct ScoringTests {
         #expect(Scorer.manualChoices == [20, 30, 40, 50, 60, 70, 80, 90, 100])
     }
 
-    // MARK: - 歩数の設定
-
-    @Test("下限と上限を変えると、その両端がちょうど20点と上限点になる")
-    func customStepRange() {
-        var s = ScoringSettings(lowerSteps: 5000, upperSteps: 11000)
-        #expect(Scorer.stepScore(steps: 5000,  settings: s) == 20)
-        #expect(Scorer.stepScore(steps: 11000, settings: s) == 80)
-        #expect(Scorer.stepScore(steps: 8000,  settings: s) == 50)  // ちょうど中間
-
-        // 上限が下限を下回っても壊れない
-        s = ScoringSettings(lowerSteps: 10000, upperSteps: 3000)
-        #expect(Scorer.stepScore(steps: 9000, settings: s) == 20)
-    }
+    // MARK: - 選択肢
 
     @Test("選べる歩数は3000〜30000の1000刻み")
     func stepChoices() {
         #expect(ScoringSettings.stepChoices.first == 3000)
         #expect(ScoringSettings.stepChoices.last == 30000)
         #expect(ScoringSettings.stepChoices.count == 28)
+    }
+
+    @Test("選べる運動の数は1〜6")
+    func exerciseChoices() {
+        #expect(ScoringSettings.exerciseChoices == [1, 2, 3, 4, 5, 6])
+    }
+
+    // MARK: - 保存データの互換
+
+    @Test("旧版の保存データを読んでも失敗しない")
+    func decodesOldFormat() throws {
+        // 旧版は lowerSteps / upperSteps / mode を書いていた。
+        // ここで失敗すると記録が丸ごと消えるので、必ず読めること。
+        let old = """
+        {"lowerSteps":8000,"upperSteps":16000,"mode":"balanced",
+         "startOverride":{"year":2026,"month":8,"day":1}}
+        """
+        let s = try JSONDecoder().decode(ScoringSettings.self, from: Data(old.utf8))
+        #expect(s == ScoringSettings(startOverride: YMD(2026, 8, 1)))
+        #expect(s.startOverride == YMD(2026, 8, 1))
+    }
+
+    @Test("書き出したものはそのまま読み戻せる")
+    func roundTrip() throws {
+        let s = ScoringSettings(passSteps: 7000, goalSteps: 14000,
+                                passExercises: 3, goalExercises: 5,
+                                startOverride: YMD(2026, 1, 15))
+        let data = try JSONEncoder().encode(s)
+        #expect(try JSONDecoder().decode(ScoringSettings.self, from: data) == s)
     }
 }

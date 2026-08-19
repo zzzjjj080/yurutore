@@ -112,22 +112,53 @@ enum L {
           "A quiet nudge, only on days you have not logged any exercise yet. Nothing on days you already logged, or rest days. Being nagged every night is not very relaxed, so this is off by default.", l)
     }
     static func reminderTime(_ l: AppLanguage) -> String { t("知らせる時刻", "Time", l) }
-    static func scoreMode(_ l: AppLanguage) -> String  { t("採点モード", "Scoring mode", l) }
-    static func modeName(_ m: ScoringMode, _ l: AppLanguage) -> String {
-        switch m {
-        case .balanced:      t("バランス", "Balanced", l)
-        case .stepsFirst:    t("歩数重視", "Steps first", l)
-        case .exerciseFirst: t("運動重視", "Exercise first", l)
-        }
+    // MARK: - 合格ラインの設定
+
+    static func lineTitle(_ l: AppLanguage) -> String {
+        t("\(Scorer.passLine)点のラインを決める", "Set the \(Scorer.passLine)-point line", l)
     }
-    static func modeDesc(_ m: ScoringMode, _ l: AppLanguage) -> String {
-        switch m {
-        case .balanced:      t("歩数と運動を同じ重みで見る", "Steps and exercise count equally", l)
-        case .stepsFirst:    t("よく歩いた日が伸びる", "Days you walked a lot score higher", l)
-        case .exerciseFirst: t("運動をこなした日が伸びる", "Days you exercised score higher", l)
-        }
+    static func lineHint(_ l: AppLanguage) -> String {
+        t("歩数と運動に、それぞれ「合格ライン」と「目標ライン」を決めます。\n合格ラインで\(Scorer.passPoints)点、目標ラインで\(Scorer.goalPoints)点。\n両方が合格ラインに届いた日が\(Scorer.passLine)点＝合格です。\n片方だけでは合格になりません。歩くことと体を動かすこと、両方を続けるためです。",
+          "Set a pass line and a goal line, for steps and for exercise.\nThe pass line is worth \(Scorer.passPoints) points, the goal line \(Scorer.goalPoints).\nA day that reaches both pass lines scores \(Scorer.passLine) — a pass.\nOne of them alone is not enough: the point is to keep doing both.", l)
     }
-    static func stepGoal(_ l: AppLanguage) -> String { t("歩数の目安", "Step targets", l) }
+    static func stepsGroup(_ l: AppLanguage) -> String { t("歩数", "Steps", l) }
+    static func exGroup(_ l: AppLanguage) -> String    { t("運動の数", "Exercises", l) }
+    static func passLineLabel(_ l: AppLanguage) -> String {
+        t("合格ライン（\(Scorer.passPoints)点）", "Pass line (\(Scorer.passPoints))", l)
+    }
+    static func goalLineLabel(_ l: AppLanguage) -> String {
+        t("目標ライン（\(Scorer.goalPoints)点）", "Goal line (\(Scorer.goalPoints))", l)
+    }
+    static func exCount(_ n: Int, _ l: AppLanguage) -> String {
+        t("\(n)種目", n == 1 ? "1 exercise" : "\(n) exercises", l)
+    }
+    static func lineSummary(steps: Int, ex: Int, _ l: AppLanguage) -> String {
+        t("\(steps.formatted())歩 ＋ \(ex)種目 ＝ \(Scorer.passLine)点（合格）",
+          "\(steps.formatted()) steps + \(exCount(ex, l)) = \(Scorer.passLine) (pass)", l)
+    }
+    static func perExercise(_ points: Int, _ l: AppLanguage) -> String {
+        t("運動1種目につき約\(points)点", "About \(points) points per exercise", l)
+    }
+    static func recalcTitle(_ l: AppLanguage) -> String {
+        t("過去の点数", "Past scores", l)
+    }
+    static func recalcHint(_ l: AppLanguage) -> String {
+        t("確定した日（\(Journal.graceDays)日より前）の点数は、設定を変えても動きません。見返すたびに過去が変わっては困るからです。\n過去も新しい設定で付け直したいときだけ、下のボタンを押してください。",
+          "Days already settled (older than \(Journal.graceDays) days) keep their score when you change these settings, so your history does not shift under you.\nUse the button below only if you want past days recalculated too.", l)
+    }
+    static func recalcBtn(_ l: AppLanguage) -> String {
+        t("過去の点数も計算し直す", "Recalculate past scores", l)
+    }
+    static func recalcConfirmTitle(_ l: AppLanguage) -> String {
+        t("過去の点数を計算し直しますか？", "Recalculate past scores?", l)
+    }
+    static func recalcConfirmBody(_ n: Int, _ l: AppLanguage) -> String {
+        n == 0
+        ? t("いまの設定では、確定済みの日の点数は変わりません。",
+            "With the current settings, no settled day would change.", l)
+        : t("確定済みのうち\(n)日ぶんの点数が、いまの設定で変わります。元には戻せません。\n手入力した点数と記録そのものは変わりません。",
+            "\(n) settled day(s) will change to match the current settings. This cannot be undone.\nManually entered scores and your records are not affected.", l)
+    }
     static func startLabel(_ l: AppLanguage) -> String { t("記録の開始日", "Start date", l) }
     static func startAuto(_ l: AppLanguage) -> String { t("自動", "Automatic", l) }
     static func startManual(_ l: AppLanguage) -> String { t("指定する", "Choose", l) }
@@ -139,12 +170,6 @@ enum L {
         t("\(d.year)年\(d.month)月\(d.day)日から集計します",
           "Counting from \(monthShort(d.month, l)) \(d.day), \(d.year)", l)
     }
-    static func stepHint(_ lo: Int, _ l: AppLanguage) -> String {
-        t("下限＝最低これだけは毎日歩きたい、という線。ここが\(lo)点になる。\n上限＝調子がよければこれくらい歩きたい、という線。ここで打ち止め。\n2つを離すほど、歩数の差が点数に出にくくなる。",
-          "Min — the least you want to walk every day, worth \(lo) points.\nMax — what you walk on a good day. Scores stop rising here.\nThe wider the gap, the less each step matters.", l)
-    }
-    static func lower(_ l: AppLanguage) -> String { t("下限", "Min", l) }
-    static func upper(_ l: AppLanguage) -> String { t("上限", "Max", l) }
     static func actHint(_ l: AppLanguage) -> String {
         t("筋トレ1種目（3セット×10回）と同じくらいになる量を入れる。\n例：ラジオ体操なら5分、自転車なら5分。\n走り回る運動は歩数にも入るので、そのぶん多めの量にする（球技が30分なのはこのため）。",
           "Enter the amount that feels like one strength exercise (3 sets of 10).\nFor example 5 minutes of calisthenics, or 5 minutes of cycling.\nRunning-based exercise also shows up in your step count, so set a larger amount.", l)
@@ -152,8 +177,8 @@ enum L {
     static func addAct(_ l: AppLanguage) -> String    { t("運動を追加", "Add exercise", l) }
     static func matrixTitle(_ l: AppLanguage) -> String { t("いまの設定での点数", "Scores with current settings", l) }
     static func matrixHint(_ l: AppLanguage) -> String {
-        t("縦＝歩数、横＝運動の数。上の設定を変えると、その場で書き換わる。色がついているマスが合格（\(Scorer.passLine)点以上）。",
-          "Rows are steps, columns are exercises. Colored cells are a pass (\(Scorer.passLine)+).", l)
+        t("縦＝歩数（1000歩ごと）、横＝運動の数。上の設定を変えると、その場で書き換わる。色が濃いマスが合格（\(Scorer.passLine)点以上）。\n合格ラインと目標ラインの行には印を付けてあります。",
+          "Rows are steps (every 1,000), columns are exercises. Darker cells are a pass (\(Scorer.passLine)+).\nThe pass line and goal line rows are marked.", l)
     }
     static func resetDefaults(_ l: AppLanguage) -> String { t("デフォルトに戻す", "Reset to defaults", l) }
     static func aboutBtn(_ l: AppLanguage) -> String  { t("はじめの説明を見る", "Read the intro again", l) }
@@ -187,18 +212,18 @@ enum L {
             .init(title: "Only two things to enter",
                   body: "Steps come in automatically from Health.\nAll you tap is which body parts you worked and other exercise. Each tap cycles ×1 → ×2 → ×3.\n\nNo weights, no reps, not even duration."),
             .init(title: "80 is a pass",
-                  body: "Each day is scored 0–100 from your steps and exercise.\n80 or above passes, and the calendar colour changes, so at the end of the month you can see how many days you managed.\n\nYou do not need to chase 100. Clearing 80 now and then is plenty."),
+                  body: "Steps and exercise are each worth 40 points when they reach their pass line, so a day that reaches both scores 80 and passes. The calendar colour changes, and at the end of the month you can see how many days you managed.\n\nWalking alone is not a pass, and neither is exercise alone. The point is to keep doing both."),
             .init(title: "Then tune it to you",
-                  body: "Step targets and the list of exercises can all be changed later in settings. The same target cannot suit someone who walks 5,000 steps and someone who walks 15,000.\n\nUse the defaults for a week or two, and if it feels too strict or too easy, go and adjust them.")
+                  body: "The pass lines and the list of exercises can all be changed later in settings. The same target cannot suit someone who walks 5,000 steps and someone who walks 15,000.\n\nUse the defaults for a week or two, and if it feels too strict or too easy, go and adjust them.")
         ] : [
             .init(title: "健康を、ざっくり続けるために",
                   body: "ある程度は体を動かしたい。でも重さも回数も記録するアプリは、正直3日で嫌になりました。\n\nほしかったのは、5秒で入れられて、1か月を一目で見渡せるもの。なかったので自分用に作りました。"),
             .init(title: "入れるのは2つだけ",
                   body: "歩数はヘルスケアから勝手に入ります。\nあなたが押すのは動かした部位とその他の運動だけ。押すたびに ×1 → ×2 → ×3 と増えます。\n\n重さも回数も、時間すら入れません。"),
             .init(title: "80点が合格",
-                  body: "その日の歩数と運動から、0〜100点が自動でつきます。\n80点以上でその日は合格。カレンダーの色が変わるので、月末に「今月は何日できたか」が一目で分かります。\n\n満点を狙う必要はありません。80点をぼちぼち超えていくだけで十分です。"),
+                  body: "歩数と運動には、それぞれ「合格ライン」があります。どちらも届くと40点＋40点で80点、その日は合格です。カレンダーの色が変わるので、月末に「今月は何日できたか」が一目で分かります。\n\n歩いただけ、運動しただけでは合格になりません。両方をぼちぼち続けるためです。"),
             .init(title: "あとは自分に合わせて",
-                  body: "歩数の目安や運動の種類は、あとから設定でいくらでも変えられます。普段5000歩の人と15000歩の人で、同じ基準はおかしいからです。\n\n最初の1〜2週間は既定のまま使ってみて、「ちょっと厳しいな」「ゆるすぎるな」と思ったら設定を触ってください。それでちょうどよくなります。")
+                  body: "合格ラインも運動の種類も、あとから設定でいくらでも変えられます。普段5000歩の人と15000歩の人で、同じ基準はおかしいからです。\n\n最初の1〜2週間は既定のまま使ってみて、「ちょっと厳しいな」「ゆるすぎるな」と思ったら設定を触ってください。それでちょうどよくなります。")
         ]
     }
     static func obNext(_ l: AppLanguage) -> String  { t("次へ", "Next", l) }

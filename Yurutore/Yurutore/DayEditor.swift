@@ -139,7 +139,7 @@ struct DayEditor: View {
     private var subText: String {
         let s = Scorer.stepScore(steps: log.steps, settings: store.settings)
         let e = Scorer.exerciseScore(count: log.exerciseCount(activities: store.activities),
-                                     mode: store.settings.mode)
+                                     settings: store.settings)
         if log.manualScore != nil {
             return L.ifAuto(Scorer.autoScore(log, activities: store.activities,
                                              settings: store.settings), lang)
