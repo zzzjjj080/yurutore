@@ -15,6 +15,7 @@ struct SettingsSheet: View {
     @State private var exporting = false
     @State private var importing = false
     @State private var importNote = ""
+    @State private var tipJar = TipJar(productID: TipJar.productID)
 
     private var dark: Bool { store.isDark(scheme) }
     private var lang: AppLanguage { store.language }
@@ -36,6 +37,10 @@ struct SettingsSheet: View {
                     case .scoring: scoringTab
                     case .data:    dataTab
                     }
+
+                    // タブによらず、設定のいちばん下に出す
+                    CoffeeTipSectionYurutore(tipJar: tipJar, lang: lang,
+                                             accent: store.accent(dark: dark))
                 }
                 .padding(18)
                 .frame(maxWidth: .infinity, alignment: .leading)
