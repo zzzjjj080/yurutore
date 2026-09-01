@@ -249,4 +249,13 @@ enum L {
             ? t("奢ってくれてありがとうございました", "Thank you for the coffee", l)
             : t("\(cups) 回も奢ってくれてありがとうございました", "Thank you for the \(cups) coffees", l)
     }
+
+    // 不具合の報告・要望
+    static func feedbackBtn(_ l: AppLanguage) -> String {
+        t("不具合の報告・要望を送る", "Report a problem or request a feature", l)
+    }
+    static func feedbackFallback(_ l: AppLanguage) -> String {
+        t("メールが開かないときは \(Feedback.address) 宛に送ってください",
+          "If Mail does not open, please email \(Feedback.address)", l)
+    }
 }

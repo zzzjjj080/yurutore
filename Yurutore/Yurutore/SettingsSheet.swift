@@ -39,6 +39,7 @@ struct SettingsSheet: View {
                     }
 
                     // タブによらず、設定のいちばん下に出す
+                    FeedbackButtonYurutore(lang: lang, accent: store.accent(dark: dark))
                     CoffeeTipSectionYurutore(tipJar: tipJar, lang: lang,
                                              accent: store.accent(dark: dark))
                 }
