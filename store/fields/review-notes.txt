@@ -1,4 +1,8 @@
-No account, login, or credentials are required. No in-app purchases, no subscriptions, no user-generated content, and no network connections of any kind.
+No account, login, or credentials are required. There is no user-generated content.
+
+IN-APP PURCHASE (new in this version): the app contains one consumable in-app purchase, "コーヒー1杯" (com.zzzjjj080.Yurutore.coffee, JPY 200). It is an optional tip to the developer. It unlocks nothing: no feature, no content, and no setting changes after buying it. The app only shows a thank-you line and a counter of how many cups have been bought. Because it is consumable, nothing is restored on a new device, and there is no restore button. To reach it: tap the gear icon, then scroll to the bottom of Settings ("開発者にコーヒーを奢る" / "Buy the developer a coffee"). The price shown is always product.displayPrice from StoreKit; it is never hard-coded.
+
+NETWORK USE: the app does not send or receive any of the user's data. The only network activity is StoreKit talking to the App Store for the tip above. The "不具合の報告・要望を送る" button at the bottom of Settings opens the system Mail app through a mailto: link with the app version, iOS version and device model pre-filled; the app has no server and does not send the mail itself.
 
 IMPORTANT FOR REVIEW: the app reads step counts from HealthKit. On a review device there is usually no step history, so every day shows 20 points (the baseline for a day below the lower step target). This is expected and does not indicate a malfunction. All features work fully without any Health data.
 
@@ -10,8 +14,9 @@ How to exercise the app:
 5. Tap the other-exercise buttons the same way. Three exercises in total reaches 80 points, which is a pass, and the score turns blue.
 6. Tap the score to set it manually (20-100 in steps of 10), or Rest day, then Done.
 7. Tap the month title to switch to the year view. Tap the gear icon for Settings (Display / Scoring / Data).
+8. Scroll to the bottom of any Settings tab for the feedback button and the coffee tip.
 
-External services: none. Only Apple frameworks (SwiftUI, Swift Charts, HealthKit read-only, local UserNotifications). All data stays on the device.
+External services: none. Only Apple frameworks (SwiftUI, Swift Charts, HealthKit read-only, StoreKit, local UserNotifications). All records stay on the device.
 
 Regional differences: none. Japanese and English UI, selectable in-app.
 

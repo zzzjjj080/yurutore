@@ -1,0 +1,71 @@
+import XCTest
+
+/// App内課金の「審査用スクリーンショット」を撮る。
+///
+/// 設定はシートなので、合成タップでは開けない（引き継ぎ書 4-24）。
+/// 価格を出すには `.storekit` が要るが、それはスキーム経由でしか効かない（11-9）。
+/// つまりこの絵は **`xcodebuild test` からしか撮れない。**
+final class CoffeeScreenshot: XCTestCase {
+
+    private let outDir = "/tmp/yt-shots"
+
+    override func setUp() {
+        continueAfterFailure = true
+        try? FileManager.default.createDirectory(atPath: outDir,
+                                                 withIntermediateDirectories: true)
+    }
+
+
+    /// ヘルスケアの許可シートは、出る場所がiOSの版で変わる。
+    /// アプリ内のリモートビューのことも、springboard 側のこともあるので全部当たる。
+    private func dismissHealthPrompt(_ app: XCUIApplication) {
+        let hosts = [app,
+                     XCUIApplication(bundleIdentifier: "com.apple.springboard"),
+                     XCUIApplication(bundleIdentifier: "com.apple.Health")]
+        let deadline = Date().addingTimeInterval(12)
+        while Date() < deadline {
+            for host in hosts {
+                let deny = host.buttons["許可しない"]
+                if deny.exists && deny.isHittable { deny.tap(); return }
+            }
+            usleep(500_000)
+        }
+        // 2回目以降の起動では、そもそも出ない。出ないこと自体は失敗ではない。
+    }
+
+    func testCoffeeSection() {
+        let app = XCUIApplication()
+        app.launchEnvironment["YURUTORE_DEMO"] = "1"
+        app.launch()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15))
+
+        dismissHealthPrompt(app)
+        sleep(1)
+
+        // 歯車 → 設定
+        let gear = app.buttons["gearshape.fill"].firstMatch
+        XCTAssertTrue(gear.waitForExistence(timeout: 10), "歯車が見つからない")
+        gear.tap()
+        sleep(2)
+
+        // いちばん下まで送る。買うボタンが画面に入るまで。
+        let buy = app.buttons["buyCoffee"]
+        for _ in 0..<8 where !buy.exists || !buy.isHittable {
+            app.swipeUp()
+            usleep(600_000)
+        }
+        XCTAssertTrue(buy.waitForExistence(timeout: 5), "コーヒーのボタンが出ていない")
+
+        // 価格が入るのを待つ。読み込み中は ProgressView のまま。
+        sleep(3)
+
+        // 画面そのものを撮る（app.screenshot() はアプリの窓だけ／4-32）
+        let png = XCUIScreen.main.screenshot().pngRepresentation
+        try? png.write(to: URL(fileURLWithPath: "\(outDir)/iap-review.png"))
+
+        let a = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        a.name = "iap-review"
+        a.lifetime = .keepAlways
+        add(a)
+    }
+}

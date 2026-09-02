@@ -126,6 +126,8 @@ struct ContentView: View {
                 .background(Color(.secondarySystemGroupedBackground), in: .circle)
         }
         .buttonStyle(.plain)
+        // UIテストから指すための目印。日本語のラベルに頼ると壊れる
+        .accessibilityIdentifier(symbol)
     }
 
     private var healthBanner: some View {
