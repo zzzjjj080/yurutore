@@ -81,10 +81,10 @@ final class AppStore {
         return Scorer.score(l, activities: activities, settings: settings)
     }
 
-    /// その日の色の段階。記録が無い日・起点より前の日は nil。
+    /// その日の色の段階。点数から決まるので、記録が無い日・起点より前の日は nil。
     func tier(_ date: YMD) -> DayTier? {
-        guard !isBeforeStart(date), let l = journal[date] else { return nil }
-        return Scorer.tier(l, activities: activities, settings: settings)
+        guard let s = score(date) else { return nil }
+        return Scorer.tier(s)
     }
 
     func isPass(_ date: YMD) -> Bool {
@@ -236,7 +236,6 @@ final class AppStore {
     func recomputeAllScores() {
         for date in journal.days.keys {
             journal.days[date]?.lockedScore = nil
-            journal.days[date]?.lockedTier = nil
         }
         journal.settleAll(today: today, activities: activities, settings: settings)
         save()

@@ -135,27 +135,18 @@ public struct DayLog: Codable, Equatable, Sendable {
     public var isRest: Bool
     /// 確定した点数。3日経つと焼き付けられ、以後は設定を変えても動かない。
     public var lockedScore: Int?
-    /// 確定した色の段階。点数と同時に焼き付ける。
-    ///
-    /// 点数だけでは段階を復元できないので、別に持つ必要がある。
-    /// 1.1以前に確定した日には入っていないので Optional のまま扱うこと
-    /// （必須にすると、旧版の記録がまるごと読めなくなる）。
-    public var lockedTier: DayTier?
-
     public init(steps: Int = 0,
                 parts: [BodyPart: Volume] = [:],
                 activities: [String: Volume] = [:],
                 manualScore: Int? = nil,
                 isRest: Bool = false,
-                lockedScore: Int? = nil,
-                lockedTier: DayTier? = nil) {
+                lockedScore: Int? = nil) {
         self.steps = steps
         self.parts = parts
         self.activities = activities
         self.manualScore = manualScore
         self.isRest = isRest
         self.lockedScore = lockedScore
-        self.lockedTier = lockedTier
     }
 
     /// 設定にある運動だけを数える。消された運動のidが残っていても無視する。

@@ -16,22 +16,6 @@ final class CoffeeScreenshot: XCTestCase {
     }
 
 
-    /// ヘルスケアの許可シートは、出る場所がiOSの版で変わる。
-    /// アプリ内のリモートビューのことも、springboard 側のこともあるので全部当たる。
-    private func dismissHealthPrompt(_ app: XCUIApplication) {
-        let hosts = [app,
-                     XCUIApplication(bundleIdentifier: "com.apple.springboard"),
-                     XCUIApplication(bundleIdentifier: "com.apple.Health")]
-        let deadline = Date().addingTimeInterval(12)
-        while Date() < deadline {
-            for host in hosts {
-                let deny = host.buttons["許可しない"]
-                if deny.exists && deny.isHittable { deny.tap(); return }
-            }
-            usleep(500_000)
-        }
-        // 2回目以降の起動では、そもそも出ない。出ないこと自体は失敗ではない。
-    }
 
     func testCoffeeSection() {
         let app = XCUIApplication()
@@ -39,7 +23,7 @@ final class CoffeeScreenshot: XCTestCase {
         app.launch()
         XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15))
 
-        dismissHealthPrompt(app)
+        dismissHealthPrompts(app)
         sleep(1)
 
         // 歯車 → 設定

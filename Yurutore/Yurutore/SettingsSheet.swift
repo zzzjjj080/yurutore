@@ -157,26 +157,22 @@ struct SettingsSheet: View {
         }
     }
 
-    /// 選んでいる配色の4段階を、意味と一緒に出す。
-    /// **色を選ぶ前に「何の色か」が分かっていないと選びようがない。**
+    /// 選んでいる配色の4段階を、点数の帯と一緒に出す。
+    /// **どの色が何点なのかが分かっていないと、配色を選びようがない。**
     private var tierSample: some View {
         HStack(spacing: 6) {
             ForEach(DayTier.allCases, id: \.rawValue) { tier in
-                VStack(spacing: 5) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(store.cellColor(tier, dark: dark))
-                        Text("\(tier.rawValue)")
-                            .font(.system(size: 13, weight: .heavy))
-                            .foregroundStyle(Color.cellInk)
-                    }
-                    .frame(height: 44)
-                    Text(L.tierName(tier, lang))
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .fixedSize(horizontal: false, vertical: true)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(store.cellColor(tier, dark: dark))
+                    Text(L.tierRange(tier))
+                        .font(.system(size: 12, weight: .heavy))
+                        .monospacedDigit()
+                        .minimumScaleFactor(0.7)
+                        .lineLimit(1)
+                        .foregroundStyle(Color.cellInk)
                 }
+                .frame(height: 46)
                 .frame(maxWidth: .infinity)
             }
         }
@@ -613,8 +609,7 @@ struct ScoreMatrix: View {
     }
 
     private func sampleTier(steps: Int, exercises n: Int) -> DayTier {
-        Scorer.liveTier(sampleLog(steps: steps, exercises: n),
-                        activities: store.activities, settings: store.settings)
+        Scorer.tier(sample(steps: steps, exercises: n))
     }
 }
 

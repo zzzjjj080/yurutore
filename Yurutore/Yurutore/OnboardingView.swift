@@ -134,7 +134,7 @@ struct OnboardingView: View {
             remaining -= min(3, remaining)
         }
         let score = Scorer.autoScore(log, activities: store.activities, settings: store.settings)
-        let tier = Scorer.liveTier(log, activities: store.activities, settings: store.settings)
+        let tier = Scorer.tier(score)
         return VStack(spacing: 2) {
             Text("\(score)").font(.system(size: 17, weight: .heavy))
                 .foregroundStyle(Color.cellInk)
@@ -166,7 +166,7 @@ struct OnboardingView: View {
                 ForEach(0..<28, id: \.self) { i in
                     let on = [2,3,5,9,10,12,16,17,19,23,24].contains(i)
                     RoundedRectangle(cornerRadius: 3)
-                        .fill(on ? store.cellColor(i % 3 == 0 ? .half : .both, dark: dark)
+                        .fill(on ? store.cellColor(i % 3 == 0 ? .mid : .pass, dark: dark)
                                  : Color(.tertiarySystemGroupedBackground))
                         .frame(height: 20)
                 }

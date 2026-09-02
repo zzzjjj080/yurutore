@@ -2,18 +2,19 @@ import Foundation
 
 /// カレンダーのマスの色を決める4段階。
 ///
-/// **濃淡の連続ではなく、この4色しか使わない。** 点数そのものではなく
-/// 「歩数と運動、どちらの合格ラインを越えたか」で決まる。
-/// 点数だけでは段階を決められない（39+39=78点の日と、40+38=78点の日は別物）。
+/// **濃淡の連続ではなく、この4色しか使わない。** 点数の帯で分ける。
+/// 境目は採点の決まりから来ている（40点＝片方の合格ライン、80点＝合格）。
 public enum DayTier: Int, Codable, Sendable, CaseIterable, Comparable {
-    /// どちらの合格ラインにも届かなかった
-    case none = 1
-    /// 歩数か運動、片方だけ届いた
-    case half = 2
-    /// 両方届いた（＝合格）
-    case both = 3
+    /// 40点未満
+    case low = 1
+    /// 40〜79点
+    case mid = 2
+    /// 80〜99点（＝合格）
+    case pass = 3
     /// 100点
-    case perfect = 4
+    case full = 4
+
+    // `none` にすると Optional の `.none` と紛れるので、この名前にしてある
 
     public static func < (a: DayTier, b: DayTier) -> Bool { a.rawValue < b.rawValue }
 }

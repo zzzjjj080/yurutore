@@ -105,16 +105,17 @@ enum L {
     static func sunday(_ l: AppLanguage) -> String     { t("日曜", "Sunday", l) }
     static func calColors(_ l: AppLanguage) -> String  { t("カレンダーの色", "Calendar colors", l) }
     static func colorHint(_ l: AppLanguage) -> String {
-        t("色は4段階です。点数の濃淡ではなく、歩数と運動のどちらの合格ラインを越えたかで決まります。",
-          "Four colors, not a gradient. The color says which of the two lines you crossed.", l)
+        t("色は点数で4段階に分かれます。\(Scorer.passLine)点以上が合格です。",
+          "Four colors, by score. \(Scorer.passLine) and up is a pass.", l)
     }
-    /// 4段階の呼び名。設定のサンプルと、はじめの説明で使う。
-    static func tierName(_ tier: DayTier, _ l: AppLanguage) -> String {
+    /// 4段階の見出し。点数の帯そのものを出す。
+    /// 「片方だけ達成」のような言い換えをすると、手入力の日で嘘になる。
+    static func tierRange(_ tier: DayTier) -> String {
         switch tier {
-        case .none:    t("どちらも未達成", "Neither", l)
-        case .half:    t("片方だけ達成", "One of two", l)
-        case .both:    t("両方達成", "Both", l)
-        case .perfect: t("100点", "100 points", l)
+        case .low:  "〜\(Scorer.passPoints - 1)"
+        case .mid:  "\(Scorer.passPoints)〜\(Scorer.passLine - 1)"
+        case .pass: "\(Scorer.passLine)〜99"
+        case .full: "100"
         }
     }
     static func palettePick(_ l: AppLanguage) -> String { t("配色を選ぶ", "Pick a palette", l) }

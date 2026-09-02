@@ -155,53 +155,25 @@ public enum Scorer {
 
     // MARK: - 色の段階
 
-    /// 記録から段階を出す。**点数からは出せない。**
+    /// カレンダーの色は点数だけで決める。
     ///
-    /// 歩数39点＋運動39点の78点と、歩数40点＋運動38点の78点は、
-    /// 「片方も越えていない日」と「片方は越えた日」で意味が違う。
-    /// どちらの合格ラインを越えたかを直接見るしかない。
-    public static func liveTier(_ log: DayLog,
-                                activities: [Activity],
-                                settings: ScoringSettings) -> DayTier {
-        // 手入力の日は歩数も種目数も意味を持たないので、点数から決めるほかない
-        if let m = log.manualScore { return tier(fromScore: min(100, max(0, m))) }
-
-        let total = autoScore(log, activities: activities, settings: settings)
-        if total >= 100 { return .perfect }
-
-        // 「合格」と色を食い違わせない。
-        //
-        // 両方の合格ラインに届けば必ず80点以上になるが、逆は成り立たない。
-        // よく歩いた日は歩数だけで60点まで伸びるので、運動1種目（20点）でも80点に届く。
-        // ここを「片方だけ」の色にすると、80点＝合格と表示しながら
-        // 不合格の色で塗ることになる。**同じ日を2通りに言わない。**
-        if total >= passLine { return .both }
-
-        // 点数ではなく、歩数と種目数そのもので見る。
-        // 点数は四捨五入するので、9,900歩でも40点になり「1万歩に届いた」ことにされてしまう。
-        let steps = log.steps >= settings.passSteps
-        let exercise = log.exerciseCount(activities: activities) >= settings.passExercises
-        return (steps || exercise) ? .half : .none
+    /// 記録の中身（歩数と種目数のどちらを越えたか）で分ける案も作ったが、
+    /// **確定済みの日と手入力の日には中身が無い**ので、段階を別に保存する必要が出る。
+    /// 点数で分ければ、どの日も同じ規則で塗れる。画面に出ている数字とも食い違わない。
+    ///
+    /// 境目は採点の決まりからそのまま来ている。
+    /// 40点＝どちらか片方の合格ライン、80点＝合格。
+    public static func tier(_ score: Int) -> DayTier {
+        if score >= 100 { return .full }
+        if score >= passLine { return .pass }
+        if score >= passPoints { return .mid }
+        return .low
     }
 
-    /// 点数しか残っていないとき（手入力・1.1以前に確定した日）の読み替え。
-    public static func tier(fromScore score: Int) -> DayTier {
-        if score >= 100 { return .perfect }
-        if score >= passLine { return .both }
-        if score >= passPoints { return .half }
-        return .none
-    }
-
-    /// 実際に表示する段階。確定済みならそのときの段階を動かさない。
-    ///
-    /// 1.1以前に確定した日は段階を持っていないので、点数から読み替える。
-    /// そこだけは近似になるが、**確定した過去が後から動かないこと**を優先する。
     public static func tier(_ log: DayLog,
                             activities: [Activity],
                             settings: ScoringSettings) -> DayTier {
-        if let locked = log.lockedTier { return locked }
-        if let score = log.lockedScore { return tier(fromScore: score) }
-        return liveTier(log, activities: activities, settings: settings)
+        tier(score(log, activities: activities, settings: settings))
     }
 
     /// 手入力で選べる点数（20〜100の10刻み）

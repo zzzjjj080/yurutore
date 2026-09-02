@@ -31,7 +31,6 @@ public struct Journal: Codable, Equatable, Sendable {
                                    settings: ScoringSettings) {
         for (date, log) in days where log.lockedScore == nil && Self.shouldSettle(date, today: today) {
             days[date]?.lockedScore = Scorer.liveScore(log, activities: activities, settings: settings)
-            days[date]?.lockedTier = Scorer.liveTier(log, activities: activities, settings: settings)
         }
     }
 
@@ -42,7 +41,6 @@ public struct Journal: Codable, Equatable, Sendable {
                                settings: ScoringSettings) {
         guard let log = days[date], log.lockedScore != nil else { return }
         days[date]?.lockedScore = Scorer.liveScore(log, activities: activities, settings: settings)
-        days[date]?.lockedTier = Scorer.liveTier(log, activities: activities, settings: settings)
     }
 
     // MARK: - 集計の起点

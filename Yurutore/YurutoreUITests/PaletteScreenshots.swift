@@ -17,26 +17,13 @@ final class PaletteScreenshots: XCTestCase {
         try? png.write(to: URL(fileURLWithPath: "\(outDir)/\(name).png"))
     }
 
-    private func dismissHealthPrompt(_ app: XCUIApplication) {
-        let hosts = [app,
-                     XCUIApplication(bundleIdentifier: "com.apple.springboard"),
-                     XCUIApplication(bundleIdentifier: "com.apple.Health")]
-        let deadline = Date().addingTimeInterval(12)
-        while Date() < deadline {
-            for host in hosts {
-                let deny = host.buttons["許可しない"]
-                if deny.exists && deny.isHittable { deny.tap(); return }
-            }
-            usleep(500_000)
-        }
-    }
 
     func testPalettes() {
         let app = XCUIApplication()
         app.launchEnvironment["YURUTORE_DEMO"] = "1"
         app.launch()
         XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15))
-        dismissHealthPrompt(app)
+        dismissHealthPrompts(app)
         sleep(1)
         save("p01-calendar")
 

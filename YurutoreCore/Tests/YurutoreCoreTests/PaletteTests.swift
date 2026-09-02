@@ -69,8 +69,8 @@ struct PaletteTests {
     func palettesAreDistinct() {
         for (i, a) in Palettes.all.enumerated() {
             for b in Palettes.all[(i + 1)...] {
-                let top = ColorMath.difference(a.fill(.both, dark: false), b.fill(.both, dark: false))
-                let mid = ColorMath.difference(a.fill(.half, dark: false), b.fill(.half, dark: false))
+                let top = ColorMath.difference(a.fill(.pass, dark: false), b.fill(.pass, dark: false))
+                let mid = ColorMath.difference(a.fill(.mid, dark: false), b.fill(.mid, dark: false))
                 #expect(top >= 0.06 || mid >= 0.06, "\(a.id) と \(b.id) が似すぎている")
             }
         }
