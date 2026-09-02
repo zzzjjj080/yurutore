@@ -19,8 +19,10 @@ final class AppStore {
     var weekStart: CalendarLayout.WeekStart = .monday
     var theme: ThemeChoice = .light
     var language: AppLanguage = .ja
-    var failColor: PaletteKind = .yellow
-    var passColor: PaletteKind = .blue
+    /// カレンダーの配色パターン。1.1までは「80点未満の色」と「80点以上の色」を
+    /// 別々に選ばせていたが、4段階になったのでパターンから選ぶ形にした。
+    var paletteID: String = Palettes.defaultID
+    var palette: CalendarPalette { Palettes.named(paletteID) }
     var reminderOn = false
     var reminderHour = 21
 
@@ -77,6 +79,12 @@ final class AppStore {
     func score(_ date: YMD) -> Int? {
         guard !isBeforeStart(date), let l = journal[date] else { return nil }
         return Scorer.score(l, activities: activities, settings: settings)
+    }
+
+    /// その日の色の段階。記録が無い日・起点より前の日は nil。
+    func tier(_ date: YMD) -> DayTier? {
+        guard !isBeforeStart(date), let l = journal[date] else { return nil }
+        return Scorer.tier(l, activities: activities, settings: settings)
     }
 
     func isPass(_ date: YMD) -> Bool {
@@ -210,7 +218,7 @@ final class AppStore {
 
     func resetDisplaySettings() {
         theme = .light; language = .ja; weekStart = .monday
-        failColor = .yellow; passColor = .blue
+        paletteID = Palettes.defaultID
         reminderOn = false; reminderHour = 21
         save()
     }
@@ -228,6 +236,7 @@ final class AppStore {
     func recomputeAllScores() {
         for date in journal.days.keys {
             journal.days[date]?.lockedScore = nil
+            journal.days[date]?.lockedTier = nil
         }
         journal.settleAll(today: today, activities: activities, settings: settings)
         save()
@@ -250,8 +259,11 @@ final class AppStore {
         var weekStart: Int
         var theme: String
         var language: String
-        var failColor: String
-        var passColor: String
+        /// 1.1まではこの2つで色を決めていた。**消すと旧版の記録が読めなくなる**ので、
+        /// 引き継ぎのために Optional で残してある。
+        var failColor: String?
+        var passColor: String?
+        var paletteID: String?
         var reminderOn: Bool
         var reminderHour: Int
         var didOnboard: Bool
@@ -262,8 +274,8 @@ final class AppStore {
     func save() {
         let p = Persisted(journal: journal, settings: settings, activities: activities,
                           weekStart: weekStart.rawValue, theme: theme.rawValue,
-                          language: language.rawValue, failColor: failColor.rawValue,
-                          passColor: passColor.rawValue, reminderOn: reminderOn,
+                          language: language.rawValue, failColor: nil,
+                          passColor: nil, paletteID: paletteID, reminderOn: reminderOn,
                           reminderHour: reminderHour, didOnboard: didOnboard)
         if let data = try? JSONEncoder().encode(p) {
             UserDefaults.standard.set(data, forKey: Self.storeKey)
@@ -290,8 +302,8 @@ final class AppStore {
         weekStart = .init(rawValue: p.weekStart) ?? .monday
         theme = .init(rawValue: p.theme) ?? .light
         language = .init(rawValue: p.language) ?? .ja
-        failColor = .init(rawValue: p.failColor) ?? .yellow
-        passColor = .init(rawValue: p.passColor) ?? .blue
+        // 1.2より前の記録には paletteID が無い。2色の設定から一番近いものへ移す
+        paletteID = p.paletteID ?? Palettes.migrating(fail: p.failColor, pass: p.passColor)
         reminderOn = p.reminderOn
         reminderHour = p.reminderHour
         didOnboard = p.didOnboard
@@ -308,20 +320,17 @@ final class AppStore {
         }
     }
 
-    /// 合格ライン未満はうっすら、以上はしっかり。境目で濃さが飛ぶので一目で分かる。
-    func cellColor(score: Int, dark: Bool) -> Color {
-        if score >= Scorer.passLine {
-            let r = passColor.ramp(dark: dark)
-            let t = Double(score - Scorer.passLine) / Double(max(1, 100 - Scorer.passLine))
-            return mix(r.lo, r.hi, 0.72 + 0.28 * t)
-        }
-        let r = failColor.ramp(dark: dark)
-        let t = Double(score) / Double(Scorer.passLine)
-        return mix(r.lo, r.hi, 0.06 + 0.44 * t)
+    /// マスの色。**濃淡は付けない。4色だけ。**
+    /// 点数そのものではなく「どちらの合格ラインを越えたか」で決まる。
+    func cellColor(_ tier: DayTier, dark: Bool) -> Color { palette.color(tier, dark: dark) }
+
+    /// その日のマスの色
+    func cellColor(_ log: DayLog, dark: Bool) -> Color {
+        cellColor(Scorer.tier(log, activities: activities, settings: settings), dark: dark)
     }
 
-    func accent(dark: Bool) -> Color { passColor.ramp(dark: dark).ink }
-    func onAccent(dark: Bool) -> Color { passColor.ramp(dark: dark).onInk }
+    func accent(dark: Bool) -> Color { palette.ink(dark: dark) }
+    func onAccent(dark: Bool) -> Color { palette.onInk(dark: dark) }
 }
 
 

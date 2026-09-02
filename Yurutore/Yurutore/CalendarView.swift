@@ -60,8 +60,10 @@ struct DayCell: View {
     private var fill: Color {
         // 記録を始める前の日は、空きマスより濃いグレーで「対象外」だと示す
         if beforeStart { return Color(.systemGray3) }
-        guard let score else { return Color(.tertiarySystemGroupedBackground) }
-        return store.cellColor(score: score, dark: dark)
+        guard !future, let tier = store.tier(date) else {
+            return Color(.tertiarySystemGroupedBackground)
+        }
+        return store.cellColor(tier, dark: dark)
     }
     private var ink: Color { score == nil ? .primary : .cellInk }
 

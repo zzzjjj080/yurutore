@@ -48,6 +48,11 @@ final class CoffeeScreenshot: XCTestCase {
         gear.tap()
         sleep(2)
 
+        // 「データ」タブがいちばん短いので、投げ銭が画面に大きく収まる。
+        // 配色の一覧が主役に見える絵にしない。
+        let dataTab = app.buttons["データ"].firstMatch
+        if dataTab.waitForExistence(timeout: 5) { dataTab.tap(); sleep(1) }
+
         // いちばん下まで送る。買うボタンが画面に入るまで。
         let buy = app.buttons["buyCoffee"]
         for _ in 0..<8 where !buy.exists || !buy.isHittable {

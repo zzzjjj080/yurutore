@@ -143,12 +143,11 @@ struct SettingsSheet: View {
                 }
             }
             section(L.calColors(lang)) {
-                Text(L.under80(lang)).font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(.secondary)
-                swatches(selected: store.failColor, band: .fail) { store.failColor = $0; store.save() }
-                Text(L.over80(lang)).font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(.secondary).padding(.top, 4)
-                swatches(selected: store.passColor, band: .pass) { store.passColor = $0; store.save() }
+                hint(L.colorHint(lang))
+                tierSample                       // いま選んでいる配色を、意味つきで大きく見せる
+                Text(L.palettePick(lang)).font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(.secondary).padding(.top, 2)
+                paletteGrid
             }
             resetButton(L.resetDefaults(lang),
                         message: L.t("配色・言語・週の始まり・リマインダー・カレンダーの色を、最初の設定に戻します。点数の設定と記録はそのままです。",
@@ -158,23 +157,70 @@ struct SettingsSheet: View {
         }
     }
 
-    private enum Band { case fail, pass }
-
-    private func swatches(selected: PaletteKind, band: Band,
-                          pick: @escaping (PaletteKind) -> Void) -> some View {
-        HStack(spacing: 7) {
-            ForEach(PaletteKind.allCases) { kind in
-                let r = kind.ramp(dark: dark)
-                let c = band == .pass ? mix(r.lo, r.hi, 0.86) : mix(r.lo, r.hi, 0.34)
-                Button { Haptics.light(); pick(kind) } label: {
-                    RoundedRectangle(cornerRadius: 3).fill(c)
-                        .frame(height: 12).frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 11))
-                        .overlay(RoundedRectangle(cornerRadius: 11)
-                            .strokeBorder(selected == kind ? Color.primary : .clear, lineWidth: 2))
+    /// 選んでいる配色の4段階を、意味と一緒に出す。
+    /// **色を選ぶ前に「何の色か」が分かっていないと選びようがない。**
+    private var tierSample: some View {
+        HStack(spacing: 6) {
+            ForEach(DayTier.allCases, id: \.rawValue) { tier in
+                VStack(spacing: 5) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(store.cellColor(tier, dark: dark))
+                        Text("\(tier.rawValue)")
+                            .font(.system(size: 13, weight: .heavy))
+                            .foregroundStyle(Color.cellInk)
+                    }
+                    .frame(height: 44)
+                    Text(L.tierName(tier, lang))
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                .accessibilityLabel(Text(kind.label))
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .padding(11)
+        .frame(maxWidth: .infinity)
+        .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 12))
+    }
+
+    /// 配色のパターン。押すとすぐ上のサンプルとカレンダーに反映される。
+    private var paletteGrid: some View {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 7), count: 3),
+                  spacing: 7) {
+            ForEach(Palettes.all) { p in
+                let selected = p.id == store.paletteID
+                Button {
+                    Haptics.light()
+                    store.paletteID = p.id
+                    store.save()
+                } label: {
+                    VStack(spacing: 6) {
+                        HStack(spacing: 2) {
+                            ForEach(DayTier.allCases, id: \.rawValue) { tier in
+                                Rectangle().fill(p.color(tier, dark: dark))
+                                    .frame(height: 22)
+                            }
+                        }
+                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                        Text(p.name(japanese: lang == .ja))
+                            .font(.system(size: 10, weight: .heavy))
+                            .foregroundStyle(.primary)
+                            .lineLimit(1).minimumScaleFactor(0.7)
+                    }
+                    .padding(8)
+                    .frame(maxWidth: .infinity)
+                    .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 11))
+                    .overlay(RoundedRectangle(cornerRadius: 11)
+                        .strokeBorder(selected ? Color.primary : .clear, lineWidth: 2))
+                    // Spacer と同じで、塗りの無いところは押しても反応しない
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("palette-\(p.id)")
+                .accessibilityLabel(Text(p.name(japanese: lang == .ja)))
+                .accessibilityAddTraits(selected ? .isSelected : [])
             }
         }
     }
@@ -540,7 +586,8 @@ struct ScoreMatrix: View {
                         Text("\(s)")
                             .font(.system(size: 13, weight: .heavy)).monospacedDigit()
                             .frame(maxWidth: .infinity).frame(height: 30)
-                            .background(store.cellColor(score: s, dark: dark),
+                            .background(store.cellColor(sampleTier(steps: steps, exercises: n),
+                                                        dark: dark),
                                         in: .rect(cornerRadius: 7))
                             .foregroundStyle(Color.cellInk)
                     }
@@ -549,7 +596,7 @@ struct ScoreMatrix: View {
         }
     }
 
-    private func sample(steps: Int, exercises n: Int) -> Int {
+    private func sampleLog(steps: Int, exercises n: Int) -> DayLog {
         var log = DayLog(steps: steps)
         var remaining = n
         for p in BodyPart.allCases where remaining > 0 {
@@ -557,7 +604,17 @@ struct ScoreMatrix: View {
             log.parts[p] = Volume(rawValue: v)
             remaining -= v
         }
-        return Scorer.autoScore(log, activities: store.activities, settings: store.settings)
+        return log
+    }
+
+    private func sample(steps: Int, exercises n: Int) -> Int {
+        Scorer.autoScore(sampleLog(steps: steps, exercises: n),
+                         activities: store.activities, settings: store.settings)
+    }
+
+    private func sampleTier(steps: Int, exercises n: Int) -> DayTier {
+        Scorer.liveTier(sampleLog(steps: steps, exercises: n),
+                        activities: store.activities, settings: store.settings)
     }
 }
 

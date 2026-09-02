@@ -104,8 +104,20 @@ enum L {
     static func monday(_ l: AppLanguage) -> String     { t("月曜", "Monday", l) }
     static func sunday(_ l: AppLanguage) -> String     { t("日曜", "Sunday", l) }
     static func calColors(_ l: AppLanguage) -> String  { t("カレンダーの色", "Calendar colors", l) }
-    static func under80(_ l: AppLanguage) -> String    { t("\(Scorer.passLine)点未満", "Below \(Scorer.passLine)", l) }
-    static func over80(_ l: AppLanguage) -> String     { t("\(Scorer.passLine)点以上", "\(Scorer.passLine) and up", l) }
+    static func colorHint(_ l: AppLanguage) -> String {
+        t("色は4段階です。点数の濃淡ではなく、歩数と運動のどちらの合格ラインを越えたかで決まります。",
+          "Four colors, not a gradient. The color says which of the two lines you crossed.", l)
+    }
+    /// 4段階の呼び名。設定のサンプルと、はじめの説明で使う。
+    static func tierName(_ tier: DayTier, _ l: AppLanguage) -> String {
+        switch tier {
+        case .none:    t("どちらも未達成", "Neither", l)
+        case .half:    t("片方だけ達成", "One of two", l)
+        case .both:    t("両方達成", "Both", l)
+        case .perfect: t("100点", "100 points", l)
+        }
+    }
+    static func palettePick(_ l: AppLanguage) -> String { t("配色を選ぶ", "Pick a palette", l) }
     static func reminder(_ l: AppLanguage) -> String   { t("リマインダー", "Reminder", l) }
     static func reminderHint(_ l: AppLanguage) -> String {
         t("その日まだ運動を記録していないときだけ、そっと知らせます。記録済みの日や休養日には鳴りません。毎日せかされるのは「ゆる」ではないので、既定ではオフにしてあります。",

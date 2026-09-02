@@ -67,10 +67,10 @@ struct YearGrid: View {
 
     private func fill(_ date: YMD) -> Color {
         if store.isBeforeStart(date) { return Color(.systemGray3) }
-        guard !store.isFuture(date), let s = store.score(date) else {
+        guard !store.isFuture(date), let tier = store.tier(date) else {
             return Color(.tertiarySystemGroupedBackground)
         }
-        return store.cellColor(score: s, dark: dark)
+        return store.cellColor(tier, dark: dark)
     }
 
     /// 月ごとの達成率。Swift Charts で描く。
