@@ -60,112 +60,137 @@ public struct CalendarPalette: Identifiable, Sendable, Hashable {
 
 /// 配色のパターン。
 ///
-/// **どれを選んでも、4段階の並びが一目で分かること**を条件に作ってある。
-/// 段階が進むほど彩度が上がり、明度は地から離れる（明るい地では暗く、暗い地では明るく）。
-/// 3段階目と4段階目だけは、同じ色相の濃さ違いにして近づけてある。
+/// **どれを選んでも、次の3つが成り立つように作ってある。**
+///
+/// - 1段階目（39点まで）は無彩色。まだ何も越えていない日を、色で語らせない
+/// - **80点の境目でだけ色相が変わる。** 合否がいちばん見分けたいところなので、
+///   隣り合うどの段差よりも大きく離してある
+/// - 3段階目と4段階目は同じ色相の濃さ違い。合格した日どうしは近くてよい
+///
+/// 単色の濃淡だけで4段階を作るパターンは置いていない。合否の境目が読めないため。
 ///
 /// 数値は機械で生成し、`PaletteTests` で毎回測り直している。
 /// 手で1色だけ差し替えると条件が崩れるので、直すときは生成条件から直すこと。
 public enum Palettes {
     /// 1.1 までの既定（うすい黄＋青）に一番近いもの
-    public static let defaultID = "sand"
+    public static let defaultID = "wheat-sky"
 
     public static let all: [CalendarPalette] = [
-        .init(id: "sky", ja: "空", en: "Sky",
-              light: .init(tiers: [0xDEEFFF, 0xB4DCFF, 0x61B9FF, 0x009DF6],
-                           ink: 0x0073B7, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x8193A3, 0x7EAFD9, 0x8DCAFF, 0xB4DCFF],
-                           ink: 0x80C5FF, onInk: 0x06131E)),
-        .init(id: "grass", ja: "草", en: "Grass",
-              light: .init(tiers: [0xDDF4E0, 0xAAE9B6, 0x61CB7C, 0x00B453],
+        .init(id: "apricot-indigo", ja: "杏と藍", en: "Apricot & Indigo",
+              light: .init(tiers: [0xD8DDE3, 0xFFBC85, 0x7997FF, 0x5B79FE],
+                           ink: 0x4D66CC, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0xC38C5F, 0xB6C9FF, 0xD1DDFF],
+                           ink: 0xA4BBFF, onInk: 0x0C111F)),
+        .init(id: "apricot-mint", ja: "杏と薄荷", en: "Apricot & Mint",
+              light: .init(tiers: [0xD8DDE3, 0xFFBA9B, 0x00B5B5, 0x009B9C],
+                           ink: 0x007C7D, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0xC9886B, 0x00E7E7, 0x00FDFD],
+                           ink: 0x00D8D9, onInk: 0x001616)),
+        .init(id: "brick-sky", ja: "煉瓦と空", en: "Brick & Sky",
+              light: .init(tiers: [0xD8DDE3, 0xFFB8AB, 0x00A9F7, 0x0091D5],
+                           ink: 0x0074AB, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0xCB8579, 0x94D3FF, 0xBEE4FF],
+                           ink: 0x76C7FF, onInk: 0x05131D)),
+        .init(id: "grape-grass", ja: "葡萄と草", en: "Grape & Grass",
+              light: .init(tiers: [0xD8DDE3, 0xD5BFFF, 0x37BB62, 0x00A34A],
                            ink: 0x007F38, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x839787, 0x85B88F, 0x7FDC94, 0x79F699],
+              dark:  .init(tiers: [0x83888E, 0xA28DCA, 0x78E693, 0x77FF9B],
                            ink: 0x66DA85, onInk: 0x07150A)),
-        .init(id: "grape", ja: "葡萄", en: "Grape",
-              light: .init(tiers: [0xF0E9FF, 0xDECDFF, 0xC09AFF, 0xA976F5],
+        .init(id: "grape-wheat", ja: "葡萄と麦", en: "Grape & Wheat",
+              light: .init(tiers: [0xD8DDE3, 0xC6C5FF, 0xD38F00, 0xB57A00],
+                           ink: 0x966400, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0x9492D0, 0xFFBD58, 0xFFD7A0],
+                           ink: 0xF9AD26, onInk: 0x190F03)),
+        .init(id: "grass-magenta", ja: "草と紅", en: "Grass & Magenta",
+              light: .init(tiers: [0xD8DDE3, 0x82E3BA, 0xC57AE6, 0xB55ADA],
+                           ink: 0x944FB0, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0x60AC8C, 0xE7B3FF, 0xF0D0FF],
+                           ink: 0xE29FFF, onInk: 0x170D1B)),
+        .init(id: "grass-rose", ja: "草と薔薇", en: "Grass & Rose",
+              light: .init(tiers: [0xD8DDE3, 0x97E1A6, 0xEF6A9A, 0xE54786],
+                           ink: 0xB73F6E, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0x70AA7C, 0xFFB1C8, 0xFFCFDC],
+                           ink: 0xFF9BBA, onInk: 0x1C0C11)),
+        .init(id: "indigo-apricot", ja: "藍と杏", en: "Indigo & Apricot",
+              light: .init(tiers: [0xD8DDE3, 0xAACFFF, 0xF27636, 0xDB5A00],
+                           ink: 0xB94B00, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0x749CD1, 0xFFB797, 0xFFD3C0],
+                           ink: 0xFFA47A, onInk: 0x1C0D06)),
+        .init(id: "indigo-lime", ja: "藍と若葉", en: "Indigo & Lime",
+              light: .init(tiers: [0xD8DDE3, 0xB8CAFF, 0x92AC00, 0x7D9400],
+                           ink: 0x637600, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0x8497D2, 0xBED95A, 0xCFEF4D],
+                           ink: 0xB1CC46, onInk: 0x101305)),
+        .init(id: "lime-grape", ja: "若葉と葡萄", en: "Lime & Grape",
+              light: .init(tiers: [0xD8DDE3, 0xADDD93, 0x968CFF, 0x806EF9],
+                           ink: 0x6B5FCA, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0x82A76E, 0xC4C4FF, 0xDADAFF],
+                           ink: 0xB6B4FF, onInk: 0x10101E)),
+        .init(id: "lime-indigo", ja: "若葉と藍", en: "Lime & Indigo",
+              light: .init(tiers: [0xD8DDE3, 0xD7D079, 0x53A0FF, 0x1085FC],
+                           ink: 0x1E6FCA, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0xA29D59, 0xA7CEFF, 0xC9E0FF],
+                           ink: 0x91C1FF, onInk: 0x08121F)),
+        .init(id: "lime-magenta", ja: "若葉と紅", en: "Lime & Magenta",
+              light: .init(tiers: [0xD8DDE3, 0xC3D784, 0xD773D0, 0xC951C2],
+                           ink: 0xA3489D, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0x92A261, 0xFFA7F7, 0xFFCAF9],
+                           ink: 0xF695EE, onInk: 0x190D18)),
+        .init(id: "magenta-lime", ja: "紅と若葉", en: "Magenta & Lime",
+              light: .init(tiers: [0xD8DDE3, 0xE7B6FE, 0xADA200, 0x948B00],
+                           ink: 0x787100, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0xAF89C0, 0xDACF44, 0xF1E323],
+                           ink: 0xCEC228, onInk: 0x141203)),
+        .init(id: "mint-brick", ja: "薄荷と煉瓦", en: "Mint & Brick",
+              light: .init(tiers: [0xD8DDE3, 0x70E4CF, 0xF66E5C, 0xE94937],
+                           ink: 0xBD4334, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0x52AC9C, 0xFFB5A8, 0xFFD2CA],
+                           ink: 0xFFA191, onInk: 0x1D0C0A)),
+        .init(id: "mint-peach", ja: "薄荷と桃", en: "Mint & Peach",
+              light: .init(tiers: [0xD8DDE3, 0x67E3E2, 0xE66DB6, 0xD84AA5],
+                           ink: 0xAF4387, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0x4BABAB, 0xFFADDB, 0xFFCDE8],
+                           ink: 0xFF96D3, onInk: 0x1B0C15)),
+        .init(id: "rose-grass", ja: "薔薇と草", en: "Rose & Grass",
+              light: .init(tiers: [0xD8DDE3, 0xFFB3CA, 0x37BB62, 0x00A34A],
+                           ink: 0x007F38, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0xC88297, 0x78E693, 0x77FF9B],
+                           ink: 0x66DA85, onInk: 0x07150A)),
+        .init(id: "rose-mint", ja: "薔薇と薄荷", en: "Rose & Mint",
+              light: .init(tiers: [0xD8DDE3, 0xFFB3CA, 0x00B8A1, 0x009E8A],
+                           ink: 0x007C6D, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0xC88297, 0x00EACE, 0x33FFE2],
+                           ink: 0x00DCC1, onInk: 0x011612)),
+        .init(id: "rose-water", ja: "薔薇と水", en: "Rose & Water",
+              light: .init(tiers: [0xD8DDE3, 0xFFB3CA, 0x00B2C8, 0x0099AC],
+                           ink: 0x007A8A, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0xC88297, 0x00E3FF, 0x93EFFF],
+                           ink: 0x00D5EF, onInk: 0x011519)),
+        .init(id: "sky-brick", ja: "空と煉瓦", en: "Sky & Brick",
+              light: .init(tiers: [0xD8DDE3, 0x7BDBFF, 0xF56B7C, 0xE84461],
+                           ink: 0xBC3F53, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0x55A6C4, 0xFFB3B8, 0xFFD1D3],
+                           ink: 0xFF9EA6, onInk: 0x1D0C0D)),
+        .init(id: "sky-wheat", ja: "空と麦", en: "Sky & Wheat",
+              light: .init(tiers: [0xD8DDE3, 0x98D4FF, 0xC19900, 0xA68300],
+                           ink: 0x876A00, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0x63A1CC, 0xF2C53A, 0xFFDA74],
+                           ink: 0xE6B816, onInk: 0x171103)),
+        .init(id: "water-apricot", ja: "水と杏", en: "Water & Apricot",
+              light: .init(tiers: [0xD8DDE3, 0x69E0F4, 0xE68100, 0xC66E00],
+                           ink: 0xA75C00, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0x4CA9B9, 0xFFBA81, 0xFFD5B3],
+                           ink: 0xFFA658, onInk: 0x1B0E04)),
+        .init(id: "wheat-grape", ja: "麦と葡萄", en: "Wheat & Grape",
+              light: .init(tiers: [0xD8DDE3, 0xE8C975, 0xB082F7, 0x9E64EE],
                            ink: 0x8156C0, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x938DA2, 0xB19ED5, 0xCEB4FF, 0xDECDFF],
+              dark:  .init(tiers: [0x83888E, 0xAF9756, 0xD4BDFF, 0xE3D6FF],
                            ink: 0xC9ACFF, onInk: 0x140E1D)),
-        .init(id: "apricot", ja: "杏", en: "Apricot",
-              light: .init(tiers: [0xFFE8D7, 0xFFCBA4, 0xF79643, 0xDD7800],
-                           ink: 0xA95A00, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0xA08C7E, 0xD09D77, 0xFFAF70, 0xFFCBA4],
-                           ink: 0xFFA65E, onInk: 0x1B0E05)),
-        .init(id: "peach", ja: "桃", en: "Peach",
-              light: .init(tiers: [0xFFE5EE, 0xFFC3D9, 0xFA86B6, 0xE85B9C],
-                           ink: 0xB54076, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0xA28992, 0xD294AC, 0xFFA3C7, 0xFFC3D9],
-                           ink: 0xFF99C2, onInk: 0x1C0C12)),
-        .init(id: "lagoon", ja: "碧", en: "Lagoon",
-              light: .init(tiers: [0xD2F5F3, 0x86EBE7, 0x00CBC6, 0x00ACA8],
-                           ink: 0x007B78, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x7B9796, 0x68BAB6, 0x27DFDA, 0x00F6F0],
-                           ink: 0x00D9D4, onInk: 0x011615)),
-        .init(id: "wheat", ja: "麦", en: "Wheat",
-              light: .init(tiers: [0xF4EDD2, 0xEAD78E, 0xCFAF1D, 0xB19400],
-                           ink: 0x826C00, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x97917B, 0xB9A96E, 0xDFC251, 0xFAD42F],
-                           ink: 0xDEBB19, onInk: 0x161103)),
-        .init(id: "brick", ja: "煉瓦", en: "Brick",
-              light: .init(tiers: [0xFFE6E4, 0xFFC7C1, 0xFF8A82, 0xF25D59],
-                           ink: 0xBD413F, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0xA48A87, 0xD79690, 0xFFA9A2, 0xFFC7C1],
-                           ink: 0xFFA098, onInk: 0x1D0C0B)),
-        .init(id: "stone", ja: "石", en: "Stone",
-              light: .init(tiers: [0xEEF2F7, 0xC3CDD8, 0x9AAABA, 0x7C8EA2],
-                           ink: 0x666F7A, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x898C90, 0xA0A9B2, 0xB7C6D5, 0xCFE2F6],
-                           ink: 0xB4BFCA, onInk: 0x07121E)),
-        .init(id: "leaf", ja: "若葉", en: "Leaf",
-              light: .init(tiers: [0xF2EED3, 0xE5D98F, 0x61CB7C, 0x00B453],
-                           ink: 0x007F38, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x95917B, 0xB5AB6F, 0x7FDC94, 0x79F699],
-                           ink: 0x66DA85, onInk: 0x07150A)),
-        .init(id: "water", ja: "水と青", en: "Water & Blue",
-              light: .init(tiers: [0xD2F4F8, 0x85E9F5, 0x86B1FF, 0x5891FF],
-                           ink: 0x396BCB, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x7B979A, 0x68B8C1, 0xA3C4FF, 0xC2D8FF],
-                           ink: 0x9ABEFF, onInk: 0x0A111F)),
-        .init(id: "rose", ja: "薔薇と菫", en: "Rose & Violet",
-              light: .init(tiers: [0xFFE5EF, 0xFFC3DC, 0xC399FF, 0xAC74F3],
-                           ink: 0x8455BE, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0xA18993, 0xD195AE, 0xD1B3FF, 0xDFCCFF],
-                           ink: 0xCCABFF, onInk: 0x140E1D)),
-        .init(id: "sunfire", ja: "陽と炎", en: "Sun & Fire",
-              light: .init(tiers: [0xFDE9D4, 0xFFCC92, 0xFF8A82, 0xF25D59],
-                           ink: 0xBD413F, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x9E8E7C, 0xCAA171, 0xFFA9A2, 0xFFC7C1],
-                           ink: 0xFFA098, onInk: 0x1D0C0B)),
-        .init(id: "mint", ja: "薄荷と碧", en: "Mint & Teal",
-              light: .init(tiers: [0xE0F3DD, 0xB3E7AD, 0x00CACF, 0x00ABAF],
-                           ink: 0x007A7D, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x869684, 0x8DB688, 0x21DEE3, 0x00F4FA],
-                           ink: 0x00D8DD, onInk: 0x001616)),
-        .init(id: "corn", ja: "粟と琥珀", en: "Corn & Amber",
-              light: .init(tiers: [0xF1EED3, 0xE3DA8F, 0xFC9252, 0xE96D00],
-                           ink: 0xB25200, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x94927C, 0xB3AC70, 0xFFAD7F, 0xFFCAAD],
-                           ink: 0xFFA571, onInk: 0x1C0D06)),
-        .init(id: "lilac", ja: "藤と藍", en: "Lilac & Indigo",
-              light: .init(tiers: [0xF4E7FF, 0xE7C9FF, 0x90AEFF, 0x688DFF],
-                           ink: 0x4867CC, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x978CA0, 0xB99CCF, 0xAAC2FF, 0xC6D6FF],
-                           ink: 0xA2BCFF, onInk: 0x0C111F)),
-        .init(id: "sand", ja: "砂と空", en: "Sand & Sky",
-              light: .init(tiers: [0xFCEAD3, 0xFECD90, 0x64B8FF, 0x009CF8],
-                           ink: 0x0073B9, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x9D8E7C, 0xC9A170, 0x8ECAFF, 0xB5DCFF],
-                           ink: 0x82C5FF, onInk: 0x06131E)),
-        .init(id: "blossom", ja: "花と葉", en: "Blossom & Leaf",
-              light: .init(tiers: [0xFFE4F0, 0xFFC3DE, 0x5BCC80, 0x00B35B],
-                           ink: 0x00803F, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0xA18993, 0xD195B0, 0x7ADC98, 0x73F69E],
-                           ink: 0x60DB89, onInk: 0x07150B)),
-        .init(id: "straw", ja: "藁と葡萄", en: "Straw & Grape",
-              light: .init(tiers: [0xF3EED3, 0xE7D88E, 0xBC9CFF, 0xA577F7],
-                           ink: 0x7E57C1, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x96917B, 0xB6AA6F, 0xCBB5FF, 0xDCCEFF],
-                           ink: 0xC7ADFF, onInk: 0x130F1D)),
+        .init(id: "wheat-sky", ja: "麦と空", en: "Wheat & Sky",
+              light: .init(tiers: [0xD8DDE3, 0xF6C278, 0x00AFDC, 0x0096BD],
+                           ink: 0x007898, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0xBB9258, 0x76D9FF, 0xB0E8FF],
+                           ink: 0x3ECFFF, onInk: 0x02141B)),
     ]
 
     public static func named(_ id: String?) -> CalendarPalette {
@@ -174,26 +199,15 @@ public enum Palettes {
     }
 
     /// 1.1 までは「80点未満の色」と「80点以上の色」を別々に選ばせていた。
-    /// その2つから、いちばん近いパターンへ移す。
+    /// **80点以上に選んでいた色を引き継ぐ。** そこが合否の境目なので、
+    /// 印象がいちばん変わらない。
     public static func migrating(fail: String?, pass: String?) -> String {
-        let p = pass ?? "blue"
-        if fail == p {
-            switch p {
-            case "yellow": return "wheat"
-            case "blue":   return "sky"
-            case "green":  return "grass"
-            case "orange": return "apricot"
-            case "purple": return "grape"
-            default:       return defaultID
-            }
-        }
-        switch p {
-        case "blue":   return "sand"
-        case "green":  return "leaf"
-        case "purple": return "straw"
-        case "orange": return "corn"
-        case "yellow": return "wheat"
-        default:       return defaultID
+        switch pass {
+        case "green":  return "rose-grass"
+        case "purple": return "wheat-grape"
+        case "orange": return "indigo-apricot"
+        case "yellow": return "sky-wheat"
+        default:       return defaultID          // 青、および記録が無いとき
         }
     }
 }
@@ -230,6 +244,24 @@ public enum ColorMath {
     public static func difference(_ a: UInt32, _ b: UInt32) -> Double {
         let x = oklab(a), y = oklab(b)
         return sqrt(pow(x.0 - y.0, 2) + pow(x.1 - y.1, 2) + pow(x.2 - y.2, 2))
+    }
+
+    /// 鮮やかさ。無彩色なら 0 に近い。
+    public static func chroma(_ hex: UInt32) -> Double {
+        let (_, a, b) = oklab(hex)
+        return sqrt(a * a + b * b)
+    }
+
+    /// 色相（度）。彩度がほぼ無いときは意味を持たないので、呼ぶ前に確かめること。
+    public static func hue(_ hex: UInt32) -> Double {
+        let (_, a, b) = oklab(hex)
+        return atan2(b, a) * 180 / .pi
+    }
+
+    /// 色相の隔たり（0〜180度）
+    public static func hueGap(_ x: UInt32, _ y: UInt32) -> Double {
+        let d = abs(hue(x) - hue(y)).truncatingRemainder(dividingBy: 360)
+        return min(d, 360 - d)
     }
 
     public static func oklab(_ hex: UInt32) -> (Double, Double, Double) {

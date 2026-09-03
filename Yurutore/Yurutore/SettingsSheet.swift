@@ -179,6 +179,7 @@ struct SettingsSheet: View {
         .padding(11)
         .frame(maxWidth: .infinity)
         .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 12))
+        .accessibilityIdentifier("tierSample")
     }
 
     /// 配色のパターン。押すとすぐ上のサンプルとカレンダーに反映される。

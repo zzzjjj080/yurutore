@@ -68,53 +68,88 @@ def dE(a, b):
 MIN_TEXT = 4.6        # 黒文字が読める下限（WCAG AA 4.5 に余裕を持たせる）
 
 def build(hues, light=True, csc=1.0):
-    """hues = (h1, h2, h34). 明度と彩度は段階で固定し、色相だけ振る。"""
-    h1, h2, h34 = hues
+    """hues = (hA, hB)。hA = 40〜79点の色、hB = 80点以上の色。
+
+    1段階目はどのパターンでもグレー。「記録はあるが、まだ何も越えていない日」を
+    色で語らせない。2段階目と3段階目のあいだ（＝80点の境目）だけ色相が変わる。
+    """
+    hA, hB = hues
+    GREY_H = 250          # ほんの少し寒色寄りの無彩色
     if light:
-        # 達成が進むほど濃く・鮮やかに。地（ほぼ白）から離れていく
-        spec = [(0.945, 0.036, h1), (0.878, 0.095, h2),
-                (0.760, 0.150, h34), (0.672, 0.185, h34)]
+        # 明るい地。進むほど暗く・鮮やかに
+        spec = [(0.895, 0.010, GREY_H), (0.845, 0.110, hA),
+                (0.700, 0.170, hB),     (0.625, 0.200, hB)]
     else:
-        # 暗い地の上では逆。進むほど明るく・鮮やかにする
-        spec = [(0.655, 0.032, h1), (0.735, 0.080, h2),
-                (0.818, 0.135, h34), (0.878, 0.170, h34)]
-    # 彩度を落とす配色は、色相で差を付けられない。明度の幅を広げて段階を保つ
-    if csc < 0.5:
-        Ls = [0.960, 0.845, 0.730, 0.640] if light else [0.640, 0.730, 0.820, 0.905]
-        spec = [(Ls[i], spec[i][1], spec[i][2]) for i in range(4)]
+        # 暗い地。進むほど明るく・鮮やかに
+        spec = [(0.625, 0.010, GREY_H), (0.685, 0.090, hA),
+                (0.840, 0.155, hB),     (0.900, 0.185, hB)]
     out = []
     for (L, C, h) in spec:
-        C *= csc
         rgb, _ = oklch_to_rgb255(L, C, h)
         # 黒文字が読めるまで明度を上げる。彩度ではなく明度で直す
         guard = 0
         while contrast(rgb) < MIN_TEXT and guard < 60:
-            L += 0.006; guard += 1
+            L += 0.006
+            guard += 1
             rgb, _ = oklch_to_rgb255(L, C, h)
         out.append(rgb)
     return out
 
-PALETTES = [
-    ("sky",      "空",       "Sky",           (245, 245, 245), 1.0),
-    ("grass",    "草",       "Grass",         (150, 150, 150), 1.0),
-    ("grape",    "葡萄",     "Grape",         (300, 300, 300), 1.0),
-    ("apricot",  "杏",       "Apricot",       ( 58,  58,  58), 1.0),
-    ("peach",    "桃",       "Peach",         (355, 355, 355), 1.0),
-    ("lagoon",   "碧",       "Lagoon",        (192, 192, 192), 1.0),
-    ("wheat",    "麦",       "Wheat",         ( 95,  95,  95), 1.0),
-    ("brick",    "煉瓦",     "Brick",         ( 25,  25,  25), 1.0),
-    ("stone",    "石",       "Stone",         (250, 250, 250), 0.20),
-    ("leaf",     "若葉",     "Leaf",          (100, 100, 150), 1.0),
-    ("water",    "水と青",   "Water & Blue",  (205, 205, 262), 1.0),
-    ("rose",     "薔薇と菫", "Rose & Violet", (352, 352, 302), 1.0),
-    ("sunfire",  "陽と炎",   "Sun & Fire",    ( 70,  70,  25), 1.0),
-    ("mint",     "薄荷と碧", "Mint & Teal",   (142, 142, 198), 1.0),
-    ("corn",     "粟と琥珀", "Corn & Amber",  (102, 102,  50), 1.0),
-    ("lilac",    "藤と藍",   "Lilac & Indigo",(310, 310, 268), 1.0),
-    ("sand",     "砂と空",   "Sand & Sky",    ( 72,  72, 246), 1.0),
-    ("blossom",  "花と葉",   "Blossom & Leaf",(350, 350, 152), 1.0),
-    ("straw",    "藁と葡萄", "Straw & Grape", ( 98,  98, 298), 1.0),
-]
+# 色相から呼び名を引く。名前を手で付けると、組み合わせを変えたときにずれる。
+HUE_NAMES = [(15, "薔薇", "Rose"), (40, "煉瓦", "Brick"), (70, "杏", "Apricot"),
+             (105, "麦", "Wheat"), (140, "若葉", "Lime"), (170, "草", "Grass"),
+             (200, "薄荷", "Mint"), (225, "水", "Water"), (255, "空", "Sky"),
+             (285, "藍", "Indigo"), (315, "葡萄", "Grape"), (340, "紅", "Magenta"),
+             (361, "桃", "Peach")]
+
+def hue_name(h):
+    for limit, ja, en in HUE_NAMES:
+        if h % 360 < limit: return ja, en
+    return HUE_NAMES[-1][1], HUE_NAMES[-1][2]
+
+def hue_gap(a, b):
+    d = abs(a - b) % 360
+    return min(d, 360 - d)
+
+def per_palette_problems(hues):
+    """1パターン単体の条件。破るものは候補から外す。"""
+    bad = []
+    if hue_gap(hues[0], hues[1]) < 60: bad.append("色相が近い")
+    for light in (True, False):
+        c = build(hues, light)
+        for x in c:
+            if contrast(x) < MIN_TEXT: bad.append("文字が読めない")
+        for i in range(3):
+            floor = 0.055 if i == 2 else 0.075
+            if dE(c[i], c[i+1]) < floor: bad.append(f"{i+1}-{i+2}が近い")
+        gap = dE(c[1], c[2])
+        if gap < 0.20: bad.append("80点の境目が弱い")
+        if gap <= max(dE(c[0], c[1]), dE(c[2], c[3])): bad.append("境目が一番の差でない")
+    return bad
+
+def too_similar(a, b):
+    ca, cb = build(a, True), build(b, True)
+    return dE(ca[1], cb[1]) < 0.06 and dE(ca[2], cb[2]) < 0.06
+
+# 候補を色相の総当たりで作り、条件を満たすものから離れている順に採る
+CANDIDATES = [(hA, (hA + off) % 360)
+              for hA in range(0, 360, 15)
+              for off in (150, 165, 180, 195, 210)]
+
+PALETTES, taken_names = [], set()
+for hues in CANDIDATES:
+    if per_palette_problems(hues): continue
+    ja = f"{hue_name(hues[0])[0]}と{hue_name(hues[1])[0]}"
+    en = f"{hue_name(hues[0])[1]} & {hue_name(hues[1])[1]}"
+    if ja in taken_names: continue
+    if any(too_similar(hues, p[3]) for p in PALETTES): continue
+    key = f"{hue_name(hues[0])[1]}-{hue_name(hues[1])[1]}".lower()
+    PALETTES.append((key, ja, en, hues, 1.0))
+    taken_names.add(ja)
+
+# 既定は 1.1 の「うすい黄＋青」に一番近いもの
+PALETTES.sort(key=lambda p: (0 if p[0] == "apricot-sky" else 1, p[0]))
+
 
 
 
@@ -148,14 +183,22 @@ for key, ja, en, hues, csc in PALETTES:
             d = dE(cols[i], cols[i+1])
             floor = 0.055 if i == 2 else 0.075   # 3と4は近くてよい
             if d < floor: problems.append(f"{key}/{theme}/{i+1}-{i+2} 差 {d:.3f}")
-    il, idk = ink_for(hues[2], csc, True), ink_for(hues[2], csc, False)
+        gap = dE(cols[1], cols[2])
+        if gap < 0.20: problems.append(f"{key}/{theme} 80点の境目が弱い {gap:.3f}")
+        if gap <= max(dE(cols[0], cols[1]), dE(cols[2], cols[3])):
+            problems.append(f"{key}/{theme} 80点の境目が一番の差でない")
+        _L, _a, _b = oklab_of(cols[0])
+        if math.hypot(_a, _b) > 0.020: problems.append(f"{key}/{theme} 1段階目が無彩色でない")
+    if min(abs(hues[0]-hues[1]), 360-abs(hues[0]-hues[1])) < 60:
+        problems.append(f"{key} 80点の前後で色相が近い")
+    il, idk = ink_for(hues[1], csc, True), ink_for(hues[1], csc, False)
     for nm, ink, bgs in (("light", il, (GROUPED_LIGHT, CARD_LIGHT)),
                          ("dark", idk, (GROUPED_DARK, CARD_DARK))):
         for bg in bgs:
             r = contrast(ink, rel_lum(bg))
             if r < 4.5: problems.append(f"{key}/{nm} ink {r:.2f}")
     on_l = (255, 255, 255)
-    on_d = oklch_to_rgb255(0.18, 0.03, hues[2])[0]
+    on_d = oklch_to_rgb255(0.18, 0.03, hues[1])[0]
     if contrast(on_l, rel_lum(il)) < 4.5: problems.append(f"{key}/light onInk {contrast(on_l, rel_lum(il)):.2f}")
     if contrast(on_d, rel_lum(idk)) < 4.5: problems.append(f"{key}/dark onInk {contrast(on_d, rel_lum(idk)):.2f}")
     result.append({"key": key, "ja": ja, "en": en, "light": lt, "dark": dk,

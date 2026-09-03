@@ -15,10 +15,48 @@ struct PaletteTests {
     /// 3段階目と4段階目だけは近くてよい。ただし同じには見えないこと
     let minTopStep = 0.050
 
-    @Test("19パターンある")
+    @Test("23パターンある")
     func count() {
-        #expect(Palettes.all.count == 19)
+        #expect(Palettes.all.count == 23)
         #expect(Set(Palettes.all.map(\.id)).count == Palettes.all.count)
+        #expect(Set(Palettes.all.map(\.ja)).count == Palettes.all.count)
+    }
+
+    /// まだ何も越えていない日を、色で語らせない。
+    @Test("39点までは、どのパターンでも無彩色")
+    func lowestIsGrey() {
+        for p in Palettes.all {
+            for dark in [false, true] {
+                let c = ColorMath.chroma(p.fill(.low, dark: dark))
+                #expect(c <= 0.020, "\(p.id)/\(dark ? "暗" : "明") の1段階目が \(c)")
+            }
+        }
+    }
+
+    /// **合否がいちばん見分けたいところ。** 80点の前後は色相から変える。
+    @Test("80点の境目が、いちばんはっきり離れている")
+    func passBoundaryIsTheBiggestBreak() {
+        for p in Palettes.all {
+            for dark in [false, true] {
+                let c = p.colors(dark: dark).tiers
+                let gap = ColorMath.difference(c[1], c[2])
+                let others = [ColorMath.difference(c[0], c[1]),
+                              ColorMath.difference(c[2], c[3])]
+                #expect(gap >= 0.20, "\(p.id)/\(dark ? "暗" : "明") の境目が \(gap)")
+                #expect(gap > others.max()!, "\(p.id)/\(dark ? "暗" : "明") で境目が一番の差でない")
+                #expect(ColorMath.hueGap(c[1], c[2]) >= 60,
+                        "\(p.id)/\(dark ? "暗" : "明") で80点の前後の色相が近い")
+            }
+        }
+    }
+
+    /// 単色の濃淡だけのパターンは置かない。合否の境目が読めないため。
+    @Test("同じ色相の濃淡だけのパターンは無い")
+    func noSingleHuePalettes() {
+        for p in Palettes.all {
+            let c = p.colors(dark: false).tiers
+            #expect(ColorMath.hueGap(c[1], c[2]) >= 60, "\(p.id) が単色に近い")
+        }
     }
 
     @Test("どの段階でもマスの文字が読める")
@@ -96,17 +134,21 @@ struct PaletteTests {
     func fallsBackToDefault() {
         #expect(Palettes.named("そんな色は無い").id == Palettes.defaultID)
         #expect(Palettes.named(nil).id == Palettes.defaultID)
-        #expect(Palettes.named("grape").id == "grape")
+        #expect(Palettes.named("rose-mint").id == "rose-mint")
     }
 
+    /// 引き継ぎは「80点以上に選んでいた色」で決める。そこが合否の境目なので、
+    /// 印象がいちばん変わらない。
     @Test("1.1までの2色設定から引き継げる")
     func migratesFromOldTwoColors() {
-        // 既定（うすい黄＋青）は、いちばん近い「砂と空」へ
-        #expect(Palettes.migrating(fail: "yellow", pass: "blue") == "sand")
-        // 同じ色を2つ選んでいた人は、その色の1色パターンへ
-        #expect(Palettes.migrating(fail: "green", pass: "green") == "grass")
-        #expect(Palettes.migrating(fail: "purple", pass: "purple") == "grape")
-        // 保存が無くても落ちない
+        #expect(Palettes.migrating(fail: "yellow", pass: "blue") == Palettes.defaultID)
+        #expect(Palettes.named(Palettes.migrating(fail: "yellow", pass: "green")).id == "rose-grass")
+        #expect(Palettes.named(Palettes.migrating(fail: "blue", pass: "purple")).id == "wheat-grape")
+        // どの答えも実在すること。保存が無くても落ちないこと
+        for pass in ["blue", "green", "purple", "orange", "yellow", "そんな色は無い"] {
+            let id = Palettes.migrating(fail: nil, pass: pass)
+            #expect(Palettes.all.map(\.id).contains(id), "\(pass) の行き先が無い")
+        }
         #expect(Palettes.all.map(\.id).contains(Palettes.migrating(fail: nil, pass: nil)))
     }
 }

@@ -32,22 +32,31 @@ final class PaletteScreenshots: XCTestCase {
         gear.tap()
         sleep(2)
 
+        // まず4段階のサンプルが見えるところで1枚。
+        // 既定の swipeUp は一気に飛ぶので、ゆっくり送って行き過ぎないようにする
+        let band = app.staticTexts["〜39"]
+        for _ in 0..<10 where !band.exists || !band.isHittable {
+            app.swipeUp(velocity: .slow)
+            usleep(500_000)
+        }
+        save("p02-tier-sample")
+
         // 配色の欄まで送る
-        let sky = app.buttons["palette-sky"]
-        for _ in 0..<8 where !sky.exists || !sky.isHittable {
+        let first = app.buttons["palette-wheat-sky"]
+        for _ in 0..<8 where !first.exists || !first.isHittable {
             app.swipeUp()
             usleep(600_000)
         }
-        XCTAssertTrue(sky.waitForExistence(timeout: 5), "配色の一覧が出ていない")
-        save("p02-palette-list")
+        XCTAssertTrue(first.waitForExistence(timeout: 5), "配色の一覧が出ていない")
+        save("p03-palette-list")
 
         // いくつか選んで、サンプルとカレンダーが変わることを見る
-        for id in ["grass", "grape", "stone"] {
+        for id in ["rose-mint", "sky-brick", "indigo-lime"] {
             let chip = app.buttons["palette-\(id)"]
             if chip.exists && chip.isHittable {
                 chip.tap()
                 sleep(1)
-                save("p03-\(id)")
+                save("p04-\(id)")
             }
         }
     }
