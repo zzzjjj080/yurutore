@@ -148,6 +148,7 @@ struct SettingsSheet: View {
                 Text(L.palettePick(lang)).font(.system(size: 10, weight: .bold))
                     .foregroundStyle(.secondary).padding(.top, 2)
                 paletteGrid
+                customRow
                 if store.paletteID == Palettes.customID { customEditor }
             }
             resetButton(L.resetDefaults(lang),
@@ -193,9 +194,6 @@ struct SettingsSheet: View {
                     p.color($0, dark: dark)
                 }
             }
-            paletteChip(id: Palettes.customID, name: L.customPalette(lang)) {
-                store.palette.color($0, dark: dark)
-            }
         }
     }
 
@@ -230,6 +228,57 @@ struct SettingsSheet: View {
         .buttonStyle(.plain)
         .accessibilityIdentifier("palette-\(id)")
         .accessibilityLabel(Text(name))
+        .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+
+    /// 「自分で選ぶ」はプリセットと別物なので、一覧に混ぜずに幅いっぱいで置く。
+    /// 9個目のマスに紛れていると、選べることに気づかれない。
+    private var customRow: some View {
+        let selected = store.paletteID == Palettes.customID
+        let accent = store.accent(dark: dark)
+        let colors = Palettes.normalizedCustom(store.customColors)
+        return Button {
+            Haptics.light()
+            store.paletteID = Palettes.customID
+            store.save()
+        } label: {
+            HStack(spacing: 11) {
+                Image(systemName: "paintpalette.fill")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(accent)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L.customPalette(lang))
+                        .font(.system(size: 14, weight: .heavy))
+                        .foregroundStyle(.primary)
+                    Text(L.customRowHint(lang))
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 8)
+                HStack(spacing: 2) {
+                    ForEach(DayTier.allCases, id: \.rawValue) { tier in
+                        Rectangle().fill(Color(hex: colors[tier.rawValue - 1]))
+                            .frame(width: 15, height: 26)
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 5))
+                Image(systemName: selected ? "chevron.down" : "chevron.right")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(.secondary)
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity)
+            .background(selected ? accent.opacity(0.12)
+                                 : Color(.secondarySystemGroupedBackground),
+                        in: .rect(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(selected ? accent : .clear, lineWidth: 2))
+            // Spacer は描画を持たないので、これが無いと余白を押しても反応しない
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("palette-custom")
+        .accessibilityLabel(Text(L.customPalette(lang)))
         .accessibilityAddTraits(selected ? .isSelected : [])
     }
 

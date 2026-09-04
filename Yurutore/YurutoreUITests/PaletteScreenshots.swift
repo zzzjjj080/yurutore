@@ -53,6 +53,11 @@ final class PaletteScreenshots: XCTestCase {
         // いくつか選んで、サンプルとカレンダーが変わることを見る
         for id in ["sky-brick", "indigo-lime", "custom"] {
             let chip = app.buttons["palette-\(id)"]
+            // 「自分で選ぶ」は一覧の下にあるので、画面に入るまで送る
+            for _ in 0..<6 where !chip.exists || !chip.isHittable {
+                app.swipeUp(velocity: .slow)
+                usleep(500_000)
+            }
             if chip.exists && chip.isHittable {
                 chip.tap()
                 sleep(1)

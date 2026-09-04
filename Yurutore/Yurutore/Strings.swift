@@ -120,9 +120,12 @@ enum L {
     }
     static func palettePick(_ l: AppLanguage) -> String { t("配色を選ぶ", "Pick a palette", l) }
     static func customPalette(_ l: AppLanguage) -> String { t("自分で選ぶ", "Custom", l) }
+    static func customRowHint(_ l: AppLanguage) -> String {
+        t("4色とも自分で決める", "Set all four colors yourself", l)
+    }
     static func customHint(_ l: AppLanguage) -> String {
-        t("4色とも自分で決められます。ライトとダークで同じ色を使います。",
-          "Pick all four yourself. The same colors are used in light and dark.", l)
+        t("ライトとダークで同じ色を使います。",
+          "The same colors are used in light and dark.", l)
     }
     /// 選んだ色が条件を外れたときの注意書き。**止めはしない。**
     static func issueText(_ issue: CustomColorIssue, _ l: AppLanguage) -> String {
