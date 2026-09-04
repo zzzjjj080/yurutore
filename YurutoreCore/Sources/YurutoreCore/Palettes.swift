@@ -76,106 +76,31 @@ public enum Palettes {
     public static let defaultID = "wheat-sky"
 
     public static let all: [CalendarPalette] = [
-        .init(id: "apricot-indigo", ja: "杏と藍", en: "Apricot & Indigo",
-              light: .init(tiers: [0xD8DDE3, 0xFFBC85, 0x7997FF, 0x5B79FE],
-                           ink: 0x4D66CC, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0xC38C5F, 0xB6C9FF, 0xD1DDFF],
-                           ink: 0xA4BBFF, onInk: 0x0C111F)),
-        .init(id: "apricot-mint", ja: "杏と薄荷", en: "Apricot & Mint",
-              light: .init(tiers: [0xD8DDE3, 0xFFBA9B, 0x00B5B5, 0x009B9C],
-                           ink: 0x007C7D, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0xC9886B, 0x00E7E7, 0x00FDFD],
-                           ink: 0x00D8D9, onInk: 0x001616)),
-        .init(id: "brick-sky", ja: "煉瓦と空", en: "Brick & Sky",
-              light: .init(tiers: [0xD8DDE3, 0xFFB8AB, 0x00A9F7, 0x0091D5],
-                           ink: 0x0074AB, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0xCB8579, 0x94D3FF, 0xBEE4FF],
-                           ink: 0x76C7FF, onInk: 0x05131D)),
-        .init(id: "grape-grass", ja: "葡萄と草", en: "Grape & Grass",
-              light: .init(tiers: [0xD8DDE3, 0xD5BFFF, 0x37BB62, 0x00A34A],
-                           ink: 0x007F38, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0xA28DCA, 0x78E693, 0x77FF9B],
-                           ink: 0x66DA85, onInk: 0x07150A)),
-        .init(id: "grape-wheat", ja: "葡萄と麦", en: "Grape & Wheat",
-              light: .init(tiers: [0xD8DDE3, 0xC6C5FF, 0xD38F00, 0xB57A00],
-                           ink: 0x966400, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0x9492D0, 0xFFBD58, 0xFFD7A0],
-                           ink: 0xF9AD26, onInk: 0x190F03)),
-        .init(id: "grass-magenta", ja: "草と紅", en: "Grass & Magenta",
-              light: .init(tiers: [0xD8DDE3, 0x82E3BA, 0xC57AE6, 0xB55ADA],
-                           ink: 0x944FB0, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0x60AC8C, 0xE7B3FF, 0xF0D0FF],
-                           ink: 0xE29FFF, onInk: 0x170D1B)),
-        .init(id: "grass-rose", ja: "草と薔薇", en: "Grass & Rose",
-              light: .init(tiers: [0xD8DDE3, 0x97E1A6, 0xEF6A9A, 0xE54786],
-                           ink: 0xB73F6E, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0x70AA7C, 0xFFB1C8, 0xFFCFDC],
-                           ink: 0xFF9BBA, onInk: 0x1C0C11)),
-        .init(id: "indigo-apricot", ja: "藍と杏", en: "Indigo & Apricot",
-              light: .init(tiers: [0xD8DDE3, 0xAACFFF, 0xF27636, 0xDB5A00],
-                           ink: 0xB94B00, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0x749CD1, 0xFFB797, 0xFFD3C0],
-                           ink: 0xFFA47A, onInk: 0x1C0D06)),
-        .init(id: "indigo-lime", ja: "藍と若葉", en: "Indigo & Lime",
-              light: .init(tiers: [0xD8DDE3, 0xB8CAFF, 0x92AC00, 0x7D9400],
-                           ink: 0x637600, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0x8497D2, 0xBED95A, 0xCFEF4D],
-                           ink: 0xB1CC46, onInk: 0x101305)),
-        .init(id: "lime-grape", ja: "若葉と葡萄", en: "Lime & Grape",
-              light: .init(tiers: [0xD8DDE3, 0xADDD93, 0x968CFF, 0x806EF9],
-                           ink: 0x6B5FCA, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0x82A76E, 0xC4C4FF, 0xDADAFF],
-                           ink: 0xB6B4FF, onInk: 0x10101E)),
-        .init(id: "lime-indigo", ja: "若葉と藍", en: "Lime & Indigo",
-              light: .init(tiers: [0xD8DDE3, 0xD7D079, 0x53A0FF, 0x1085FC],
-                           ink: 0x1E6FCA, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0xA29D59, 0xA7CEFF, 0xC9E0FF],
-                           ink: 0x91C1FF, onInk: 0x08121F)),
-        .init(id: "lime-magenta", ja: "若葉と紅", en: "Lime & Magenta",
-              light: .init(tiers: [0xD8DDE3, 0xC3D784, 0xD773D0, 0xC951C2],
-                           ink: 0xA3489D, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0x92A261, 0xFFA7F7, 0xFFCAF9],
-                           ink: 0xF695EE, onInk: 0x190D18)),
-        .init(id: "magenta-lime", ja: "紅と若葉", en: "Magenta & Lime",
-              light: .init(tiers: [0xD8DDE3, 0xE7B6FE, 0xADA200, 0x948B00],
-                           ink: 0x787100, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0xAF89C0, 0xDACF44, 0xF1E323],
-                           ink: 0xCEC228, onInk: 0x141203)),
-        .init(id: "mint-brick", ja: "薄荷と煉瓦", en: "Mint & Brick",
-              light: .init(tiers: [0xD8DDE3, 0x70E4CF, 0xF66E5C, 0xE94937],
-                           ink: 0xBD4334, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0x52AC9C, 0xFFB5A8, 0xFFD2CA],
-                           ink: 0xFFA191, onInk: 0x1D0C0A)),
-        .init(id: "mint-peach", ja: "薄荷と桃", en: "Mint & Peach",
-              light: .init(tiers: [0xD8DDE3, 0x67E3E2, 0xE66DB6, 0xD84AA5],
-                           ink: 0xAF4387, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0x4BABAB, 0xFFADDB, 0xFFCDE8],
-                           ink: 0xFF96D3, onInk: 0x1B0C15)),
+        .init(id: "wheat-sky", ja: "麦と空", en: "Wheat & Sky",
+              light: .init(tiers: [0xD8DDE3, 0xF6C278, 0x00AFDC, 0x0096BD],
+                           ink: 0x007898, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0xBB9258, 0x76D9FF, 0xB0E8FF],
+                           ink: 0x3ECFFF, onInk: 0x02141B)),
         .init(id: "rose-grass", ja: "薔薇と草", en: "Rose & Grass",
               light: .init(tiers: [0xD8DDE3, 0xFFB3CA, 0x37BB62, 0x00A34A],
                            ink: 0x007F38, onInk: 0xFFFFFF),
               dark:  .init(tiers: [0x83888E, 0xC88297, 0x78E693, 0x77FF9B],
                            ink: 0x66DA85, onInk: 0x07150A)),
-        .init(id: "rose-mint", ja: "薔薇と薄荷", en: "Rose & Mint",
-              light: .init(tiers: [0xD8DDE3, 0xFFB3CA, 0x00B8A1, 0x009E8A],
-                           ink: 0x007C6D, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0xC88297, 0x00EACE, 0x33FFE2],
-                           ink: 0x00DCC1, onInk: 0x011612)),
-        .init(id: "rose-water", ja: "薔薇と水", en: "Rose & Water",
-              light: .init(tiers: [0xD8DDE3, 0xFFB3CA, 0x00B2C8, 0x0099AC],
-                           ink: 0x007A8A, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0xC88297, 0x00E3FF, 0x93EFFF],
-                           ink: 0x00D5EF, onInk: 0x011519)),
         .init(id: "sky-brick", ja: "空と煉瓦", en: "Sky & Brick",
               light: .init(tiers: [0xD8DDE3, 0x7BDBFF, 0xF56B7C, 0xE84461],
                            ink: 0xBC3F53, onInk: 0xFFFFFF),
               dark:  .init(tiers: [0x83888E, 0x55A6C4, 0xFFB3B8, 0xFFD1D3],
                            ink: 0xFF9EA6, onInk: 0x1D0C0D)),
-        .init(id: "sky-wheat", ja: "空と麦", en: "Sky & Wheat",
-              light: .init(tiers: [0xD8DDE3, 0x98D4FF, 0xC19900, 0xA68300],
-                           ink: 0x876A00, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0x63A1CC, 0xF2C53A, 0xFFDA74],
-                           ink: 0xE6B816, onInk: 0x171103)),
+        .init(id: "mint-peach", ja: "薄荷と桃", en: "Mint & Peach",
+              light: .init(tiers: [0xD8DDE3, 0x67E3E2, 0xE66DB6, 0xD84AA5],
+                           ink: 0xAF4387, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0x4BABAB, 0xFFADDB, 0xFFCDE8],
+                           ink: 0xFF96D3, onInk: 0x1B0C15)),
+        .init(id: "indigo-lime", ja: "藍と若葉", en: "Indigo & Lime",
+              light: .init(tiers: [0xD8DDE3, 0xB8CAFF, 0x92AC00, 0x7D9400],
+                           ink: 0x637600, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0x8497D2, 0xBED95A, 0xCFEF4D],
+                           ink: 0xB1CC46, onInk: 0x101305)),
         .init(id: "water-apricot", ja: "水と杏", en: "Water & Apricot",
               light: .init(tiers: [0xD8DDE3, 0x69E0F4, 0xE68100, 0xC66E00],
                            ink: 0xA75C00, onInk: 0xFFFFFF),
@@ -186,16 +111,55 @@ public enum Palettes {
                            ink: 0x8156C0, onInk: 0xFFFFFF),
               dark:  .init(tiers: [0x83888E, 0xAF9756, 0xD4BDFF, 0xE3D6FF],
                            ink: 0xC9ACFF, onInk: 0x140E1D)),
-        .init(id: "wheat-sky", ja: "麦と空", en: "Wheat & Sky",
-              light: .init(tiers: [0xD8DDE3, 0xF6C278, 0x00AFDC, 0x0096BD],
-                           ink: 0x007898, onInk: 0xFFFFFF),
-              dark:  .init(tiers: [0x83888E, 0xBB9258, 0x76D9FF, 0xB0E8FF],
-                           ink: 0x3ECFFF, onInk: 0x02141B)),
+        .init(id: "grass-magenta", ja: "草と紅", en: "Grass & Magenta",
+              light: .init(tiers: [0xD8DDE3, 0x82E3BA, 0xC57AE6, 0xB55ADA],
+                           ink: 0x944FB0, onInk: 0xFFFFFF),
+              dark:  .init(tiers: [0x83888E, 0x60AC8C, 0xE7B3FF, 0xF0D0FF],
+                           ink: 0xE29FFF, onInk: 0x170D1B)),
     ]
+
+    /// 自分で4色を選んだときの id
+    public static let customID = "custom"
 
     public static func named(_ id: String?) -> CalendarPalette {
         if let id, let hit = all.first(where: { $0.id == id }) { return hit }
         return all.first { $0.id == defaultID } ?? all[0]
+    }
+
+    /// 選んだ4色から配色を作る。
+    ///
+    /// **明暗のテーマで同じ色を使う。** 8色を選ばせるのは多すぎるし、
+    /// 「自分で決めた色が、テーマを変えたら別の色になる」ほうが分かりにくい。
+    /// 文字やボタンの色は、地の上で読める明るさまで動かして作る。
+    public static func custom(_ colors: [UInt32], ja: String, en: String) -> CalendarPalette {
+        let tiers = normalizedCustom(colors)
+        func side(dark: Bool) -> PaletteColors {
+            let ink = ColorMath.readableInk(tiers[3], dark: dark)
+            return .init(tiers: tiers, ink: ink, onInk: ColorMath.readableText(on: ink))
+        }
+        return .init(id: customID, ja: ja, en: en, light: side(dark: false), dark: side(dark: true))
+    }
+
+    /// 4色に満たない保存を読んでも落ちないようにする
+    public static func normalizedCustom(_ colors: [UInt32]) -> [UInt32] {
+        let base = named(defaultID).colors(dark: false).tiers
+        return (0..<4).map { colors.indices.contains($0) ? colors[$0] : base[$0] }
+    }
+
+    /// 自分で選んだ色が、このアプリの条件を満たしているか。
+    /// **止めはしない。** 選ぶのは本人なので、気づけるようにだけしておく。
+    public static func issues(with colors: [UInt32]) -> [CustomColorIssue] {
+        let c = normalizedCustom(colors)
+        var found: [CustomColorIssue] = []
+        for tier in DayTier.allCases where
+            ColorMath.contrast(c[tier.rawValue - 1], ColorMath.cellInk) < 4.5 {
+            found.append(.textUnreadable(tier))
+        }
+        for i in 0..<3 where ColorMath.difference(c[i], c[i + 1]) < 0.055 {
+            found.append(.tooClose(DayTier(rawValue: i + 1)!, DayTier(rawValue: i + 2)!))
+        }
+        if ColorMath.difference(c[1], c[2]) < 0.15 { found.append(.weakPassBoundary) }
+        return found
     }
 
     /// 1.1 までは「80点未満の色」と「80点以上の色」を別々に選ばせていた。
@@ -203,13 +167,23 @@ public enum Palettes {
     /// 印象がいちばん変わらない。
     public static func migrating(fail: String?, pass: String?) -> String {
         switch pass {
-        case "green":  return "rose-grass"
-        case "purple": return "wheat-grape"
-        case "orange": return "indigo-apricot"
-        case "yellow": return "sky-wheat"
-        default:       return defaultID          // 青、および記録が無いとき
+        case "green":            return "rose-grass"
+        case "purple":           return "wheat-grape"
+        case "orange", "yellow": return "water-apricot"   // 暖色で合格を示していた人
+        default:                 return defaultID         // 青、および記録が無いとき
         }
     }
+}
+
+/// 自分で選んだ色の、気をつけたほうがいい点。
+/// **文言は画面側で作る。** Coreは日本語も英語も持たない。
+public enum CustomColorIssue: Sendable, Hashable {
+    /// その段の色の上で、マスの数字が読みにくい
+    case textUnreadable(DayTier)
+    /// 隣り合う2段が見分けにくい
+    case tooClose(DayTier, DayTier)
+    /// 合否の境目（80点）が目立たない
+    case weakPassBoundary
 }
 
 /// 色の測り方。**「明るく見えるか」ではなく輝度で決める。**
@@ -262,6 +236,51 @@ public enum ColorMath {
     public static func hueGap(_ x: UInt32, _ y: UInt32) -> Double {
         let d = abs(hue(x) - hue(y)).truncatingRemainder(dividingBy: 360)
         return min(d, 360 - d)
+    }
+
+    /// OKLab から sRGB へ。`oklab(_:)` の逆。
+    /// ガモットからはみ出したぶんは、そのまま切り詰める。
+    public static func fromOklab(_ L: Double, _ a: Double, _ b: Double) -> UInt32 {
+        let l = pow(L + 0.3963377774 * a + 0.2158037573 * b, 3)
+        let m = pow(L - 0.1055613458 * a - 0.0638541728 * b, 3)
+        let s = pow(L - 0.0894841775 * a - 1.2914855480 * b, 3)
+        let r =  4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s
+        let g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s
+        let bb = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
+        func enc(_ c: Double) -> UInt32 {
+            let x = min(1, max(0, c))
+            let v = x <= 0.0031308 ? 12.92 * x : 1.055 * pow(x, 1 / 2.4) - 0.055
+            return UInt32((v * 255).rounded())
+        }
+        return (enc(r) << 16) | (enc(g) << 8) | enc(bb)
+    }
+
+    /// 明るさだけを動かして、地の上で読める色にする。
+    /// **色味は変えない。** 選んだ色から離れて見えると、選び直したくなる。
+    public static func adjusted(_ hex: UInt32, toContrast ratio: Double,
+                                against grounds: [UInt32], darker: Bool) -> UInt32 {
+        var (L, a, b) = oklab(hex)
+        var out = hex
+        for _ in 0..<160 {
+            if grounds.allSatisfy({ contrast(out, $0) >= ratio }) { return out }
+            L += darker ? -0.006 : 0.006
+            if L <= 0 || L >= 1 { break }
+            out = fromOklab(L, a, b)
+        }
+        // どうしても届かないときは、色味を捨てて白黒に寄せる
+        (L, a, b) = (darker ? 0.20 : 0.95, 0, 0)
+        return fromOklab(L, a, b)
+    }
+
+    /// カードの上に置く文字・ボタンの色
+    public static func readableInk(_ hex: UInt32, dark: Bool) -> UInt32 {
+        let grounds: [UInt32] = dark ? [0x1C1C1E, 0x2C2C2E] : [0xF2F2F7, 0xFFFFFF]
+        return adjusted(hex, toContrast: 4.5, against: grounds, darker: !dark)
+    }
+
+    /// その色の上に乗せる文字。白か、ほぼ黒か。
+    public static func readableText(on hex: UInt32) -> UInt32 {
+        contrast(0xFFFFFF, hex) >= contrast(cellInk, hex) ? 0xFFFFFF : cellInk
     }
 
     public static func oklab(_ hex: UInt32) -> (Double, Double, Double) {

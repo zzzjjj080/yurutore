@@ -15,9 +15,9 @@ struct PaletteTests {
     /// 3段階目と4段階目だけは近くてよい。ただし同じには見えないこと
     let minTopStep = 0.050
 
-    @Test("23パターンある")
+    @Test("プリセットは8つ")
     func count() {
-        #expect(Palettes.all.count == 23)
+        #expect(Palettes.all.count == 8)
         #expect(Set(Palettes.all.map(\.id)).count == Palettes.all.count)
         #expect(Set(Palettes.all.map(\.ja)).count == Palettes.all.count)
     }
@@ -130,11 +130,74 @@ struct PaletteTests {
         }
     }
 
+    // MARK: - 自分で選んだ4色
+
+    @Test("選んだ4色が、そのままマスの色になる")
+    func customUsesTheChosenColors() {
+        let picked: [UInt32] = [0xEEEEEE, 0xFFD79A, 0x7FC4FF, 0x1E88E5]
+        let p = Palettes.custom(picked, ja: "自分の色", en: "Custom")
+        for dark in [false, true] {
+            #expect(p.colors(dark: dark).tiers == picked, "\(dark ? "暗" : "明") で色が変わっている")
+        }
+        #expect(p.id == Palettes.customID)
+    }
+
+    /// 文字やボタンの色は選ばせない。地の上で読める明るさまで自動で動かす。
+    @Test("自分で選んでも、文字とボタンの色は読める")
+    func customInkStaysReadable() {
+        let grounds: [Bool: [UInt32]] = [false: [0xF2F2F7, 0xFFFFFF],
+                                         true:  [0x1C1C1E, 0x2C2C2E]]
+        // わざと極端な色を渡す。白・黒・原色でも破綻しないこと
+        let samples: [[UInt32]] = [[0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF],
+                                   [0x000000, 0x000000, 0x000000, 0x000000],
+                                   [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00],
+                                   [0x101010, 0xF0F0F0, 0x808080, 0x00FFFF]]
+        for picked in samples {
+            let p = Palettes.custom(picked, ja: "自分の色", en: "Custom")
+            for dark in [false, true] {
+                let c = p.colors(dark: dark)
+                for ground in grounds[dark]! {
+                    #expect(ColorMath.contrast(c.ink, ground) >= 4.5,
+                            "\(picked) の ink が \(ColorMath.contrast(c.ink, ground))")
+                }
+                #expect(ColorMath.contrast(c.onInk, c.ink) >= 4.5, "\(picked) の onInk")
+            }
+        }
+    }
+
+    @Test("4色に足りない保存を読んでも落ちない")
+    func customSurvivesShortSaves() {
+        #expect(Palettes.normalizedCustom([]).count == 4)
+        #expect(Palettes.normalizedCustom([0x112233]).count == 4)
+        #expect(Palettes.normalizedCustom([0x112233])[0] == 0x112233)
+        // 足りないぶんは既定から埋める
+        let base = Palettes.named(Palettes.defaultID).colors(dark: false).tiers
+        #expect(Palettes.normalizedCustom([0x112233])[3] == base[3])
+    }
+
+    /// 止めはしない。気づけるようにだけしておく。
+    @Test("危ない組み合わせを教えてくれる")
+    func customIssuesAreReported() {
+        // プリセットと同じ条件を満たす色なら、何も言わない
+        let ok = Palettes.named("wheat-sky").colors(dark: false).tiers
+        #expect(Palettes.issues(with: ok).isEmpty)
+
+        // 黒文字が読めない濃さ
+        let tooDark: [UInt32] = [0x101010, 0x202020, 0x303030, 0x404040]
+        #expect(Palettes.issues(with: tooDark).contains(.textUnreadable(.low)))
+
+        // 4つとも同じ色。隣が見分けられず、80点の境目も無い
+        let flat = [UInt32](repeating: 0xDDDDDD, count: 4)
+        let issues = Palettes.issues(with: flat)
+        #expect(issues.contains(.tooClose(.low, .mid)))
+        #expect(issues.contains(.weakPassBoundary))
+    }
+
     @Test("知らない名前を渡しても既定に落ちる")
     func fallsBackToDefault() {
         #expect(Palettes.named("そんな色は無い").id == Palettes.defaultID)
         #expect(Palettes.named(nil).id == Palettes.defaultID)
-        #expect(Palettes.named("rose-mint").id == "rose-mint")
+        #expect(Palettes.named("rose-grass").id == "rose-grass")
     }
 
     /// 引き継ぎは「80点以上に選んでいた色」で決める。そこが合否の境目なので、
@@ -142,8 +205,8 @@ struct PaletteTests {
     @Test("1.1までの2色設定から引き継げる")
     func migratesFromOldTwoColors() {
         #expect(Palettes.migrating(fail: "yellow", pass: "blue") == Palettes.defaultID)
-        #expect(Palettes.named(Palettes.migrating(fail: "yellow", pass: "green")).id == "rose-grass")
-        #expect(Palettes.named(Palettes.migrating(fail: "blue", pass: "purple")).id == "wheat-grape")
+        #expect(Palettes.migrating(fail: "yellow", pass: "green") == "rose-grass")
+        #expect(Palettes.migrating(fail: "blue", pass: "purple") == "wheat-grape")
         // どの答えも実在すること。保存が無くても落ちないこと
         for pass in ["blue", "green", "purple", "orange", "yellow", "そんな色は無い"] {
             let id = Palettes.migrating(fail: nil, pass: pass)

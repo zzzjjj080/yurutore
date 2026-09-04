@@ -22,7 +22,15 @@ final class AppStore {
     /// カレンダーの配色パターン。1.1までは「80点未満の色」と「80点以上の色」を
     /// 別々に選ばせていたが、4段階になったのでパターンから選ぶ形にした。
     var paletteID: String = Palettes.defaultID
-    var palette: CalendarPalette { Palettes.named(paletteID) }
+    /// 「自分で選ぶ」で決めた4色。プリセットに戻しても消さないので、行き来しても失われない。
+    var customColors: [UInt32] = Palettes.named(Palettes.defaultID).colors(dark: false).tiers
+
+    var palette: CalendarPalette {
+        paletteID == Palettes.customID
+            ? Palettes.custom(customColors,
+                              ja: L.customPalette(.ja), en: L.customPalette(.en))
+            : Palettes.named(paletteID)
+    }
     var reminderOn = false
     var reminderHour = 21
 
@@ -219,6 +227,7 @@ final class AppStore {
     func resetDisplaySettings() {
         theme = .light; language = .ja; weekStart = .monday
         paletteID = Palettes.defaultID
+        customColors = Palettes.named(Palettes.defaultID).colors(dark: false).tiers
         reminderOn = false; reminderHour = 21
         save()
     }
@@ -263,6 +272,7 @@ final class AppStore {
         var failColor: String?
         var passColor: String?
         var paletteID: String?
+        var customColors: [UInt32]?
         var reminderOn: Bool
         var reminderHour: Int
         var didOnboard: Bool
@@ -274,7 +284,8 @@ final class AppStore {
         let p = Persisted(journal: journal, settings: settings, activities: activities,
                           weekStart: weekStart.rawValue, theme: theme.rawValue,
                           language: language.rawValue, failColor: nil,
-                          passColor: nil, paletteID: paletteID, reminderOn: reminderOn,
+                          passColor: nil, paletteID: paletteID,
+                          customColors: customColors, reminderOn: reminderOn,
                           reminderHour: reminderHour, didOnboard: didOnboard)
         if let data = try? JSONEncoder().encode(p) {
             UserDefaults.standard.set(data, forKey: Self.storeKey)
@@ -303,6 +314,7 @@ final class AppStore {
         language = .init(rawValue: p.language) ?? .ja
         // 1.2より前の記録には paletteID が無い。2色の設定から一番近いものへ移す
         paletteID = p.paletteID ?? Palettes.migrating(fail: p.failColor, pass: p.passColor)
+        customColors = Palettes.normalizedCustom(p.customColors ?? [])
         reminderOn = p.reminderOn
         reminderHour = p.reminderHour
         didOnboard = p.didOnboard

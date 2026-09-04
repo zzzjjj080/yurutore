@@ -148,6 +148,7 @@ struct SettingsSheet: View {
                 Text(L.palettePick(lang)).font(.system(size: 10, weight: .bold))
                     .foregroundStyle(.secondary).padding(.top, 2)
                 paletteGrid
+                if store.paletteID == Palettes.customID { customEditor }
             }
             resetButton(L.resetDefaults(lang),
                         message: L.t("配色・言語・週の始まり・リマインダー・カレンダーの色を、最初の設定に戻します。点数の設定と記録はそのままです。",
@@ -183,43 +184,95 @@ struct SettingsSheet: View {
     }
 
     /// 配色のパターン。押すとすぐ上のサンプルとカレンダーに反映される。
+    /// 最後の1つは「自分で選ぶ」。
     private var paletteGrid: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 7), count: 3),
                   spacing: 7) {
             ForEach(Palettes.all) { p in
-                let selected = p.id == store.paletteID
-                Button {
-                    Haptics.light()
-                    store.paletteID = p.id
-                    store.save()
-                } label: {
-                    VStack(spacing: 6) {
-                        HStack(spacing: 2) {
-                            ForEach(DayTier.allCases, id: \.rawValue) { tier in
-                                Rectangle().fill(p.color(tier, dark: dark))
-                                    .frame(height: 22)
-                            }
-                        }
-                        .clipShape(RoundedRectangle(cornerRadius: 5))
-                        Text(p.name(japanese: lang == .ja))
-                            .font(.system(size: 10, weight: .heavy))
-                            .foregroundStyle(.primary)
-                            .lineLimit(1).minimumScaleFactor(0.7)
-                    }
-                    .padding(8)
-                    .frame(maxWidth: .infinity)
-                    .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 11))
-                    .overlay(RoundedRectangle(cornerRadius: 11)
-                        .strokeBorder(selected ? Color.primary : .clear, lineWidth: 2))
-                    // Spacer と同じで、塗りの無いところは押しても反応しない
-                    .contentShape(Rectangle())
+                paletteChip(id: p.id, name: p.name(japanese: lang == .ja)) {
+                    p.color($0, dark: dark)
                 }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("palette-\(p.id)")
-                .accessibilityLabel(Text(p.name(japanese: lang == .ja)))
-                .accessibilityAddTraits(selected ? .isSelected : [])
+            }
+            paletteChip(id: Palettes.customID, name: L.customPalette(lang)) {
+                store.palette.color($0, dark: dark)
             }
         }
+    }
+
+    private func paletteChip(id: String, name: String,
+                             color: @escaping (DayTier) -> Color) -> some View {
+        let selected = id == store.paletteID
+        return Button {
+            Haptics.light()
+            store.paletteID = id
+            store.save()
+        } label: {
+            VStack(spacing: 6) {
+                HStack(spacing: 2) {
+                    ForEach(DayTier.allCases, id: \.rawValue) { tier in
+                        Rectangle().fill(color(tier)).frame(height: 22)
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 5))
+                Text(name)
+                    .font(.system(size: 10, weight: .heavy))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1).minimumScaleFactor(0.7)
+            }
+            .padding(8)
+            .frame(maxWidth: .infinity)
+            .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 11))
+            .overlay(RoundedRectangle(cornerRadius: 11)
+                .strokeBorder(selected ? Color.primary : .clear, lineWidth: 2))
+            // Spacer と同じで、塗りの無いところは押しても反応しない
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("palette-\(id)")
+        .accessibilityLabel(Text(name))
+        .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+
+    /// 4色を自分で決める。**条件を外れても止めない。**
+    /// 選ぶのは本人なので、気づけるようにだけしておく。
+    private var customEditor: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(L.customHint(lang))
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            ForEach(DayTier.allCases, id: \.rawValue) { tier in
+                HStack(spacing: 10) {
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(store.cellColor(tier, dark: dark))
+                        .frame(width: 46, height: 30)
+                    Text(L.tierRange(tier))
+                        .font(.system(size: 12, weight: .heavy)).monospacedDigit()
+                    Spacer()
+                    ColorPicker("", selection: colorBinding(tier), supportsOpacity: false)
+                        .labelsHidden()
+                        .accessibilityIdentifier("customColor-\(tier.rawValue)")
+                }
+            }
+
+            ForEach(Palettes.issues(with: store.customColors), id: \.self) { issue in
+                Label(L.issueText(issue, lang), systemImage: "exclamationmark.triangle.fill")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(11)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 12))
+    }
+
+    private func colorBinding(_ tier: DayTier) -> Binding<Color> {
+        let index = tier.rawValue - 1
+        return Binding(
+            get: { Color(hex: store.customColors[index]) },
+            set: { store.customColors[index] = $0.storedHex; store.save() })
     }
 
     // MARK: - 点数

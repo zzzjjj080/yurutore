@@ -51,12 +51,22 @@ final class PaletteScreenshots: XCTestCase {
         save("p03-palette-list")
 
         // いくつか選んで、サンプルとカレンダーが変わることを見る
-        for id in ["rose-mint", "sky-brick", "indigo-lime"] {
+        for id in ["sky-brick", "indigo-lime", "custom"] {
             let chip = app.buttons["palette-\(id)"]
             if chip.exists && chip.isHittable {
                 chip.tap()
                 sleep(1)
                 save("p04-\(id)")
+
+                // 「自分で選ぶ」はその下に4色の欄が出る。そこも撮る
+                if id == "custom" {
+                    let picker = app.colorWells["customColor-1"]
+                    for _ in 0..<6 where !picker.exists || !picker.isHittable {
+                        app.swipeUp(velocity: .slow)
+                        usleep(500_000)
+                    }
+                    save("p05-custom-editor")
+                }
             }
         }
     }

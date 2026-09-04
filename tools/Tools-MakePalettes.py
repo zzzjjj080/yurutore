@@ -148,7 +148,14 @@ for hues in CANDIDATES:
     taken_names.add(ja)
 
 # 既定は 1.1 の「うすい黄＋青」に一番近いもの
-PALETTES.sort(key=lambda p: (0 if p[0] == "apricot-sky" else 1, p[0]))
+# 総当たりで作った候補から、色の傾向がなるべく散るように8つだけ残す。
+# 多すぎると選べない。自分で決めたい人には「自分で選ぶ」がある。
+KEEP = ["wheat-sky", "rose-grass", "sky-brick", "mint-peach",
+        "indigo-lime", "water-apricot", "wheat-grape", "grass-magenta"]
+by_key = {p[0]: p for p in PALETTES}
+missing = [k for k in KEEP if k not in by_key]
+if missing: raise SystemExit(f"残したいパターンが候補に無い: {missing}")
+PALETTES = [by_key[k] for k in KEEP]
 
 
 

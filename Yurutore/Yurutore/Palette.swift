@@ -15,6 +15,21 @@ extension Color {
     }
 }
 
+extension Color {
+    /// ColorPicker が返す色を、保存できる数値に落とす。
+    /// **必ず sRGB に直してから取り出す。** 端末によっては Display P3 で返ってきて、
+    /// そのまま成分を読むと画面と違う色が保存される。
+    var storedHex: UInt32 {
+        guard let space = CGColorSpace(name: CGColorSpace.sRGB),
+              let converted = UIColor(self).cgColor.converted(to: space,
+                                                              intent: .defaultIntent,
+                                                              options: nil),
+              let c = converted.components, c.count >= 3 else { return 0x808080 }
+        func enc(_ v: CGFloat) -> UInt32 { UInt32((min(1, max(0, v)) * 255).rounded()) }
+        return (enc(c[0]) << 16) | (enc(c[1]) << 8) | enc(c[2])
+    }
+}
+
 extension CalendarPalette {
     func color(_ tier: DayTier, dark: Bool) -> Color { Color(hex: fill(tier, dark: dark)) }
     func ink(dark: Bool) -> Color { Color(hex: colors(dark: dark).ink) }

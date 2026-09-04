@@ -119,6 +119,25 @@ enum L {
         }
     }
     static func palettePick(_ l: AppLanguage) -> String { t("配色を選ぶ", "Pick a palette", l) }
+    static func customPalette(_ l: AppLanguage) -> String { t("自分で選ぶ", "Custom", l) }
+    static func customHint(_ l: AppLanguage) -> String {
+        t("4色とも自分で決められます。ライトとダークで同じ色を使います。",
+          "Pick all four yourself. The same colors are used in light and dark.", l)
+    }
+    /// 選んだ色が条件を外れたときの注意書き。**止めはしない。**
+    static func issueText(_ issue: CustomColorIssue, _ l: AppLanguage) -> String {
+        switch issue {
+        case .textUnreadable(let tier):
+            t("\(tierRange(tier)) の色は、マスの数字が読みにくくなります",
+              "The number on the \(tierRange(tier)) color is hard to read", l)
+        case .tooClose(let a, let b):
+            t("\(tierRange(a)) と \(tierRange(b)) が見分けにくいです",
+              "\(tierRange(a)) and \(tierRange(b)) look alike", l)
+        case .weakPassBoundary:
+            t("\(Scorer.passLine)点の境目が目立ちません",
+              "The \(Scorer.passLine)-point line does not stand out", l)
+        }
+    }
     static func reminder(_ l: AppLanguage) -> String   { t("リマインダー", "Reminder", l) }
     static func reminderHint(_ l: AppLanguage) -> String {
         t("その日まだ運動を記録していないときだけ、そっと知らせます。記録済みの日や休養日には鳴りません。毎日せかされるのは「ゆる」ではないので、既定ではオフにしてあります。",
