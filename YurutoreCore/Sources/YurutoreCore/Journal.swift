@@ -43,6 +43,22 @@ public struct Journal: Codable, Equatable, Sendable {
         days[date]?.lockedScore = Scorer.liveScore(log, activities: activities, settings: settings)
     }
 
+    // MARK: - 歩数が届いているか
+
+    /// 歩数が読み取れていないように見えるか。
+    ///
+    /// ヘルスケアから歩数が入るのは自動なので、**止まっても気づけない。**
+    /// 許可を取り消した・機種変更した・そもそも許可していない、のどれでも
+    /// 静かに0が並ぶだけになる。点数が毎日20点に張り付いて、理由が分からない。
+    ///
+    /// **使い始めて間もないうちは判断しない。** 記録が無いのか、
+    /// 届いていないのかを区別できないため。
+    public func stepsLookMissing(today: YMD, start: YMD?, window: Int = 3) -> Bool {
+        guard window > 0, let start, today.days(since: start) >= window else { return false }
+        // 当日は途中なので見ない。前の日から遡って数える。
+        return (1...window).allSatisfy { (days[today.adding(days: -$0)]?.steps ?? 0) == 0 }
+    }
+
     // MARK: - 集計の起点
 
     /// 集計の起点。

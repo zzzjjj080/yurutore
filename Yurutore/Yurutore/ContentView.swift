@@ -20,6 +20,7 @@ struct ContentView: View {
             VStack(spacing: 10) {
                 header
                 if !store.healthAuthorized { healthBanner }
+                else if store.stepsLookMissing { stepsStoppedBanner }
 
                 Group {
                     if store.viewMode == .month {
@@ -130,6 +131,28 @@ struct ContentView: View {
         .accessibilityIdentifier(symbol)
     }
 
+    /// 許可はあるのに歩数が0のまま並んでいるとき。
+    /// **点数は毎日20点で埋まるので、見ているだけでは気づけない。**
+    private var stepsStoppedBanner: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "figure.walk.motion")
+                .foregroundStyle(.orange)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(L.stepsStopped(lang)).font(.system(size: 12, weight: .heavy))
+                Text(L.stepsStoppedSub(lang))
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(11)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(.orange, lineWidth: 1.5))
+        .accessibilityIdentifier("stepsStoppedBanner")
+    }
+
     private var healthBanner: some View {
         Button {
             Task {
@@ -228,6 +251,9 @@ struct ContentView: View {
         defer { syncing = false }
         store.refreshToday()
         await syncHealth()
+        // 朝の通知は1回きりの予約なので、**開くたびに作り直す。**
+        // ここを忘れると、一度鳴ったあと二度と鳴らない。
+        Notifications.reschedule(store)
     }
 
     private func syncHealth() async {

@@ -33,6 +33,9 @@ final class AppStore {
     }
     var reminderOn = false
     var reminderHour = 21
+    /// 前の日の入れ忘れと、歩数が届いていないことを朝に知らせる
+    var morningOn = false
+    var morningHour = 8
 
     // MARK: - 画面の状態
     var today: YMD
@@ -93,6 +96,15 @@ final class AppStore {
     func tier(_ date: YMD) -> DayTier? {
         guard let s = score(date) else { return nil }
         return Scorer.tier(s)
+    }
+
+    /// 歩数が読み取れていないように見えるか。
+    /// 許可そのものが無いときは画面に帯を出しているので、ここでは扱わない。
+    var stepsLookMissing: Bool {
+        guard healthAuthorized else { return false }
+        return journal.stepsLookMissing(
+            today: today,
+            start: journal.startDate(activities: activities, override: settings.startOverride))
     }
 
     func isPass(_ date: YMD) -> Bool {
@@ -229,6 +241,7 @@ final class AppStore {
         paletteID = Palettes.defaultID
         customColors = Palettes.named(Palettes.defaultID).colors(dark: false).tiers
         reminderOn = false; reminderHour = 21
+        morningOn = false; morningHour = 8
         save()
     }
 
@@ -275,6 +288,8 @@ final class AppStore {
         var customColors: [UInt32]?
         var reminderOn: Bool
         var reminderHour: Int
+        var morningOn: Bool?
+        var morningHour: Int?
         var didOnboard: Bool
     }
 
@@ -286,7 +301,9 @@ final class AppStore {
                           language: language.rawValue, failColor: nil,
                           passColor: nil, paletteID: paletteID,
                           customColors: customColors, reminderOn: reminderOn,
-                          reminderHour: reminderHour, didOnboard: didOnboard)
+                          reminderHour: reminderHour,
+                          morningOn: morningOn, morningHour: morningHour,
+                          didOnboard: didOnboard)
         if let data = try? JSONEncoder().encode(p) {
             UserDefaults.standard.set(data, forKey: Self.storeKey)
         }
@@ -317,6 +334,8 @@ final class AppStore {
         customColors = Palettes.normalizedCustom(p.customColors ?? [])
         reminderOn = p.reminderOn
         reminderHour = p.reminderHour
+        morningOn = p.morningOn ?? false
+        morningHour = p.morningHour ?? 8
         didOnboard = p.didOnboard
         showOnboarding = !p.didOnboard
     }

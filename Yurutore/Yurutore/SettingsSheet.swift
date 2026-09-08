@@ -142,6 +142,23 @@ struct SettingsSheet: View {
                     .onChange(of: store.reminderHour) { store.save(); Notifications.reschedule(store) }
                 }
             }
+            section(L.morning(lang)) {
+                hint(L.morningHint(lang))
+                Toggle(isOn: $store.morningOn) {
+                    Text(L.morning(lang)).font(.system(size: 13, weight: .bold))
+                }
+                .onChange(of: store.morningOn) { _, on in
+                    store.save()
+                    if on { Notifications.request() }
+                    Notifications.reschedule(store)
+                }
+                if store.morningOn {
+                    Picker(L.morningTime(lang), selection: $store.morningHour) {
+                        ForEach(5...11, id: \.self) { Text("\($0):00").tag($0) }
+                    }
+                    .onChange(of: store.morningHour) { store.save(); Notifications.reschedule(store) }
+                }
+            }
             section(L.calColors(lang)) {
                 hint(L.colorHint(lang))
                 tierSample                       // いま選んでいる配色を、意味つきで大きく見せる

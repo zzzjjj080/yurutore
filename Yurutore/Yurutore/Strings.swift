@@ -103,6 +103,23 @@ enum L {
     static func weekStart(_ l: AppLanguage) -> String  { t("週の始まり", "Week starts", l) }
     static func monday(_ l: AppLanguage) -> String     { t("月曜", "Monday", l) }
     static func sunday(_ l: AppLanguage) -> String     { t("日曜", "Sunday", l) }
+    static func morning(_ l: AppLanguage) -> String {
+        t("朝の入れ忘れ通知", "Morning catch-up", l)
+    }
+    static func morningHint(_ l: AppLanguage) -> String {
+        t("前の日の運動が入っていないときに、翌朝そっと知らせます。歩数がヘルスケアから届かなくなったときも、ここで気づけます。",
+          "A quiet nudge the next morning when the day before has no exercise. It also tells you if step counts stop arriving from Health.", l)
+    }
+    static func morningTime(_ l: AppLanguage) -> String { t("知らせる時刻", "Time", l) }
+    /// 歩数が届いていないときに、カレンダーの上に出す帯
+    static func stepsStopped(_ l: AppLanguage) -> String {
+        t("歩数が読み取れていません", "Step counts are not coming in", l)
+    }
+    static func stepsStoppedSub(_ l: AppLanguage) -> String {
+        t("この3日ぶんの歩数が0のままです。ヘルスケアの「ゆるトレ日記」で、歩数の読み出しが許可されているか確かめてください。",
+          "Steps have been zero for three days. Check that step reading is allowed for this app in the Health app.", l)
+    }
+
     static func calColors(_ l: AppLanguage) -> String  { t("カレンダーの色", "Calendar colors", l) }
     static func colorHint(_ l: AppLanguage) -> String {
         t("色は点数で4段階に分かれます。\(Scorer.passLine)点以上が合格です。",

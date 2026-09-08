@@ -261,3 +261,60 @@ struct StartOverrideTests {
         #expect(m.passRate == nil)
     }
 }
+
+/// 歩数が静かに止まったことに気づけるか。
+/// **止まっても点数は毎日20点で埋まる**ので、見ているだけでは分からない。
+struct StepsMissingTests {
+
+    let acts = Activity.defaults
+
+    func journal(startingDaysAgo: Int, steps: [Int]) -> Journal {
+        var j = Journal()
+        let today = YMD(2026, 9, 9)
+        // 起点になる日（運動を1つ入れた日）
+        var first = DayLog(steps: 5000)
+        first.parts[.chest] = .one
+        j[today.adding(days: -startingDaysAgo)] = first
+        for (i, count) in steps.enumerated() {
+            j[today.adding(days: -(i + 1))] = DayLog(steps: count)
+        }
+        return j
+    }
+
+    @Test("直近3日の歩数が0なら、届いていないとみなす")
+    func allZeroIsMissing() {
+        let j = journal(startingDaysAgo: 30, steps: [0, 0, 0])
+        #expect(j.stepsLookMissing(today: YMD(2026, 9, 9),
+                                   start: j.startDate(activities: acts)))
+    }
+
+    @Test("1日でも歩いていれば、届いている")
+    func oneDayWithStepsIsFine() {
+        let j = journal(startingDaysAgo: 30, steps: [0, 4200, 0])
+        #expect(!j.stepsLookMissing(today: YMD(2026, 9, 9),
+                                    start: j.startDate(activities: acts)))
+    }
+
+    /// 使い始めた直後は、記録が無いだけかもしれない。**決めつけない。**
+    @Test("使い始めて間もないうちは判断しない")
+    func tooEarlyToTell() {
+        let j = journal(startingDaysAgo: 2, steps: [0, 0, 0])
+        #expect(!j.stepsLookMissing(today: YMD(2026, 9, 9),
+                                    start: j.startDate(activities: acts)))
+    }
+
+    @Test("起点が無ければ判断しない")
+    func noStartMeansNoJudgement() {
+        let j = journal(startingDaysAgo: 30, steps: [0, 0, 0])
+        #expect(!j.stepsLookMissing(today: YMD(2026, 9, 9), start: nil))
+    }
+
+    /// 当日は途中なので、0でも判断に入れない
+    @Test("今日の歩数は見ない")
+    func todayIsNotCounted() {
+        var j = journal(startingDaysAgo: 30, steps: [8000, 9000, 7000])
+        j[YMD(2026, 9, 9)] = DayLog(steps: 0)
+        #expect(!j.stepsLookMissing(today: YMD(2026, 9, 9),
+                                    start: j.startDate(activities: acts)))
+    }
+}
