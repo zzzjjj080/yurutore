@@ -29,38 +29,38 @@ struct TodayWidgetView: View {
         }
     }
 
+    /// 上・中・下を等間隔に散らす。真ん中に寄せると、枠の上下が余って窮屈に見える。
     private func content(_ s: WidgetSnapshot) -> some View {
         let ink = Color(hex: s.ink(dark: dark))
         return VStack(spacing: 0) {
-            header(s, ink: ink)
+            score(s)
             Spacer(minLength: 4)
-            HStack(spacing: 10) {
+            HStack(spacing: 0) {
                 gauge(progress: s.stepProgress, symbol: "figure.walk",
                       value: shortSteps(s.steps), points: s.stepScore, ink: ink)
+                    .frame(maxWidth: .infinity)
                 gauge(progress: s.exerciseProgress, symbol: "dumbbell.fill",
                       value: "\(s.exercises)/\(s.passExercises)", points: s.exerciseScore, ink: ink)
+                    .frame(maxWidth: .infinity)
             }
             Spacer(minLength: 4)
             footer(s, ink: ink)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    /// 上段：日付と合計点。点は段階の色で塗る
-    private func header(_ s: WidgetSnapshot, ink: Color) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: 4) {
-            Text("\(s.date.month)/\(s.date.day)")
-                .font(.system(size: 11, weight: .heavy))
-                .foregroundStyle(.secondary)
-            Spacer(minLength: 2)
+    /// 合計点。**背景は敷かず、文字の色だけで段階を示す。**
+    /// 塗りの色をそのまま文字にすると薄すぎるので、読める濃さまで落として使う。
+    private func score(_ s: WidgetSnapshot) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 2) {
             Text("\(s.total)")
-                .font(.system(size: 26, weight: .heavy))
+                .font(.system(size: 30, weight: .heavy))
                 .monospacedDigit()
-                .foregroundStyle(Color.cellInk)
-                .padding(.horizontal, 7)
-                .padding(.vertical, 1)
-                .background(Color(hex: s.fill(dark: dark)), in: .rect(cornerRadius: 7))
-            Text("点").font(.system(size: 10, weight: .bold)).foregroundStyle(.secondary)
+            Text("点")
+                .font(.system(size: 11, weight: .heavy))
         }
+        .foregroundStyle(Color(hex: ColorMath.readableInk(s.fill(dark: dark), dark: dark)))
+        .frame(maxWidth: .infinity)
     }
 
     /// 輪1つ。中に記号、下に「いまの値」と「点」
@@ -77,7 +77,7 @@ struct TodayWidgetView: View {
                     .font(.system(size: 13, weight: .bold))
                     .foregroundStyle(ink)
             }
-            .frame(width: 46, height: 46)
+            .frame(width: 44, height: 44)
             Text(value)
                 .font(.system(size: 11, weight: .heavy)).monospacedDigit()
                 .lineLimit(1).minimumScaleFactor(0.7)
@@ -92,7 +92,7 @@ struct TodayWidgetView: View {
         Text(remaining(s))
             .font(.system(size: 10, weight: .heavy))
             .foregroundStyle(s.isPass ? ink : .primary)
-            .lineLimit(1).minimumScaleFactor(0.7)
+            .lineLimit(1).minimumScaleFactor(0.65)
             .frame(maxWidth: .infinity)
     }
 
