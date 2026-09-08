@@ -254,6 +254,9 @@ struct ContentView: View {
         // 朝の通知は1回きりの予約なので、**開くたびに作り直す。**
         // ここを忘れると、一度鳴ったあと二度と鳴らない。
         Notifications.reschedule(store)
+        // 保存が走らない起動（記録が変わらなかった日）でも、
+        // ウィジェットの日付は進める
+        WidgetBridge.publish(store)
     }
 
     private func syncHealth() async {

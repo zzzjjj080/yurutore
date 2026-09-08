@@ -7,15 +7,6 @@ import YurutoreCore
 /// 数値を Core に置いてあるのは、黒文字とのコントラスト比を `swift test` で
 /// 実測するため。画面側に置くと測れない。
 extension Color {
-    init(hex: UInt32) {
-        self.init(.sRGB,
-                  red:   Double((hex >> 16) & 0xFF) / 255,
-                  green: Double((hex >> 8) & 0xFF) / 255,
-                  blue:  Double(hex & 0xFF) / 255)
-    }
-}
-
-extension Color {
     /// ColorPicker が返す色を、保存できる数値に落とす。
     /// **必ず sRGB に直してから取り出す。** 端末によっては Display P3 で返ってきて、
     /// そのまま成分を読むと画面と違う色が保存される。
@@ -40,9 +31,6 @@ extension Color {
     static func rgb(_ r: Double, _ g: Double, _ b: Double) -> Color {
         Color(.sRGB, red: r / 255, green: g / 255, blue: b / 255)
     }
-
-    /// カレンダーのマスの文字。両テーマ共通の黒。
-    static let cellInk = Color.rgb(20, 24, 30)
 
     /// 部位＝琥珀、その他の運動＝青緑。完了ボタンの緑と3系統に分ける。
     static func partFill(_ v: Int, dark: Bool) -> Color {

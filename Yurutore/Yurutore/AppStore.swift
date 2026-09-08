@@ -307,6 +307,8 @@ final class AppStore {
         if let data = try? JSONEncoder().encode(p) {
             UserDefaults.standard.set(data, forKey: Self.storeKey)
         }
+        // ウィジェットは別プロセスなので、ここで押し込まないと古いままになる
+        WidgetBridge.publish(self)
     }
 
     private(set) var didOnboard = false

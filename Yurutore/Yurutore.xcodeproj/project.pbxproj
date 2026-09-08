@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		3CC6F5A2302EF33A0082AA0B /* YurutoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = 3CC6F5A1302EF33A0082AA0B /* YurutoreCore */; };
+		D1000000000000000000A00B /* YurutoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = D1000000000000000000A00A /* YurutoreCore */; };
+		D1000000000000000000A00D /* YurutoreWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D1000000000000000000A002 /* YurutoreWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -25,12 +27,20 @@
 			remoteGlobalIDString = 3CC6F48C302EF3390082AA0B;
 			remoteInfo = Yurutore;
 		};
+		D1000000000000000000A00F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3CC6F485302EF3390082AA0B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D1000000000000000000A001;
+			remoteInfo = YurutoreWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		3CC6F48D302EF3390082AA0B /* Yurutore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Yurutore.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CC6F49A302EF33A0082AA0B /* YurutoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YurutoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CC6F4A4302EF33A0082AA0B /* YurutoreUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YurutoreUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D1000000000000000000A002 /* YurutoreWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = YurutoreWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -49,7 +59,31 @@
 			path = YurutoreUITests;
 			sourceTree = "<group>";
 		};
+		D1000000000000000000A003 /* YurutoreWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = YurutoreWidget;
+			sourceTree = "<group>";
+		};
+		D1000000000000000000A010 /* WidgetShared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = WidgetShared;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D1000000000000000000A00C /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D1000000000000000000A00D /* YurutoreWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		3CC6F48A302EF3390082AA0B /* Frameworks */ = {
@@ -74,6 +108,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D1000000000000000000A005 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D1000000000000000000A00B /* YurutoreCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -83,6 +125,8 @@
 				3CC6F48F302EF3390082AA0B /* Yurutore */,
 				3CC6F49D302EF33A0082AA0B /* YurutoreTests */,
 				3CC6F4A7302EF33A0082AA0B /* YurutoreUITests */,
+				D1000000000000000000A003 /* YurutoreWidget */,
+				D1000000000000000000A010 /* WidgetShared */,
 				3CC6F48E302EF3390082AA0B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -93,6 +137,7 @@
 				3CC6F48D302EF3390082AA0B /* Yurutore.app */,
 				3CC6F49A302EF33A0082AA0B /* YurutoreTests.xctest */,
 				3CC6F4A4302EF33A0082AA0B /* YurutoreUITests.xctest */,
+				D1000000000000000000A002 /* YurutoreWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -107,13 +152,16 @@
 				3CC6F489302EF3390082AA0B /* Sources */,
 				3CC6F48A302EF3390082AA0B /* Frameworks */,
 				3CC6F48B302EF3390082AA0B /* Resources */,
+				D1000000000000000000A00C /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D1000000000000000000A00E /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				3CC6F48F302EF3390082AA0B /* Yurutore */,
+				D1000000000000000000A010 /* WidgetShared */,
 			);
 			name = Yurutore;
 			packageProductDependencies = (
@@ -169,6 +217,30 @@
 			productReference = 3CC6F4A4302EF33A0082AA0B /* YurutoreUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		D1000000000000000000A001 /* YurutoreWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D1000000000000000000A007 /* Build configuration list for PBXNativeTarget "YurutoreWidgetExtension" */;
+			buildPhases = (
+				D1000000000000000000A004 /* Sources */,
+				D1000000000000000000A005 /* Frameworks */,
+				D1000000000000000000A006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D1000000000000000000A003 /* YurutoreWidget */,
+				D1000000000000000000A010 /* WidgetShared */,
+			);
+			name = YurutoreWidgetExtension;
+			packageProductDependencies = (
+				D1000000000000000000A00A /* YurutoreCore */,
+			);
+			productName = YurutoreWidgetExtension;
+			productReference = D1000000000000000000A002 /* YurutoreWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -189,6 +261,9 @@
 					3CC6F4A3302EF33A0082AA0B = {
 						CreatedOnToolsVersion = 26.6;
 						TestTargetID = 3CC6F48C302EF3390082AA0B;
+					};
+					D1000000000000000000A001 = {
+						CreatedOnToolsVersion = 26.6;
 					};
 				};
 			};
@@ -213,6 +288,7 @@
 				3CC6F48C302EF3390082AA0B /* Yurutore */,
 				3CC6F499302EF33A0082AA0B /* YurutoreTests */,
 				3CC6F4A3302EF33A0082AA0B /* YurutoreUITests */,
+				D1000000000000000000A001 /* YurutoreWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -233,6 +309,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		3CC6F4A2302EF33A0082AA0B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D1000000000000000000A006 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -263,6 +346,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D1000000000000000000A004 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -275,6 +365,11 @@
 			isa = PBXTargetDependency;
 			target = 3CC6F48C302EF3390082AA0B /* Yurutore */;
 			targetProxy = 3CC6F4A5302EF33A0082AA0B /* PBXContainerItemProxy */;
+		};
+		D1000000000000000000A00E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D1000000000000000000A001 /* YurutoreWidgetExtension */;
+			targetProxy = D1000000000000000000A00F /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -399,7 +494,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = A7WA598R44;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
@@ -424,7 +519,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.5;
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zzzjjj080.Yurutore;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -447,7 +542,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = A7WA598R44;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
@@ -472,7 +567,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.5;
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zzzjjj080.Yurutore;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -494,12 +589,12 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = A7WA598R44;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MACOSX_DEPLOYMENT_TARGET = 26.5;
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zzzjjj080.YurutoreTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -520,12 +615,12 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = A7WA598R44;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MACOSX_DEPLOYMENT_TARGET = 26.5;
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zzzjjj080.YurutoreTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -545,12 +640,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = A7WA598R44;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MACOSX_DEPLOYMENT_TARGET = 26.5;
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zzzjjj080.YurutoreUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -570,12 +665,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = A7WA598R44;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MACOSX_DEPLOYMENT_TARGET = 26.5;
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zzzjjj080.YurutoreUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -588,6 +683,75 @@
 				TARGETED_DEVICE_FAMILY = 1;
 				TEST_TARGET_NAME = Yurutore;
 				XROS_DEPLOYMENT_TARGET = 26.5;
+			};
+			name = Release;
+		};
+		D1000000000000000000A008 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = YurutoreWidget/YurutoreWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				DEVELOPMENT_TEAM = A7WA598R44;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = YurutoreWidgetInfo.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "ゆるトレ日記";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zzzjjj080.Yurutore.Widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		D1000000000000000000A009 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = YurutoreWidget/YurutoreWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				DEVELOPMENT_TEAM = A7WA598R44;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = YurutoreWidgetInfo.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "ゆるトレ日記";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zzzjjj080.Yurutore.Widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -630,6 +794,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		D1000000000000000000A007 /* Build configuration list for PBXNativeTarget "YurutoreWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D1000000000000000000A008 /* Debug */,
+				D1000000000000000000A009 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
@@ -641,6 +814,10 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		3CC6F5A1302EF33A0082AA0B /* YurutoreCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = YurutoreCore;
+		};
+		D1000000000000000000A00A /* YurutoreCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = YurutoreCore;
 		};
