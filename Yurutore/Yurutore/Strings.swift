@@ -52,6 +52,7 @@ enum L {
     // 入力
     static func steps(_ l: AppLanguage) -> String     { t("歩数", "Steps", l) }
     static func bodyParts(_ l: AppLanguage) -> String { t("動かした部位", "Body parts", l) }
+    static func otherActs(_ l: AppLanguage) -> String { t("その他の運動", "Other exercise", l) }
     static func restDay(_ l: AppLanguage) -> String   { t("休養日", "Rest day", l) }
     static func notLogged(_ l: AppLanguage) -> String { t("まだ未入力", "Not logged yet", l) }
     static func tapToPick(_ l: AppLanguage) -> String { t("タップで選ぶ", "Tap to set", l) }

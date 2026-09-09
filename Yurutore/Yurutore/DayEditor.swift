@@ -18,15 +18,19 @@ struct DayEditor: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 11) {
                 head
                 if pickerOpen { scorePicker }
+                // よく使う順に置く。**毎日いちばん多く押すのがここ。**
+                // 歩数は自動で入るので、見るだけの欄はその次でよい
+                actsSection
                 stepsCard
                 partsSection
-                actsSection
                 actions
             }
-            .padding(18)
+            .padding(.horizontal, 16)
+            .padding(.top, 14)
+            .padding(.bottom, 16)
         }
         .background(Color(.systemGroupedBackground))
         .presentationDragIndicator(.visible)
@@ -130,7 +134,7 @@ struct DayEditor: View {
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(13)
+        .padding(11)
         .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 14))
     }
 
@@ -154,15 +158,9 @@ struct DayEditor: View {
     // MARK: - 部位
 
     private var partsSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 6) {
-                Text(L.bodyParts(lang)).font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(.secondary)
-                if store.state(current) != .logged {
-                    Text(store.state(current) == .rest ? L.restDay(lang) : L.notLogged(lang))
-                        .font(.system(size: 11, weight: .heavy)).foregroundStyle(.orange)
-                }
-            }
+        VStack(alignment: .leading, spacing: 7) {
+            Text(L.bodyParts(lang)).font(.system(size: 11, weight: .bold))
+                .foregroundStyle(.secondary)
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 7), count: 3),
                       spacing: 7) {
                 ForEach(BodyPart.allCases, id: \.self) { part in
@@ -173,7 +171,7 @@ struct DayEditor: View {
                             Text(v > 0 ? "×\(v)" : "—").font(.system(size: 11, weight: .heavy))
                                 .opacity(0.85)
                         }
-                        .frame(maxWidth: .infinity).frame(height: 64)
+                        .frame(maxWidth: .infinity).frame(height: 56)
                         .background(v > 0 ? Color.partFill(v, dark: dark)
                                           : Color(.secondarySystemGroupedBackground),
                                     in: .rect(cornerRadius: 12))
@@ -189,7 +187,17 @@ struct DayEditor: View {
     // MARK: - その他の運動
 
     private var actsSection: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 6) {
+        VStack(alignment: .leading, spacing: 7) {
+            HStack(spacing: 6) {
+                Text(L.otherActs(lang)).font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(.secondary)
+                // その日の状態は、いちばん最初に目に入るところへ置く
+                if store.state(current) != .logged {
+                    Text(store.state(current) == .rest ? L.restDay(lang) : L.notLogged(lang))
+                        .font(.system(size: 11, weight: .heavy)).foregroundStyle(.orange)
+                }
+            }
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 6) {
             ForEach(store.activities) { act in
                 let v = log.activities[act.id]?.rawValue ?? 0
                 Button { store.cycleActivity(current, act.id) } label: {
@@ -201,8 +209,8 @@ struct DayEditor: View {
                             .font(.system(size: 9, weight: .bold)).opacity(0.85)
                         Text(v > 0 ? "×\(v)" : "—").font(.system(size: 11, weight: .heavy))
                     }
-                    .frame(maxWidth: .infinity).frame(minHeight: 58)
-                    .padding(.vertical, 7)
+                    .frame(maxWidth: .infinity).frame(minHeight: 52)
+                    .padding(.vertical, 5)
                     .background(v > 0 ? Color.actFill(v, dark: dark)
                                       : Color(.secondarySystemGroupedBackground),
                                 in: .rect(cornerRadius: 11))
@@ -210,6 +218,7 @@ struct DayEditor: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("\(act.name) \(act.quantity)\(L.unitName(act.unit, lang)) \(v > 0 ? "×\(v)" : L.t("なし","none",lang))")
+                }
             }
         }
     }
@@ -219,7 +228,7 @@ struct DayEditor: View {
             Button { store.toggleRest(current) } label: {
                 Text(L.restDay(lang))
                     .font(.system(size: 15, weight: .heavy))
-                    .frame(maxWidth: .infinity).frame(height: 50)
+                    .frame(maxWidth: .infinity).frame(height: 46)
                     .background(store.state(current) == .rest ? Color.secondary
                                                               : Color(.secondarySystemGroupedBackground),
                                 in: .rect(cornerRadius: 13))
@@ -230,7 +239,7 @@ struct DayEditor: View {
             Button { dismiss() } label: {
                 Text(L.done(lang))
                     .font(.system(size: 15, weight: .heavy))
-                    .frame(maxWidth: .infinity).frame(height: 50)
+                    .frame(maxWidth: .infinity).frame(height: 46)
                     .background(Color.rgb(18, 160, 107), in: .rect(cornerRadius: 13))
                     .foregroundStyle(.white)
             }
