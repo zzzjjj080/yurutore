@@ -120,6 +120,12 @@ enum L {
           "Steps have been zero for three days. Check that step reading is allowed for this app in the Health app.", l)
     }
 
+    /// カレンダーの枠の下に小さく出す案内
+    static func tapAnywhereHint(_ l: AppLanguage) -> String {
+        t("空いているところを押すと、今日を開きます",
+          "Tap any empty space to open today", l)
+    }
+
     static func calColors(_ l: AppLanguage) -> String  { t("カレンダーの色", "Calendar colors", l) }
     static func colorHint(_ l: AppLanguage) -> String {
         t("色は点数で4段階に分かれます。\(Scorer.passLine)点以上が合格です。",

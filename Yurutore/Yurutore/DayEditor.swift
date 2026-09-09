@@ -40,6 +40,10 @@ struct DayEditor: View {
             HStack(spacing: 4) {
                 stepButton("chevron.left", -1, enabled: true)
                 Text(L.dayTitle(current, lang)).font(.system(size: 19, weight: .heavy))
+                    // どの日を開いたのかをUIテストから見るための目印。
+                    // 入れ物に付けても要素として現れないので、文字に付ける。
+                    // 日本語の見出しで探すと、文言を変えた瞬間に壊れる
+                    .accessibilityIdentifier("dayEditor-\(current.description)")
                 stepButton("chevron.right", 1,
                            enabled: !store.isFuture(current.adding(days: 1)))
             }

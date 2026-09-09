@@ -27,21 +27,42 @@ struct MonthGrid: View {
                         id: \.offset) { _, date in
                     if let date {
                         DayCell(store: store, date: date, dark: dark)
+                            .contentShape(.rect)
                             .onTapGesture {
-                                // 未来と、記録を始める前の日は編集できない
-                                guard !store.isFuture(date), !store.isBeforeStart(date) else { return }
-                                Haptics.light()
-                                store.editingDate = date
+                                // 未来と、記録を始める前の日は編集できない。
+                                // **押しても無反応にはしない。** その日は開けないという
+                                // 意味なので、代わりに今日を開く（枠の中はどこでも今日）
+                                if store.isFuture(date) || store.isBeforeStart(date) {
+                                    openToday()
+                                } else {
+                                    Haptics.light()
+                                    store.editingDate = date
+                                }
                             }
                     } else {
                         Color.clear.aspectRatio(1 / 1.55, contentMode: .fit)
                     }
                 }
             }
+
+            Text(L.tapAnywhereHint(store.language))
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(.tertiary)
+                .padding(.top, 2)
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 10)
         .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 14))
+        // マス以外（曜日の行・すき間・余白）を押しても今日を開く。
+        // 今日のマスを狙って押すのは、毎日やる操作としては細かすぎる。
+        // マス側のタップが先に取るので、他の日を開く邪魔はしない。
+        .contentShape(.rect)
+        .onTapGesture { openToday() }
+    }
+
+    private func openToday() {
+        Haptics.light()
+        store.editingDate = store.today
     }
 }
 
