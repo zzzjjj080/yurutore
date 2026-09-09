@@ -7,7 +7,7 @@ import Testing
 struct WidgetSnapshotTests {
 
     let acts = Activity.defaults
-    let settings = ScoringSettings.default        // 10000歩 / 2種目
+    let settings = ScoringSettings.default        // 8000歩 / 2種目
     let palette = Palettes.named(nil)
 
     func snapshot(steps: Int, exercises n: Int, rest: Bool = false) -> WidgetSnapshot {
@@ -25,15 +25,15 @@ struct WidgetSnapshotTests {
 
     @Test("カレンダーと同じ点数になる")
     func matchesTheCalendar() {
-        let s = snapshot(steps: 8240, exercises: 1)
-        var log = DayLog(steps: 8240); log.parts[.chest] = .one
+        let s = snapshot(steps: 6600, exercises: 1)
+        var log = DayLog(steps: 6600); log.parts[.chest] = .one
         #expect(s.total == Scorer.liveScore(log, activities: acts, settings: settings))
         #expect(s.stepScore + s.exerciseScore == s.total)
     }
 
     @Test("合格ラインまでの残りが出る")
     func remaining() {
-        let s = snapshot(steps: 8240, exercises: 1)
+        let s = snapshot(steps: settings.passSteps - 1760, exercises: 1)
         #expect(s.stepsLeft == 1760)
         #expect(s.exercisesLeft == 1)
         #expect(!s.isPass)
@@ -58,7 +58,7 @@ struct WidgetSnapshotTests {
     /// 歩数も種目数も、同じ40点で一周。基準が違うと見比べられない。
     @Test("輪は40点で一周する")
     func gaugeIsFullAtFortyPoints() {
-        let s = snapshot(steps: 10000, exercises: 2)
+        let s = snapshot(steps: settings.passSteps, exercises: settings.passExercises)
         #expect(s.stepScore == Scorer.passPoints)
         #expect(s.exerciseScore == Scorer.passPoints)
         #expect(s.stepGauge == 1)
@@ -81,7 +81,7 @@ struct WidgetSnapshotTests {
 
     @Test("半分まで来たら輪も半分")
     func halfway() {
-        let s = snapshot(steps: 5000, exercises: 1)
+        let s = snapshot(steps: settings.passSteps / 2, exercises: 1)
         #expect(abs(s.stepGauge - 0.5) < 0.0001)
         #expect(abs(s.exerciseGauge - 0.5) < 0.0001)
     }
@@ -97,7 +97,7 @@ struct WidgetSnapshotTests {
         #expect(nothing.stepState == .none)
         #expect(nothing.exerciseState == .none)
 
-        let both = snapshot(steps: 10000, exercises: 2)
+        let both = snapshot(steps: settings.passSteps, exercises: settings.passExercises)
         #expect(both.stepState == .reached)
         #expect(both.exerciseState == .reached)
     }

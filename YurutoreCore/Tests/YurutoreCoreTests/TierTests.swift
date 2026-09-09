@@ -9,7 +9,7 @@ import Testing
 struct TierTests {
 
     let acts = Activity.defaults
-    let settings = ScoringSettings.default   // 10000/16000歩・2/3種目
+    let settings = ScoringSettings.default   // 8000/14000歩・2/3種目
 
     func day(steps: Int, exercises n: Int) -> DayLog {
         var log = DayLog(steps: steps)
@@ -62,9 +62,9 @@ struct TierTests {
     @Test("記録から塗る色が出る")
     func fromRecords() {
         #expect(tier(day(steps: 0, exercises: 0)) == .low)
-        #expect(tier(day(steps: 10000, exercises: 0)) == .mid)   // 40点
-        #expect(tier(day(steps: 10000, exercises: 2)) == .pass)  // 80点
-        #expect(tier(day(steps: 16000, exercises: 3)) == .full)  // 100点
+        #expect(tier(day(steps: settings.passSteps, exercises: 0)) == .mid)   // 40点
+        #expect(tier(day(steps: settings.passSteps, exercises: 2)) == .pass)  // 80点
+        #expect(tier(day(steps: settings.goalSteps, exercises: 3)) == .full)  // 100点
     }
 
     @Test("手入力の日も同じ規則で塗る")
@@ -81,9 +81,9 @@ struct TierTests {
     func settledStaysPut() {
         var journal = Journal()
         let date = YMD(2026, 8, 1)
-        journal[date] = day(steps: 10000, exercises: 2)
+        journal[date] = day(steps: settings.passSteps, exercises: settings.passExercises)
         journal.settleAll(today: YMD(2026, 8, 10), activities: acts, settings: settings)
-        #expect(journal[date]?.lockedScore == 80)
+        #expect(journal[date]?.lockedScore == Scorer.passLine)
 
         var harder = settings
         harder.setPassSteps(20000)

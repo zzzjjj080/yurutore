@@ -116,7 +116,7 @@ public struct WidgetSnapshot: Codable, Sendable, Equatable {
 
     /// まだ何も入っていない日の見本。ウィジェットの下書き表示に使う。
     public static let placeholder = WidgetSnapshot(
-        date: YMD(2026, 9, 9), steps: 8240, passSteps: 10000, stepScore: 33,
+        date: YMD(2026, 9, 9), steps: 6600, passSteps: ScoringSettings.default.passSteps, stepScore: 33,
         exercises: 1, passExercises: 2, exerciseScore: 20,
         total: 53, isRest: false,
         fillLight: Palettes.named(nil).fill(.mid, dark: false),

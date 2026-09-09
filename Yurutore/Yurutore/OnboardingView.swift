@@ -26,19 +26,21 @@ struct OnboardingView: View {
             }
             .padding(.top, 8)
 
+            if !isSetup { Spacer(minLength: 0) }
+
             if !isSetup {
-                art.frame(height: 150).frame(maxWidth: .infinity).padding(.vertical, 26)
+                art.frame(height: 200).frame(maxWidth: .infinity).padding(.bottom, 34)
             } else {
-                Spacer(minLength: 12).frame(height: 20)
+                Spacer(minLength: 12).frame(height: 16)
             }
 
             Text(pages[step].title)
-                .font(.system(size: 23, weight: .heavy))
-                .padding(.bottom, 16)
+                .font(.system(size: 29, weight: .heavy))
+                .padding(.bottom, 12)
 
             Text(pages[step].body)
-                .font(.system(size: 13.5, weight: .semibold))
-                .lineSpacing(6)
+                .font(.system(size: 17, weight: .semibold))
+                .lineSpacing(8)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -162,37 +164,44 @@ struct OnboardingView: View {
         switch step {
         case 0:
             // 実際のカレンダーと同じ色で見せる
-            LazyVGrid(columns: Array(repeating: GridItem(.fixed(20), spacing: 3), count: 7), spacing: 3) {
+            LazyVGrid(columns: Array(repeating: GridItem(.fixed(28), spacing: 4), count: 7), spacing: 4) {
                 ForEach(0..<28, id: \.self) { i in
                     let on = [2,3,5,9,10,12,16,17,19,23,24].contains(i)
-                    RoundedRectangle(cornerRadius: 3)
+                    RoundedRectangle(cornerRadius: 5)
                         .fill(on ? store.cellColor(i % 3 == 0 ? .mid : .pass, dark: dark)
-                                 : Color(.tertiarySystemGroupedBackground))
-                        .frame(height: 20)
+                                 : Color(.secondarySystemGroupedBackground))
+                        .frame(height: 28)
                 }
             }
-            .frame(width: 7 * 20 + 6 * 3)
+            .frame(width: 7 * 28 + 6 * 4)
         case 1:
             HStack(spacing: 7) {
                 chip("胸", "×2", Color.partFill(2, dark: dark), Color.partText(2, dark: dark))
                 chip("背", "×1", Color.partFill(1, dark: dark), Color.partText(1, dark: dark))
-                chip("肩", "—", Color(.tertiarySystemGroupedBackground), .secondary)
+                chip("肩", "—", Color(.secondarySystemGroupedBackground), .secondary)
                 chip("水泳", "×3", Color.actFill(3, dark: dark), Color.actText(3, dark: dark))
             }
         case 2:
-            HStack(alignment: .firstTextBaseline, spacing: 2) {
-                Text("\(Scorer.passLine)")
-                    .font(.system(size: 64, weight: .heavy))
-                    .foregroundStyle(store.accent(dark: dark))
-                Text(L.pts(lang)).font(.system(size: 22, weight: .heavy))
-                    .foregroundStyle(store.accent(dark: dark))
+            // 「80点が合格」は、色が変わるところを見せたほうが早い
+            HStack(spacing: 7) {
+                ForEach(DayTier.allCases, id: \.rawValue) { tier in
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(store.cellColor(tier, dark: dark))
+                        .frame(width: 68, height: 78)
+                        .overlay(
+                            Text(L.tierRange(tier))
+                                .font(.system(size: 14, weight: .heavy))
+                                .minimumScaleFactor(0.7).lineLimit(1)
+                                .foregroundStyle(Color.cellInk)
+                        )
+                }
             }
         case 3:
             // 説明の絵ではなく、**実物と同じもの**を出す。
             // 置いたときに違うものが出てくると、説明として役に立たない
             TodayWidgetView(snapshot: widgetSample)
-                .frame(width: 140, height: 140)
-                .background(widgetSample.background(dark: dark), in: .rect(cornerRadius: 20))
+                .frame(width: 178, height: 178)
+                .background(widgetSample.background(dark: dark), in: .rect(cornerRadius: 26))
         default:
             Image(systemName: "gearshape.fill")
                 .font(.system(size: 56)).foregroundStyle(.secondary)
@@ -209,12 +218,13 @@ struct OnboardingView: View {
     }
 
     private func chip(_ name: String, _ v: String, _ bg: Color, _ fg: Color) -> some View {
-        VStack(spacing: 2) {
-            Text(name).font(.system(size: 13, weight: .heavy))
-            Text(v).font(.system(size: 10, weight: .heavy))
+        VStack(spacing: 3) {
+            Text(name).font(.system(size: 17, weight: .heavy))
+                .minimumScaleFactor(0.7).lineLimit(1)
+            Text(v).font(.system(size: 13, weight: .heavy))
         }
-        .frame(width: 52, height: 52)
-        .background(bg, in: .rect(cornerRadius: 11))
+        .frame(width: 70, height: 70)
+        .background(bg, in: .rect(cornerRadius: 14))
         .foregroundStyle(fg)
     }
 }

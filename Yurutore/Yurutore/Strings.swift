@@ -264,29 +264,32 @@ enum L {
 
     // 初回の説明
     struct Page { let title: String; let body: String }
+    /// 初回の説明。**読ませない。** 絵で分かるようにして、文字は補足に留める。
+    /// 長い説明は読まれないまま「とばす」を押されるので、機能の紹介ではなく
+    /// 「何をすればいいか」だけを1行で言う。
     static func onboarding(_ l: AppLanguage) -> [Page] {
         l == .en ? [
             .init(title: "Staying healthy, loosely",
-                  body: "I wanted to move my body a reasonable amount. But apps that make you log weights and reps wore me out in about three days.\n\nWhat I wanted was something I could fill in within five seconds, and take in a whole month at a glance. It did not exist, so I made it for myself."),
-            .init(title: "Only two things to enter",
-                  body: "Steps come in automatically from Health.\nAll you tap is which body parts you worked and other exercise. Each tap cycles ×1 → ×2 → ×3.\n\nTap any empty space on the calendar and today opens straight away. No weights, no reps, not even duration."),
+                  body: "No weights. No reps.\nFive seconds to log, a month at a glance."),
+            .init(title: "You only tap exercise",
+                  body: "Steps arrive from Health on their own.\nEach tap cycles ×1 → ×2 → ×3."),
             .init(title: "80 is a pass",
-                  body: "Steps and exercise are each worth 40 points when they reach their pass line, so a day that reaches both scores 80 and passes.\n\nThe calendar uses four colours by score, and the one at 80 stands out, so a glance tells you how the month went. Walking alone is not a pass, and neither is exercise alone. The point is to keep doing both."),
+                  body: "40 for steps, 40 for exercise.\nA day that reaches both passes."),
             .init(title: "Put it on your Home Screen",
-                  body: "A small widget shows today's score, and how far steps and exercise still are from their pass lines. The rings fill up at 40 points each.\n\nYou can tell whether you are nearly there without opening the app. Long-press the Home Screen and add it from the plus button."),
+                  body: "See how close you are\nwithout opening the app."),
             .init(title: "Set your pass line",
-                  body: "The same target cannot suit someone who walks 5,000 steps and someone who walks 15,000. So decide yours now.\n\nIf you are not sure, leave it as it is. Everything here can be changed later in settings.")
+                  body: "Match your usual day.\nYou can change it later.")
         ] : [
-            .init(title: "健康を、ざっくり続けるために",
-                  body: "ある程度は体を動かしたい。でも重さも回数も記録するアプリは、正直3日で嫌になりました。\n\nほしかったのは、5秒で入れられて、1か月を一目で見渡せるもの。なかったので自分用に作りました。"),
-            .init(title: "入れるのは2つだけ",
-                  body: "歩数はヘルスケアから勝手に入ります。\nあなたが押すのは、その他の運動と動かした部位だけ。押すたびに ×1 → ×2 → ×3 と増えます。\n\nカレンダーの空いているところを押せば、今日がすぐ開きます。重さも回数も、時間すら入れません。"),
+            .init(title: "健康を、ざっくり続ける",
+                  body: "重さも回数も記録しません。\n5秒で入れて、1か月を一目で。"),
+            .init(title: "押すのは運動だけ",
+                  body: "歩数はヘルスケアから勝手に入ります。\n押すたびに ×1 → ×2 → ×3。"),
             .init(title: "80点が合格",
-                  body: "歩数と運動には、それぞれ「合格ライン」があります。どちらも届くと40点＋40点で80点、その日は合格です。\n\nカレンダーの色は点数で4段階。80点の境目ではっきり変わるので、月末に「今月は何日できたか」が一目で分かります。歩いただけ、運動しただけでは合格になりません。両方をぼちぼち続けるためです。"),
+                  body: "歩数40点 ＋ 運動40点。\n両方に届いた日が合格です。"),
             .init(title: "ホーム画面に置けます",
-                  body: "今日の点数と、歩数・運動が合格ラインまであとどれくらいかを、輪の欠けで出します。輪はどちらも40点でちょうど一周です。\n\nアプリを開かなくても、あと少しかどうかが分かります。ホーム画面を長押しして、＋から追加してください。"),
+                  body: "開かなくても、\nあと少しかどうかが分かります。"),
             .init(title: "合格ラインを決めましょう",
-                  body: "普段5000歩の人と15000歩の人で、同じ基準はおかしいからです。ここで自分の線を決めてください。\n\n迷ったらそのままで大丈夫です。あとから設定でいくらでも変えられます。")
+                  body: "普段の自分に合わせてください。\nあとから変えられます。")
         ]
     }
     static func obNext(_ l: AppLanguage) -> String  { t("次へ", "Next", l) }

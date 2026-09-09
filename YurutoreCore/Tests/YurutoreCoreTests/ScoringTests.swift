@@ -28,9 +28,9 @@ struct ScoringTests {
         #expect(Scorer.passLine == 80)
         #expect(Scorer.stepScore(steps: settings.passSteps, settings: settings) == 40)
         #expect(Scorer.exerciseScore(count: settings.passExercises, settings: settings) == 40)
-        #expect(Scorer.autoScore(day(steps: 10000, exercises: 2),
-                                 activities: acts, settings: settings) == 80)
-        #expect(Scorer.isPass(day(steps: 10000, exercises: 2), activities: acts, settings: settings))
+        let onTheLine = day(steps: settings.passSteps, exercises: settings.passExercises)
+        #expect(Scorer.autoScore(onTheLine, activities: acts, settings: settings) == 80)
+        #expect(Scorer.isPass(onTheLine, activities: acts, settings: settings))
     }
 
     @Test("目標ラインはどちらも60点")
@@ -52,17 +52,29 @@ struct ScoringTests {
     @Test("既定の設定での代表的な組み合わせ")
     func defaultTable() {
         #expect(Scorer.autoScore(day(steps: 0,     exercises: 0), activities: acts, settings: settings) == 0)
-        #expect(Scorer.autoScore(day(steps: 5000,  exercises: 0), activities: acts, settings: settings) == 20)
-        #expect(Scorer.autoScore(day(steps: 10000, exercises: 1), activities: acts, settings: settings) == 60)
-        #expect(Scorer.autoScore(day(steps: 8000,  exercises: 3), activities: acts, settings: settings) == 92)
-        #expect(Scorer.autoScore(day(steps: 13000, exercises: 3), activities: acts, settings: settings) == 100)
+        #expect(Scorer.autoScore(day(steps: 4000,  exercises: 0), activities: acts, settings: settings) == 20)
+        #expect(Scorer.autoScore(day(steps: 8000,  exercises: 1), activities: acts, settings: settings) == 60)
+        #expect(Scorer.autoScore(day(steps: 8000,  exercises: 2), activities: acts, settings: settings) == 80)
+        #expect(Scorer.autoScore(day(steps: 14000, exercises: 3), activities: acts, settings: settings) == 100)
+    }
+
+    /// 既定は掲載文にも初回説明にも出てくる。**黙って変わると説明が嘘になる。**
+    @Test("既定は8,000歩・2種目")
+    func defaultsArePinned() {
+        let d = ScoringSettings.default
+        #expect(d.passSteps == 8000)
+        #expect(d.goalSteps == 14000)
+        #expect(d.passExercises == 2)
+        #expect(d.goalExercises == 3)
+        // 合格ラインと目標ラインの差は6,000歩。押し出しもこの差で動く
+        #expect(d.goalSteps - d.passSteps == 6000)
     }
 
     // MARK: - 打ち止め
 
     @Test("歩数は目標ラインを超えても伸びない")
     func stepsCap() {
-        let at   = Scorer.stepScore(steps: 16000, settings: settings)
+        let at   = Scorer.stepScore(steps: settings.goalSteps, settings: settings)
         let over = Scorer.stepScore(steps: 40000, settings: settings)
         #expect(at == 60)
         #expect(at == over)
@@ -118,7 +130,7 @@ struct ScoringTests {
 
     @Test("合格ラインを上げると、目標ラインも一緒に押し出される")
     func passLinePushesGoal() {
-        var s = ScoringSettings.default        // 10000 / 16000、2 / 3
+        var s = ScoringSettings.default        // 8000 / 14000、2 / 3
         s.setPassSteps(20000)
         #expect(s.goalSteps == 26000, "6000の差が保たれていない")
         #expect(Scorer.stepScore(steps: 20000, settings: s) == 40)
@@ -173,11 +185,11 @@ struct ScoringTests {
 
     @Test("設定から消された運動は数に入らない")
     func unknownActivityIgnored() {
-        var log = DayLog(steps: 10000)
+        var log = DayLog(steps: settings.passSteps)
         log.activities = ["radio": .two, "deleted-one": .three]
         // radio しか設定に無いので2つぶんだけ数える
         #expect(log.exerciseCount(activities: acts) == 2)
-        #expect(Scorer.autoScore(log, activities: acts, settings: settings) == 80)
+        #expect(Scorer.autoScore(log, activities: acts, settings: settings) == Scorer.passLine)
     }
 
     // MARK: - 手入力

@@ -9,6 +9,7 @@ import Foundation
 /// 「まず80点の線を決める」という作業が、そのまま設定になる。
 public struct ScoringSettings: Codable, Equatable, Sendable {
     /// 毎日これだけは歩きたい、という線。40点。
+    /// 既定は8,000歩。1万歩は「毎日ぼちぼち」には少し多い。
     public var passSteps: Int
     /// 調子がよければこれくらい、という線。60点。
     public var goalSteps: Int
@@ -20,7 +21,7 @@ public struct ScoringSettings: Codable, Equatable, Sendable {
     /// nil なら、最初に運動を記録した日から自動で数える。
     public var startOverride: YMD?
 
-    public init(passSteps: Int = 10000, goalSteps: Int = 16000,
+    public init(passSteps: Int = 8000, goalSteps: Int = 14000,
                 passExercises: Int = 2, goalExercises: Int = 3,
                 startOverride: YMD? = nil) {
         self.passSteps = passSteps
