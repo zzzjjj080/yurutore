@@ -92,6 +92,25 @@ public struct WidgetSnapshot: Codable, Sendable, Equatable {
         min(1, max(0, Double(score) / Double(Scorer.passPoints)))
     }
 
+    /// 輪1つぶんの達成ぐあい。**合計の段階とは別。**
+    /// 歩数は届いたが種目は途中、のような日を、輪の濃さで見分けるために持つ。
+    public enum GaugeState: Int, Codable, Sendable {
+        /// まだ何もしていない
+        case none
+        /// 途中
+        case partway
+        /// その線には届いた（40点）
+        case reached
+    }
+
+    public var stepState: GaugeState { state(stepScore) }
+    public var exerciseState: GaugeState { state(exerciseScore) }
+
+    private func state(_ score: Int) -> GaugeState {
+        if score >= Scorer.passPoints { return .reached }
+        return score > 0 ? .partway : .none
+    }
+
     public func fill(dark: Bool) -> UInt32 { dark ? fillDark : fillLight }
     public func ink(dark: Bool) -> UInt32 { dark ? inkDark : inkLight }
 

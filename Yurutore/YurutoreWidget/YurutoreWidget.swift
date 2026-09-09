@@ -15,7 +15,14 @@ struct TodayWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "YurutoreTodayWidget", provider: Provider()) { entry in
             TodayWidgetView(snapshot: entry.snapshot)
-                .containerBackground(.background, for: .widget)
+                // その日の段階の色を地にする。カレンダーのマスと同じ意味で読める
+                .containerBackground(for: .widget) {
+                    if let s = entry.snapshot {
+                        WidgetBackground(snapshot: s)
+                    } else {
+                        Color(.systemBackground)
+                    }
+                }
         }
         .configurationDisplayName("今日の点数")
         .description("歩数と種目数が、合格ラインまであとどれくらいかを出します。")
@@ -46,6 +53,13 @@ struct Provider: TimelineProvider {
         let tomorrow = Calendar.current.startOfDay(for: Date().addingTimeInterval(86400))
         completion(Timeline(entries: [entry], policy: .after(tomorrow)))
     }
+}
+
+/// 地の色。`containerBackground` の中では環境が拾えないので、Viewに包んで渡す。
+private struct WidgetBackground: View {
+    @Environment(\.colorScheme) private var scheme
+    let snapshot: WidgetSnapshot
+    var body: some View { snapshot.background(dark: scheme == .dark) }
 }
 
 /// 共有領域から読むだけの入れ物。アプリ側と同じキーを使う。

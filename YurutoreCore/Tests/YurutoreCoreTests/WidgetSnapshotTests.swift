@@ -86,6 +86,31 @@ struct WidgetSnapshotTests {
         #expect(abs(s.exerciseGauge - 0.5) < 0.0001)
     }
 
+    /// 歩数は届いたが種目は途中、のような日を輪の濃さで見分ける
+    @Test("輪ごとの達成ぐあいが出る")
+    func gaugeStates() {
+        let mixed = snapshot(steps: 12000, exercises: 1)
+        #expect(mixed.stepState == .reached)
+        #expect(mixed.exerciseState == .partway)
+
+        let nothing = snapshot(steps: 0, exercises: 0)
+        #expect(nothing.stepState == .none)
+        #expect(nothing.exerciseState == .none)
+
+        let both = snapshot(steps: 10000, exercises: 2)
+        #expect(both.stepState == .reached)
+        #expect(both.exerciseState == .reached)
+    }
+
+    /// 40点に届いた輪は必ず一周している。濃さと欠けが食い違わないこと
+    @Test("届いた輪は一周している")
+    func reachedMeansFullRing() {
+        for steps in stride(from: 0, through: 20000, by: 500) {
+            let s = snapshot(steps: steps, exercises: 0)
+            #expect((s.stepState == .reached) == (s.stepGauge >= 1), "\(steps)歩")
+        }
+    }
+
     @Test("休養日はそれと分かる")
     func restIsCarried() {
         #expect(snapshot(steps: 3000, exercises: 0, rest: true).isRest)

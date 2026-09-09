@@ -26,6 +26,9 @@ struct YurutoreApp: App {
 #if DEBUG
 /// 2×2のウィジェットを、実寸に近い枠で並べて見る。
 struct WidgetPreviewScreen: View {
+    @Environment(\.colorScheme) private var scheme
+    private var dark: Bool { scheme == .dark }
+
     /// 見え方を確かめたい組み合わせ。「あと少し」「合格」「満点」「何もしていない」
     private var samples: [(String, WidgetSnapshot)] {
         let p = Palettes.named(nil)
@@ -53,8 +56,7 @@ struct WidgetPreviewScreen: View {
                     VStack(spacing: 6) {
                         TodayWidgetView(snapshot: item.1)
                             .frame(width: 158, height: 158)
-                            .background(Color(.secondarySystemGroupedBackground),
-                                        in: .rect(cornerRadius: 22))
+                            .background(item.1.background(dark: dark), in: .rect(cornerRadius: 22))
                         Text(item.0).font(.system(size: 11, weight: .bold))
                             .foregroundStyle(.secondary)
                     }
