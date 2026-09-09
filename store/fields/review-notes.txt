@@ -19,7 +19,8 @@ How to exercise the app:
 6. Tap the score to set it manually (20-100 in steps of 10), or Rest day, then Done.
 7. Tap the month title to switch to the year view. Tap the gear icon for Settings (Display / Scoring / Data).
 8. Scroll to the bottom of any Settings tab for the feedback button and the coffee tip.
-9. To see the widget: long-press the Home Screen, tap the plus button, search for this app and add the small widget. It shows placeholder values until the app has been opened once.
+9. Tapping any empty space inside the calendar card opens today's sheet, so the small cell for today does not have to be hit exactly.
+10. To see the widget: long-press the Home Screen, tap the plus button, search for this app and add the small widget. It shows placeholder values until the app has been opened once.
 
 External services: none. Only Apple frameworks (SwiftUI, Swift Charts, HealthKit read-only, StoreKit, WidgetKit, local UserNotifications). All records stay on the device.
 
