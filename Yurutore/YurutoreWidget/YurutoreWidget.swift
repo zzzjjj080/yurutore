@@ -20,6 +20,8 @@ struct TodayWidget: Widget {
         .configurationDisplayName("今日の点数")
         .description("歩数と種目数が、合格ラインまであとどれくらいかを出します。")
         .supportedFamilies([.systemSmall])
+        // 既定の余白を切って、枠いっぱいまで使う。余白は View 側で決める
+        .contentMarginsDisabled()
     }
 }
 

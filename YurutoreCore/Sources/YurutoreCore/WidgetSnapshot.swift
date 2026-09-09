@@ -78,14 +78,18 @@ public struct WidgetSnapshot: Codable, Sendable, Equatable {
     /// 合格ラインまであと何種目か。届いていれば0。
     public var exercisesLeft: Int { max(0, passExercises - exercises) }
 
-    /// 合格ラインに対する進み具合（0...1）。**超えても1で止める。**
-    /// 輪が一周を超えて回ると、達成したことがかえって分かりにくい。
-    public var stepProgress: Double { ratio(steps, passSteps) }
-    public var exerciseProgress: Double { ratio(exercises, passExercises) }
+    /// 輪の進み具合（0...1）。**40点＝合格ラインで一周。超えても1で止める。**
+    ///
+    /// 歩数も種目数も、同じ「40点」を一周とする。片方だけ基準が違うと、
+    /// 2つの輪を見比べたときに、どちらが進んでいるのか分からない。
+    ///
+    /// **輪の下に出している点数から作る。** 歩数そのものから作ると、
+    /// 点数は四捨五入されるぶん、輪と数字がわずかにずれる。
+    public var stepGauge: Double { gauge(stepScore) }
+    public var exerciseGauge: Double { gauge(exerciseScore) }
 
-    private func ratio(_ value: Int, _ line: Int) -> Double {
-        guard line > 0 else { return value > 0 ? 1 : 0 }
-        return min(1, max(0, Double(value) / Double(line)))
+    private func gauge(_ score: Int) -> Double {
+        min(1, max(0, Double(score) / Double(Scorer.passPoints)))
     }
 
     public func fill(dark: Bool) -> UInt32 { dark ? fillDark : fillLight }

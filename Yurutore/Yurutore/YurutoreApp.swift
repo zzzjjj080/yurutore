@@ -52,7 +52,6 @@ struct WidgetPreviewScreen: View {
                 ForEach(Array(samples.enumerated()), id: \.offset) { _, item in
                     VStack(spacing: 6) {
                         TodayWidgetView(snapshot: item.1)
-                            .padding(12)
                             .frame(width: 158, height: 158)
                             .background(Color(.secondarySystemGroupedBackground),
                                         in: .rect(cornerRadius: 22))

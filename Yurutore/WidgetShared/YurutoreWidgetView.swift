@@ -29,24 +29,27 @@ struct TodayWidgetView: View {
         }
     }
 
-    /// 上・中・下を等間隔に散らす。真ん中に寄せると、枠の上下が余って窮屈に見える。
+    /// 上・中・下を等間隔に散らす。**枠いっぱいまで使う。**
+    /// ウィジェット側の既定の余白は切ってあるので、余白はここだけで決める。
     private func content(_ s: WidgetSnapshot) -> some View {
         let ink = Color(hex: s.ink(dark: dark))
         return VStack(spacing: 0) {
             score(s)
-            Spacer(minLength: 4)
+            Spacer(minLength: 2)
             HStack(spacing: 0) {
-                gauge(progress: s.stepProgress, symbol: "figure.walk",
+                gauge(progress: s.stepGauge, symbol: "figure.walk",
                       value: shortSteps(s.steps), points: s.stepScore, ink: ink)
                     .frame(maxWidth: .infinity)
-                gauge(progress: s.exerciseProgress, symbol: "dumbbell.fill",
+                gauge(progress: s.exerciseGauge, symbol: "dumbbell.fill",
                       value: "\(s.exercises)/\(s.passExercises)", points: s.exerciseScore, ink: ink)
                     .frame(maxWidth: .infinity)
             }
-            Spacer(minLength: 4)
+            Spacer(minLength: 2)
             footer(s, ink: ink)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
     }
 
     /// 合計点。**背景は敷かず、文字の色だけで段階を示す。**
@@ -54,35 +57,39 @@ struct TodayWidgetView: View {
     private func score(_ s: WidgetSnapshot) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 2) {
             Text("\(s.total)")
-                .font(.system(size: 30, weight: .heavy))
+                .font(.system(size: 34, weight: .heavy))
                 .monospacedDigit()
             Text("点")
-                .font(.system(size: 11, weight: .heavy))
+                .font(.system(size: 12, weight: .heavy))
         }
         .foregroundStyle(Color(hex: ColorMath.readableInk(s.fill(dark: dark), dark: dark)))
         .frame(maxWidth: .infinity)
     }
 
-    /// 輪1つ。中に記号、下に「いまの値」と「点」
+    /// 輪1つ。**40点で一周。** 中に記号、下に「いまの値」と「点」
     private func gauge(progress: Double, symbol: String,
                        value: String, points: Int, ink: Color) -> some View {
-        VStack(spacing: 3) {
+        VStack(spacing: 2) {
             ZStack {
-                Circle().stroke(ink.opacity(0.18), lineWidth: 6)
-                Circle()
-                    .trim(from: 0, to: max(0.001, progress))
-                    .stroke(ink, style: StrokeStyle(lineWidth: 6, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
+                Circle().stroke(ink.opacity(0.20), lineWidth: 7)
+                // 0のときは何も描かない。丸い端だけが残ると、
+                // 少し進んでいるように見えてしまう
+                if progress > 0 {
+                    Circle()
+                        .trim(from: 0, to: progress)
+                        .stroke(ink, style: StrokeStyle(lineWidth: 7, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                }
                 Image(systemName: symbol)
-                    .font(.system(size: 13, weight: .bold))
+                    .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(ink)
             }
-            .frame(width: 44, height: 44)
+            .frame(width: 50, height: 50)
             Text(value)
-                .font(.system(size: 11, weight: .heavy)).monospacedDigit()
+                .font(.system(size: 13, weight: .heavy)).monospacedDigit()
                 .lineLimit(1).minimumScaleFactor(0.7)
             Text("\(points)点")
-                .font(.system(size: 9, weight: .bold))
+                .font(.system(size: 10, weight: .bold))
                 .foregroundStyle(.secondary)
         }
     }
@@ -90,7 +97,7 @@ struct TodayWidgetView: View {
     /// 下段：あとどれくらいか。ここがこのウィジェットの用件
     private func footer(_ s: WidgetSnapshot, ink: Color) -> some View {
         Text(remaining(s))
-            .font(.system(size: 10, weight: .heavy))
+            .font(.system(size: 12, weight: .heavy))
             .foregroundStyle(s.isPass ? ink : .primary)
             .lineLimit(1).minimumScaleFactor(0.65)
             .frame(maxWidth: .infinity)
