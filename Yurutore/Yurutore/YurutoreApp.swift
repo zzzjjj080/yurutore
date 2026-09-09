@@ -11,8 +11,8 @@ struct YurutoreApp: App {
             // ウィジェットの見た目を確かめるための入口。
             // 拡張は単体で撮れないので、同じ View をアプリ側でも組み立てる。
             // 配布版には入らない（strings で確かめること・引き継ぎ書 4-7）
-            if ProcessInfo.processInfo.environment["YURUTORE_WIDGET_PREVIEW"] == "1" {
-                WidgetPreviewScreen()
+            if let mode = ProcessInfo.processInfo.environment["YURUTORE_WIDGET_PREVIEW"] {
+                WidgetPreviewScreen(storeShot: mode == "store")
             } else {
                 ContentView(store: store)
             }
@@ -26,6 +26,8 @@ struct YurutoreApp: App {
 #if DEBUG
 /// 2×2のウィジェットを、実寸に近い枠で並べて見る。
 struct WidgetPreviewScreen: View {
+    /// 掲載用に1つだけ大きく出すか、確認用に4通り並べるか
+    var storeShot = false
     @Environment(\.colorScheme) private var scheme
     private var dark: Bool { scheme == .dark }
 
@@ -50,6 +52,25 @@ struct WidgetPreviewScreen: View {
     }
 
     var body: some View {
+        if storeShot { single } else { list }
+    }
+
+    /// 掲載画像用。**2つ並べる。** 1つだけだと枠が空いて見えるうえ、
+    /// 点数で色が変わることが伝わらない。
+    private var single: some View {
+        VStack(spacing: 34) {
+            ForEach([0, 1], id: \.self) { i in
+                let item = samples[i].1
+                TodayWidgetView(snapshot: item)
+                    .frame(width: 290, height: 290)
+                    .background(item.background(dark: dark), in: .rect(cornerRadius: 42))
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.systemGroupedBackground))
+    }
+
+    private var list: some View {
         ScrollView {
             VStack(spacing: 18) {
                 ForEach(Array(samples.enumerated()), id: \.offset) { _, item in

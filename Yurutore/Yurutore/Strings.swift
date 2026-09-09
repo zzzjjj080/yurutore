@@ -269,18 +269,22 @@ enum L {
             .init(title: "Staying healthy, loosely",
                   body: "I wanted to move my body a reasonable amount. But apps that make you log weights and reps wore me out in about three days.\n\nWhat I wanted was something I could fill in within five seconds, and take in a whole month at a glance. It did not exist, so I made it for myself."),
             .init(title: "Only two things to enter",
-                  body: "Steps come in automatically from Health.\nAll you tap is which body parts you worked and other exercise. Each tap cycles ×1 → ×2 → ×3.\n\nNo weights, no reps, not even duration."),
+                  body: "Steps come in automatically from Health.\nAll you tap is which body parts you worked and other exercise. Each tap cycles ×1 → ×2 → ×3.\n\nTap any empty space on the calendar and today opens straight away. No weights, no reps, not even duration."),
             .init(title: "80 is a pass",
-                  body: "Steps and exercise are each worth 40 points when they reach their pass line, so a day that reaches both scores 80 and passes. The calendar colour changes, and at the end of the month you can see how many days you managed.\n\nWalking alone is not a pass, and neither is exercise alone. The point is to keep doing both."),
+                  body: "Steps and exercise are each worth 40 points when they reach their pass line, so a day that reaches both scores 80 and passes.\n\nThe calendar uses four colours by score, and the one at 80 stands out, so a glance tells you how the month went. Walking alone is not a pass, and neither is exercise alone. The point is to keep doing both."),
+            .init(title: "Put it on your Home Screen",
+                  body: "A small widget shows today's score, and how far steps and exercise still are from their pass lines. The rings fill up at 40 points each.\n\nYou can tell whether you are nearly there without opening the app. Long-press the Home Screen and add it from the plus button."),
             .init(title: "Set your pass line",
                   body: "The same target cannot suit someone who walks 5,000 steps and someone who walks 15,000. So decide yours now.\n\nIf you are not sure, leave it as it is. Everything here can be changed later in settings.")
         ] : [
             .init(title: "健康を、ざっくり続けるために",
                   body: "ある程度は体を動かしたい。でも重さも回数も記録するアプリは、正直3日で嫌になりました。\n\nほしかったのは、5秒で入れられて、1か月を一目で見渡せるもの。なかったので自分用に作りました。"),
             .init(title: "入れるのは2つだけ",
-                  body: "歩数はヘルスケアから勝手に入ります。\nあなたが押すのは動かした部位とその他の運動だけ。押すたびに ×1 → ×2 → ×3 と増えます。\n\n重さも回数も、時間すら入れません。"),
+                  body: "歩数はヘルスケアから勝手に入ります。\nあなたが押すのは、その他の運動と動かした部位だけ。押すたびに ×1 → ×2 → ×3 と増えます。\n\nカレンダーの空いているところを押せば、今日がすぐ開きます。重さも回数も、時間すら入れません。"),
             .init(title: "80点が合格",
-                  body: "歩数と運動には、それぞれ「合格ライン」があります。どちらも届くと40点＋40点で80点、その日は合格です。カレンダーの色が変わるので、月末に「今月は何日できたか」が一目で分かります。\n\n歩いただけ、運動しただけでは合格になりません。両方をぼちぼち続けるためです。"),
+                  body: "歩数と運動には、それぞれ「合格ライン」があります。どちらも届くと40点＋40点で80点、その日は合格です。\n\nカレンダーの色は点数で4段階。80点の境目ではっきり変わるので、月末に「今月は何日できたか」が一目で分かります。歩いただけ、運動しただけでは合格になりません。両方をぼちぼち続けるためです。"),
+            .init(title: "ホーム画面に置けます",
+                  body: "今日の点数と、歩数・運動が合格ラインまであとどれくらいかを、輪の欠けで出します。輪はどちらも40点でちょうど一周です。\n\nアプリを開かなくても、あと少しかどうかが分かります。ホーム画面を長押しして、＋から追加してください。"),
             .init(title: "合格ラインを決めましょう",
                   body: "普段5000歩の人と15000歩の人で、同じ基準はおかしいからです。ここで自分の線を決めてください。\n\n迷ったらそのままで大丈夫です。あとから設定でいくらでも変えられます。")
         ]

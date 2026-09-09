@@ -227,8 +227,8 @@ struct DayEditor: View {
         HStack(spacing: 9) {
             Button { store.toggleRest(current) } label: {
                 Text(L.restDay(lang))
-                    .font(.system(size: 15, weight: .heavy))
-                    .frame(maxWidth: .infinity).frame(height: 46)
+                    .font(.system(size: 17, weight: .heavy))
+                    .frame(maxWidth: .infinity).frame(height: 68)
                     .background(store.state(current) == .rest ? Color.secondary
                                                               : Color(.secondarySystemGroupedBackground),
                                 in: .rect(cornerRadius: 13))
@@ -238,8 +238,8 @@ struct DayEditor: View {
             .buttonStyle(.plain)
             Button { dismiss() } label: {
                 Text(L.done(lang))
-                    .font(.system(size: 15, weight: .heavy))
-                    .frame(maxWidth: .infinity).frame(height: 46)
+                    .font(.system(size: 17, weight: .heavy))
+                    .frame(maxWidth: .infinity).frame(height: 68)
                     .background(Color.rgb(18, 160, 107), in: .rect(cornerRadius: 13))
                     .foregroundStyle(.white)
             }

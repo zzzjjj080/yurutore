@@ -187,10 +187,25 @@ struct OnboardingView: View {
                 Text(L.pts(lang)).font(.system(size: 22, weight: .heavy))
                     .foregroundStyle(store.accent(dark: dark))
             }
+        case 3:
+            // 説明の絵ではなく、**実物と同じもの**を出す。
+            // 置いたときに違うものが出てくると、説明として役に立たない
+            TodayWidgetView(snapshot: widgetSample)
+                .frame(width: 140, height: 140)
+                .background(widgetSample.background(dark: dark), in: .rect(cornerRadius: 20))
         default:
             Image(systemName: "gearshape.fill")
                 .font(.system(size: 56)).foregroundStyle(.secondary)
         }
+    }
+
+    /// 見本は「あと1種目」の日。いちばんよくある途中の状態を出す
+    private var widgetSample: WidgetSnapshot {
+        var log = DayLog(steps: 11_200)
+        log.parts[.chest] = .one
+        return WidgetSnapshot(date: store.today, log: log,
+                              activities: store.activities,
+                              settings: store.settings, palette: store.palette)
     }
 
     private func chip(_ name: String, _ v: String, _ bg: Color, _ fg: Color) -> some View {
