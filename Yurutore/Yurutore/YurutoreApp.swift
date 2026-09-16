@@ -1,8 +1,20 @@
 import SwiftUI
 import YurutoreCore
 
+/// ヘルスケアに起こされたときは画面が無い。
+/// **`.task` は走らないので、見張りの登録はここでやる。**
+final class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions options: [UIApplication.LaunchOptionsKey: Any]? = nil)
+    -> Bool {
+        MainActor.assumeIsolated { BackgroundSteps.start() }
+        return true
+    }
+}
+
 @main
 struct YurutoreApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @State private var store = AppStore()
 
     var body: some Scene {

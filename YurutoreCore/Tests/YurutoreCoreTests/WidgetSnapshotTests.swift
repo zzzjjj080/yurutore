@@ -126,6 +126,69 @@ struct WidgetSnapshotTests {
         #expect(s.ink(dark: false) == palette.colors(dark: false).ink)
     }
 
+    // MARK: - 日をまたいだとき
+
+    /// アプリを開かないまま日をまたぐと、ウィジェットは前の日を出し続ける。
+    /// 中身を書き直せるのはアプリだけなので、ウィジェット側で作り直す。
+    @Test("繰り越すと、日付だけ進んで中身は空になる")
+    func carryOverResetsTheDay() {
+        let yesterday = snapshot(steps: 12000, exercises: 3)
+        let today = yesterday.carriedOver(to: YMD(2026, 9, 10))
+
+        #expect(today.date == YMD(2026, 9, 10))
+        #expect(today.steps == 0)
+        #expect(today.exercises == 0)
+        #expect(today.total == 0)
+        #expect(today.tier == .low)
+        #expect(!today.isRest)
+    }
+
+    /// 合格ラインは設定なので、日が変わっても引き継ぐ。
+    /// ここを0にすると輪が一周した状態で出てしまう。
+    @Test("繰り越しても合格ラインは持ち越す")
+    func carryOverKeepsTheLines() {
+        let today = snapshot(steps: 12000, exercises: 3).carriedOver(to: YMD(2026, 9, 10))
+        #expect(today.passSteps == settings.passSteps)
+        #expect(today.passExercises == settings.passExercises)
+        #expect(today.stepGauge == 0)
+        #expect(today.exerciseGauge == 0)
+        #expect(today.stepsLeft == settings.passSteps)
+    }
+
+    /// 繰り越した日は1段階目。**その色を持っていないと繰り越せない。**
+    @Test("繰り越した日は1段階目の色になる")
+    func carryOverUsesTheLowestColor() {
+        let today = snapshot(steps: 12000, exercises: 3).carriedOver(to: YMD(2026, 9, 10))
+        #expect(today.fill(dark: false) == palette.fill(.low, dark: false))
+        #expect(today.fill(dark: true) == palette.fill(.low, dark: true))
+    }
+
+    @Test("4段階ぶんの色を持っている")
+    func carriesEveryTierColor() {
+        let s = snapshot(steps: 8000, exercises: 1)
+        for tier in DayTier.allCases {
+            #expect(s.fill(tier, dark: false) == palette.fill(tier, dark: false))
+            #expect(s.fill(tier, dark: true) == palette.fill(tier, dark: true))
+        }
+    }
+
+    /// 1.3 が書いた保存には4段階の色が入っていない。**読めなくなってはいけない。**
+    @Test("1.3 が書いた保存も読める")
+    func readsSnapshotsWrittenBefore() throws {
+        let old = """
+        {"date":{"year":2026,"month":9,"day":9},"steps":8000,"passSteps":8000,
+         "stepScore":40,"exercises":2,"passExercises":2,"exerciseScore":40,
+         "total":80,"isRest":false,"fillLight":11189196,"fillDark":2245648,
+         "inkLight":30874,"inkDark":4115711}
+        """
+        let s = try JSONDecoder().decode(WidgetSnapshot.self, from: Data(old.utf8))
+        #expect(s.total == 80)
+        #expect(s.tierFillsLight == nil)
+        // 4段階を持っていないので、どの段階を聞かれても今の色で答える
+        #expect(s.fill(.low, dark: false) == s.fillLight)
+        #expect(s.fill(.pass, dark: false) == s.fillLight)
+    }
+
     @Test("保存して読み直しても同じ")
     func survivesASaveAndLoad() throws {
         let s = snapshot(steps: 8240, exercises: 1)

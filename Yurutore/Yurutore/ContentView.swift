@@ -260,24 +260,7 @@ struct ContentView: View {
     }
 
     private func syncHealth() async {
-        guard health.isAvailable else { return }
-        store.healthAuthorized = false
-        // 起点より前は読んでも使わないので、直近1年ぶんだけ取る
-        let from = store.today.adding(days: -400)
-        let steps = await health.dailySteps(from: from, to: store.today)
-        // 歩数が0件でも、読み取れたなら許可は済んでいる
-        store.healthAuthorized = health.isAuthorized
-        guard !steps.isEmpty else { return }
-        for (date, count) in steps {
-            // 確定済みの日は歩数を上書きしない。過去の点数が動くため。
-            if store.journal[date]?.lockedScore != nil { continue }
-            var log = store.journal[date] ?? DayLog()
-            log.steps = count
-            store.journal[date] = log
-        }
-        store.journal.settleAll(today: store.today,
-                                activities: store.activities, settings: store.settings)
-        store.save()
+        await store.syncSteps(using: health)
     }
 }
 

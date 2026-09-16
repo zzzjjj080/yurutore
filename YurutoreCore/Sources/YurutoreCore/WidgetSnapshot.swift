@@ -24,6 +24,10 @@ public struct WidgetSnapshot: Codable, Sendable, Equatable {
     /// 段階の塗り。明るいテーマ用と暗いテーマ用。
     public let fillLight: UInt32
     public let fillDark: UInt32
+    /// 4段階ぶんの塗り。**日をまたいだときに、ウィジェット側で段階を作り直すために持つ。**
+    /// 1.3 の保存には入っていないので Optional（無ければ上の1色で代用する）。
+    public let tierFillsLight: [UInt32]?
+    public let tierFillsDark: [UInt32]?
     /// 文字やリングに使う色
     public let inkLight: UInt32
     public let inkDark: UInt32
@@ -32,7 +36,8 @@ public struct WidgetSnapshot: Codable, Sendable, Equatable {
                 exercises: Int, passExercises: Int, exerciseScore: Int,
                 total: Int, isRest: Bool,
                 fillLight: UInt32, fillDark: UInt32,
-                inkLight: UInt32, inkDark: UInt32) {
+                inkLight: UInt32, inkDark: UInt32,
+                tierFillsLight: [UInt32]? = nil, tierFillsDark: [UInt32]? = nil) {
         self.date = date
         self.steps = steps
         self.passSteps = passSteps
@@ -46,6 +51,8 @@ public struct WidgetSnapshot: Codable, Sendable, Equatable {
         self.fillDark = fillDark
         self.inkLight = inkLight
         self.inkDark = inkDark
+        self.tierFillsLight = tierFillsLight
+        self.tierFillsDark = tierFillsDark
     }
 
     /// 記録と設定と配色から作る。**画面側で組み立てない。**
@@ -67,7 +74,25 @@ public struct WidgetSnapshot: Codable, Sendable, Equatable {
                   fillLight: palette.fill(tier, dark: false),
                   fillDark: palette.fill(tier, dark: true),
                   inkLight: palette.colors(dark: false).ink,
-                  inkDark: palette.colors(dark: true).ink)
+                  inkDark: palette.colors(dark: true).ink,
+                  tierFillsLight: palette.colors(dark: false).tiers,
+                  tierFillsDark: palette.colors(dark: true).tiers)
+    }
+
+    /// 日付だけ進めて、記録を空に戻したもの。
+    ///
+    /// **アプリを開かないまま日をまたぐと、ウィジェットは前の日を出し続ける。**
+    /// 中身を書き直せるのはアプリだけなので、ウィジェット側でこれを作って
+    /// 「今日はまだ0」に切り替える。歩数はアプリが次に開かれたときに追いつく。
+    public func carriedOver(to newDate: YMD) -> WidgetSnapshot {
+        WidgetSnapshot(date: newDate,
+                       steps: 0, passSteps: passSteps, stepScore: 0,
+                       exercises: 0, passExercises: passExercises, exerciseScore: 0,
+                       total: 0, isRest: false,
+                       fillLight: fill(.low, dark: false),
+                       fillDark: fill(.low, dark: true),
+                       inkLight: inkLight, inkDark: inkDark,
+                       tierFillsLight: tierFillsLight, tierFillsDark: tierFillsDark)
     }
 
     public var tier: DayTier { Scorer.tier(total) }
@@ -111,6 +136,15 @@ public struct WidgetSnapshot: Codable, Sendable, Equatable {
         return score > 0 ? .partway : .none
     }
 
+    /// その段階の塗り。4段階ぶんを持っていればそこから引く。
+    /// 1.3 で保存されたものは今の段階の色しか持っていないので、そのときはそれを返す。
+    public func fill(_ tier: DayTier, dark: Bool) -> UInt32 {
+        let all = dark ? tierFillsDark : tierFillsLight
+        if let all, all.indices.contains(tier.rawValue - 1) { return all[tier.rawValue - 1] }
+        return dark ? fillDark : fillLight
+    }
+
+    /// いまの段階の塗り
     public func fill(dark: Bool) -> UInt32 { dark ? fillDark : fillLight }
     public func ink(dark: Bool) -> UInt32 { dark ? inkDark : inkLight }
 

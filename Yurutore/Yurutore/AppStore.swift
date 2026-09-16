@@ -342,6 +342,32 @@ final class AppStore {
         showOnboarding = !p.didOnboard
     }
 
+    // MARK: - 歩数の取り込み
+
+    /// ヘルスケアから歩数を取り込む。
+    ///
+    /// **画面からも、ヘルスケアに起こされたときも、同じ道を通す。**
+    /// 2通りの取り込み方があると、どちらかだけ直して食い違う。
+    func syncSteps(using health: HealthStore) async {
+        guard health.isAvailable else { return }
+        healthAuthorized = false
+        // 起点より前は読んでも使わないので、直近1年ぶんだけ取る
+        let from = today.adding(days: -400)
+        let steps = await health.dailySteps(from: from, to: today)
+        // 歩数が0件でも、読み取れたなら許可は済んでいる
+        healthAuthorized = health.isAuthorized
+        guard !steps.isEmpty else { return }
+        for (date, count) in steps {
+            // 確定済みの日は歩数を上書きしない。過去の点数が動くため。
+            if journal[date]?.lockedScore != nil { continue }
+            var log = journal[date] ?? DayLog()
+            log.steps = count
+            journal[date] = log
+        }
+        journal.settleAll(today: today, activities: activities, settings: settings)
+        save()   // この中でウィジェットへ押し込む
+    }
+
     // MARK: - 配色
 
     func isDark(_ scheme: ColorScheme) -> Bool {

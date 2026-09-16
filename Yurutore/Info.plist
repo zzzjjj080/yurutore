@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- どのビルドが入っているかを画面で確かめるための印（引き継ぎ書 4-145）。
+	     INFOPLIST_KEY_ 経由では通らないので、実ファイルに書いて $() で展開する。
+	     置き場所は同期グループの外（引き継ぎ書 4-22）。 -->
+	<key>YTBuildStamp</key>
+	<string>$(YT_BUILD_STAMP)</string>
+</dict>
+</plist>

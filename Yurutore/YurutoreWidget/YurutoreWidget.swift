@@ -43,15 +43,21 @@ struct Provider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (Entry) -> Void) {
-        completion(Entry(date: Date(), snapshot: WidgetStore.load() ?? .placeholder))
+        completion(Entry(date: Date(), snapshot: WidgetStore.current() ?? .placeholder))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> Void) {
-        // 中身が変わるのはアプリが保存したときだけ。そのとき押し込まれるので、
-        // ここでは日付が変わるまで持たせておけばよい。
-        let entry = Entry(date: Date(), snapshot: WidgetStore.load())
-        let tomorrow = Calendar.current.startOfDay(for: Date().addingTimeInterval(86400))
-        completion(Timeline(entries: [entry], policy: .after(tomorrow)))
+        let now = Date()
+        let midnight = LocalDay.nextMidnight(now)
+
+        var entries = [Entry(date: now, snapshot: WidgetStore.current(now))]
+        // **日付が変わる瞬間のぶんも積んでおく。**
+        // アプリを開かないまま日をまたぐと、ここが無いと前の日を出し続ける。
+        if let carried = WidgetStore.current(now)?.carriedOver(to: LocalDay.today(midnight)) {
+            entries.append(Entry(date: midnight, snapshot: carried))
+        }
+        // 積んだぶんを使い切ったら、そこでまた組み直してもらう
+        completion(Timeline(entries: entries, policy: .atEnd))
     }
 }
 
@@ -69,5 +75,14 @@ enum WidgetStore {
               let data = defaults.data(forKey: WidgetSnapshot.storageKey)
         else { return nil }
         return try? JSONDecoder().decode(WidgetSnapshot.self, from: data)
+    }
+
+    /// いま出すべき中身。**前の日のものなら、その場で今日ぶんに繰り越す。**
+    /// 書き直せるのはアプリだけなので、開かれないまま日をまたいでも
+    /// 前の日の点数が残らないようにする。
+    static func current(_ now: Date = Date()) -> WidgetSnapshot? {
+        guard let saved = load() else { return nil }
+        let today = LocalDay.today(now)
+        return saved.date == today ? saved : saved.carriedOver(to: today)
     }
 }

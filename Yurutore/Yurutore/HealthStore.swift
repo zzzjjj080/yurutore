@@ -39,6 +39,34 @@ final class HealthStore {
         }
     }
 
+    // MARK: - 歩数が増えたら知らせてもらう
+
+    /// 歩数の更新を見張る。
+    ///
+    /// **これが無いと、アプリを開くまでウィジェットの歩数が古いままになる。**
+    /// ヘルスケアに歩数が入るとアプリが裏で起こされ、読み直して書き込める。
+    ///
+    /// 呼び出しは1回だけ。`HKObserverQuery` はアプリを入れ直すまで残る。
+    func startWatchingSteps(_ onUpdate: @escaping @Sendable () async -> Void) {
+        guard isAvailable else { return }
+
+        let query = HKObserverQuery(sampleType: stepType, predicate: nil) { _, completion, error in
+            Task {
+                await onUpdate()
+                // **必ず呼ぶ。** 呼ばないとOSが「処理できなかった」と判断して、
+                // そのうち起こしてくれなくなる
+                completion()
+            }
+        }
+        store.execute(query)
+
+        // 歩数の最短は1時間ごと。これより短くは指定できない
+        store.enableBackgroundDelivery(for: stepType, frequency: .hourly) { [weak self] ok, error in
+            guard !ok, let error else { return }
+            Task { @MainActor in self?.lastError = error.localizedDescription }
+        }
+    }
+
     /// 指定した期間の日別歩数
     func dailySteps(from: YMD, to: YMD) async -> [YMD: Int] {
         guard isAvailable else { return [:] }

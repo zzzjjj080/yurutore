@@ -42,6 +42,15 @@ struct SettingsSheet: View {
                     FeedbackButtonYurutore(lang: lang, accent: store.accent(dark: dark))
                     CoffeeTipSectionYurutore(tipJar: tipJar, lang: lang,
                                              accent: store.accent(dark: dark))
+
+                    // いま入っているのがどのビルドかを確かめられるように、
+                    // いちばん下に小さく出す（引き継ぎ書 4-145）
+                    Text(BuildStamp.text)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.tertiary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 4)
+                        .accessibilityIdentifier("buildStamp")
                 }
                 .padding(18)
                 .frame(maxWidth: .infinity, alignment: .leading)
