@@ -28,6 +28,10 @@ public struct WidgetSnapshot: Codable, Sendable, Equatable {
     /// 1.3 の保存には入っていないので Optional（無ければ上の1色で代用する）。
     public let tierFillsLight: [UInt32]?
     public let tierFillsDark: [UInt32]?
+    /// 目標ライン。**ウィジェットが自分で歩数から点を出し直すのに要る。**
+    /// 1.4 より前の保存には入っていないので Optional。
+    public let goalSteps: Int?
+    public let goalExercises: Int?
     /// 文字やリングに使う色
     public let inkLight: UInt32
     public let inkDark: UInt32
@@ -37,7 +41,8 @@ public struct WidgetSnapshot: Codable, Sendable, Equatable {
                 total: Int, isRest: Bool,
                 fillLight: UInt32, fillDark: UInt32,
                 inkLight: UInt32, inkDark: UInt32,
-                tierFillsLight: [UInt32]? = nil, tierFillsDark: [UInt32]? = nil) {
+                tierFillsLight: [UInt32]? = nil, tierFillsDark: [UInt32]? = nil,
+                goalSteps: Int? = nil, goalExercises: Int? = nil) {
         self.date = date
         self.steps = steps
         self.passSteps = passSteps
@@ -53,6 +58,8 @@ public struct WidgetSnapshot: Codable, Sendable, Equatable {
         self.inkDark = inkDark
         self.tierFillsLight = tierFillsLight
         self.tierFillsDark = tierFillsDark
+        self.goalSteps = goalSteps
+        self.goalExercises = goalExercises
     }
 
     /// 記録と設定と配色から作る。**画面側で組み立てない。**
@@ -76,7 +83,9 @@ public struct WidgetSnapshot: Codable, Sendable, Equatable {
                   inkLight: palette.colors(dark: false).ink,
                   inkDark: palette.colors(dark: true).ink,
                   tierFillsLight: palette.colors(dark: false).tiers,
-                  tierFillsDark: palette.colors(dark: true).tiers)
+                  tierFillsDark: palette.colors(dark: true).tiers,
+                  goalSteps: settings.goalSteps,
+                  goalExercises: settings.goalExercises)
     }
 
     /// 日付だけ進めて、記録を空に戻したもの。
@@ -92,7 +101,39 @@ public struct WidgetSnapshot: Codable, Sendable, Equatable {
                        fillLight: fill(.low, dark: false),
                        fillDark: fill(.low, dark: true),
                        inkLight: inkLight, inkDark: inkDark,
-                       tierFillsLight: tierFillsLight, tierFillsDark: tierFillsDark)
+                       tierFillsLight: tierFillsLight, tierFillsDark: tierFillsDark,
+                       goalSteps: goalSteps, goalExercises: goalExercises)
+    }
+
+    /// 書かれたときの設定。目標ラインが入っていなければ既定で補う。
+    public var settings: ScoringSettings {
+        ScoringSettings(passSteps: passSteps,
+                        goalSteps: goalSteps ?? ScoringSettings.default.goalSteps,
+                        passExercises: passExercises,
+                        goalExercises: goalExercises ?? ScoringSettings.default.goalExercises)
+    }
+
+    /// 歩数だけを今の値に差し替える。
+    ///
+    /// **アプリを開かない日でも、ウィジェットが自分で歩数を読めるようにするため。**
+    /// 種目は本人が入れるものなので、アプリが書いた値をそのまま使う。
+    /// 点数の出し方はカレンダーと同じ `Scorer` を通すので、数字が食い違わない。
+    public func withLiveSteps(_ liveSteps: Int) -> WidgetSnapshot {
+        guard liveSteps != steps else { return self }
+        let s = settings
+        let newStepScore = Scorer.stepScore(steps: liveSteps, settings: s)
+        let newTotal = min(100, newStepScore + exerciseScore)
+        let newTier = Scorer.tier(newTotal)
+        return WidgetSnapshot(date: date,
+                              steps: liveSteps, passSteps: passSteps, stepScore: newStepScore,
+                              exercises: exercises, passExercises: passExercises,
+                              exerciseScore: exerciseScore,
+                              total: newTotal, isRest: isRest,
+                              fillLight: fill(newTier, dark: false),
+                              fillDark: fill(newTier, dark: true),
+                              inkLight: inkLight, inkDark: inkDark,
+                              tierFillsLight: tierFillsLight, tierFillsDark: tierFillsDark,
+                              goalSteps: goalSteps, goalExercises: goalExercises)
     }
 
     public var tier: DayTier { Scorer.tier(total) }

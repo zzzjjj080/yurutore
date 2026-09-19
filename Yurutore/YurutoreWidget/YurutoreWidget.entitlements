@@ -3,6 +3,11 @@
 <plist version="1.0">
 <dict>
 	<!-- アプリ本体が書いた「今日ぶん」を読むための共有領域 -->
+	<!-- アプリを開かない日でも、歩数だけは自分で読めるようにする -->
+	<key>com.apple.developer.healthkit</key>
+	<true/>
+	<key>com.apple.developer.healthkit.access</key>
+	<array/>
 	<key>com.apple.security.application-groups</key>
 	<array>
 		<string>group.com.zzzjjj080.Yurutore</string>

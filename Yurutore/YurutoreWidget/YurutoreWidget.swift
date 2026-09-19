@@ -43,21 +43,27 @@ struct Provider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (Entry) -> Void) {
-        completion(Entry(date: Date(), snapshot: WidgetStore.current() ?? .placeholder))
+        Task {
+            let snapshot = await WidgetStore.currentWithLiveSteps()
+            completion(Entry(date: Date(), snapshot: snapshot ?? .placeholder))
+        }
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> Void) {
-        let now = Date()
-        let midnight = LocalDay.nextMidnight(now)
+        Task {
+            let now = Date()
+            let midnight = LocalDay.nextMidnight(now)
+            let current = await WidgetStore.currentWithLiveSteps(now)
 
-        var entries = [Entry(date: now, snapshot: WidgetStore.current(now))]
-        // **日付が変わる瞬間のぶんも積んでおく。**
-        // アプリを開かないまま日をまたぐと、ここが無いと前の日を出し続ける。
-        if let carried = WidgetStore.current(now)?.carriedOver(to: LocalDay.today(midnight)) {
-            entries.append(Entry(date: midnight, snapshot: carried))
+            var entries = [Entry(date: now, snapshot: current)]
+            // **日付が変わる瞬間のぶんも積んでおく。**
+            // アプリを開かないまま日をまたぐと、ここが無いと前の日を出し続ける。
+            if let carried = current?.carriedOver(to: LocalDay.today(midnight)) {
+                entries.append(Entry(date: midnight, snapshot: carried))
+            }
+            // 積んだぶんを使い切ったら、そこでまた組み直してもらう
+            completion(Timeline(entries: entries, policy: .atEnd))
         }
-        // 積んだぶんを使い切ったら、そこでまた組み直してもらう
-        completion(Timeline(entries: entries, policy: .atEnd))
     }
 }
 
@@ -84,5 +90,14 @@ enum WidgetStore {
         guard let saved = load() else { return nil }
         let today = LocalDay.today(now)
         return saved.date == today ? saved : saved.carriedOver(to: today)
+    }
+
+    /// 歩数だけ、いまの値に差し替えたもの。
+    /// **アプリを開かない日でも、ここでヘルスケアを読んで追いつく。**
+    /// 読めなければアプリが書いた値をそのまま使う。
+    static func currentWithLiveSteps(_ now: Date = Date()) async -> WidgetSnapshot? {
+        guard let base = current(now) else { return nil }
+        guard let steps = await LiveSteps.today() else { return base }
+        return base.withLiveSteps(steps)
     }
 }

@@ -189,6 +189,65 @@ struct WidgetSnapshotTests {
         #expect(s.fill(.pass, dark: false) == s.fillLight)
     }
 
+    // MARK: - ウィジェットが自分で歩数を読む
+
+    /// アプリを開かない日でも、ウィジェットが歩数だけは自分で読めるようにしてある。
+    /// **点数の出し方はカレンダーと同じ `Scorer` を通す。**
+    @Test("歩数を差し替えると、点数も段階も付け直す")
+    func liveStepsRecomputes() {
+        let saved = snapshot(steps: 2000, exercises: 2)     // 10 + 40 = 50点
+        let now = saved.withLiveSteps(8000)                 // 40 + 40 = 80点
+
+        #expect(now.steps == 8000)
+        #expect(now.stepScore == 40)
+        #expect(now.total == 80)
+        #expect(now.tier == .pass)
+        // 種目は本人が入れるものなので動かさない
+        #expect(now.exercises == saved.exercises)
+        #expect(now.exerciseScore == saved.exerciseScore)
+    }
+
+    /// 段階が変われば地の色も変わる。**4段階を持っているから作れる。**
+    @Test("段階が上がると色も変わる")
+    func liveStepsChangesTheColor() {
+        let now = snapshot(steps: 2000, exercises: 2).withLiveSteps(8000)
+        #expect(now.fill(dark: false) == palette.fill(.pass, dark: false))
+        #expect(now.fill(dark: true) == palette.fill(.pass, dark: true))
+    }
+
+    @Test("同じ歩数なら何も変えない")
+    func liveStepsNoChange() {
+        let saved = snapshot(steps: 8000, exercises: 2)
+        #expect(saved.withLiveSteps(8000) == saved)
+    }
+
+    /// 差し替えた結果が、カレンダーが出す点数と一致すること。
+    /// ここがずれると、ウィジェットとアプリで違う点数が出る。
+    @Test("差し替えてもカレンダーと同じ点数になる")
+    func liveStepsMatchesTheCalendar() {
+        for steps in stride(from: 0, through: 20000, by: 1000) {
+            let now = snapshot(steps: 0, exercises: 2).withLiveSteps(steps)
+            var log = DayLog(steps: steps)
+            log.parts[.chest] = .two
+            let expected = Scorer.liveScore(log, activities: acts, settings: settings)
+            #expect(now.total == expected, "\(steps)歩")
+        }
+    }
+
+    /// 1.3 が書いた保存には目標ラインが入っていない。**既定で補って落ちないこと。**
+    @Test("目標ラインが無い保存でも差し替えられる")
+    func liveStepsWithoutGoalLines() {
+        let old = WidgetSnapshot(date: YMD(2026, 9, 19), steps: 0, passSteps: 8000, stepScore: 0,
+                                 exercises: 2, passExercises: 2, exerciseScore: 40,
+                                 total: 40, isRest: false,
+                                 fillLight: 0xD8DDE3, fillDark: 0x85909A,
+                                 inkLight: 0x007898, inkDark: 0x3ECFFF)
+        #expect(old.goalSteps == nil)
+        let now = old.withLiveSteps(8000)
+        #expect(now.stepScore == 40)
+        #expect(now.total == 80)
+    }
+
     @Test("保存して読み直しても同じ")
     func survivesASaveAndLoad() throws {
         let s = snapshot(steps: 8240, exercises: 1)
