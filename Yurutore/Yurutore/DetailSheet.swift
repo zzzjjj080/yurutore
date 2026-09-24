@@ -10,10 +10,10 @@ struct DetailSheet: View {
     private var lang: AppLanguage { store.language }
 
     var body: some View {
-        let s = store.monthSummary
+        let s = store.recentSummary
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
-                Text(L.detailTitle(store.viewYear, store.viewMonth, lang))
+                Text(L.detailTitle(lang))
                     .font(.system(size: 19, weight: .heavy))
 
                 card(L.bodyParts(lang)) {
@@ -29,8 +29,9 @@ struct DetailSheet: View {
                             GeometryReader { geo in
                                 ZStack(alignment: .leading) {
                                     Capsule().fill(Color(.tertiarySystemGroupedBackground))
+                                    // 少ない側はオレンジ。ホームの帯と同じ見分け方にする
                                     Capsule()
-                                        .fill(low ? Color.secondary : store.accent(dark: dark))
+                                        .fill(low ? Color.orange : store.accent(dark: dark))
                                         .frame(width: geo.size.width * Double(n) / Double(maxCount))
                                 }
                             }

@@ -94,11 +94,30 @@ public struct Journal: Codable, Equatable, Sendable {
         guard first <= last else { return nil }
         return first...last
     }
+
+    // MARK: - 最近◯日
+
+    /// 画面に出す集計はすべてこの日数で見る（2026-09-24 本人決定）。
+    ///
+    /// 月ごとの集計は、月初だと数日ぶんしか無く、月末になるほど動かなくなる。
+    /// 「いま自分がどうなっているか」を知りたいので、常に同じ長さの窓で見る。
+    public static let recentDays = 30
+
+    /// 最近 n 日（**今日を含む**）のうち、集計の起点より後の日。古い順。
+    public func recentDates(days: Int = Journal.recentDays,
+                            today: YMD,
+                            activities: [Activity],
+                            override: YMD? = nil) -> [YMD] {
+        guard days > 0, let start = startDate(activities: activities, override: override) else { return [] }
+        return stride(from: days - 1, through: 0, by: -1)
+            .map { today.adding(days: -$0) }
+            .filter { $0 >= start }
+    }
 }
 
 // MARK: - 集計結果
 
-public struct MonthSummary: Equatable, Sendable {
+public struct PeriodSummary: Equatable, Sendable {
     /// 分母（集計対象の日数）
     public var countedDays: Int
     /// 80点以上だった日数
@@ -125,10 +144,50 @@ public struct YearSummary: Equatable, Sendable {
 }
 
 extension Journal {
+    /// 最近30日のまとめ。
+    ///
+    /// **平均と「達成した日」には今日を入れない。** まだ歩き終わっていない日を混ぜると、
+    /// 朝いちばんに見るたび数字が落ちる。
+    /// **部位とその他の運動は今日のぶんも数える。** いま記録した運動が出てこないほうが分かりにくい。
+    public func recentSummary(days: Int = Journal.recentDays,
+                              today: YMD,
+                              activities: [Activity],
+                              settings: ScoringSettings) -> PeriodSummary {
+        var parts: [BodyPart: Int] = [:]
+        var acts: [String: Int] = [:]
+        BodyPart.allCases.forEach { parts[$0] = 0 }
+        activities.forEach { acts[$0.id] = 0 }
+
+        var counted = 0, passed = 0, steps = 0, sum = 0, n = 0
+        for date in recentDates(days: days, today: today,
+                                activities: activities, override: settings.startOverride) {
+            let log = self.days[date]
+            if let log {
+                for (p, v) in log.parts { parts[p, default: 0] += v.rawValue }
+                for (id, v) in log.activities where acts[id] != nil { acts[id]! += v.rawValue }
+            }
+            guard date != today else { continue }
+            counted += 1
+            guard let log else { continue }
+            steps += log.steps
+            sum += Scorer.score(log, activities: activities, settings: settings)
+            n += 1
+            if Scorer.isPass(log, activities: activities, settings: settings) { passed += 1 }
+        }
+
+        return PeriodSummary(
+            countedDays: counted,
+            passedDays: passed,
+            totalSteps: steps,
+            averageScore: n > 0 ? Int((Double(sum) / Double(n)).rounded()) : nil,
+            partCounts: parts,
+            activityCounts: acts)
+    }
+
     public func monthSummary(year: Int, month: Int,
                              today: YMD,
                              activities: [Activity],
-                             settings: ScoringSettings) -> MonthSummary {
+                             settings: ScoringSettings) -> PeriodSummary {
         var parts: [BodyPart: Int] = [:]
         var acts: [String: Int] = [:]
         BodyPart.allCases.forEach { parts[$0] = 0 }
@@ -137,7 +196,7 @@ extension Journal {
         guard let range = countedRange(year: year, month: month, today: today,
                                        activities: activities,
                                        override: settings.startOverride) else {
-            return MonthSummary(countedDays: 0, passedDays: 0, totalSteps: 0,
+            return PeriodSummary(countedDays: 0, passedDays: 0, totalSteps: 0,
                                 averageScore: nil, partCounts: parts, activityCounts: acts)
         }
 
@@ -152,7 +211,7 @@ extension Journal {
             for (id, v) in log.activities where acts[id] != nil { acts[id]! += v.rawValue }
         }
 
-        return MonthSummary(
+        return PeriodSummary(
             countedDays: range.count,
             passedDays: passed,
             totalSteps: steps,

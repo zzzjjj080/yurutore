@@ -42,6 +42,10 @@ enum L {
     static func statSteps(_ l: AppLanguage) -> String { t("平均歩数", "Avg steps", l) }
     static func statScore(_ l: AppLanguage) -> String { t("平均点", "Avg score", l) }
     static func detailBtn(_ l: AppLanguage) -> String { t("詳細を見る", "See details", l) }
+    /// 集計の期間。画面のどこでも最近30日で統一している。
+    static func recentLabel(_ l: AppLanguage) -> String {
+        t("最近\(Journal.recentDays)日", "Last \(Journal.recentDays) days", l)
+    }
     static func today(_ l: AppLanguage) -> String     { t("今日", "Today", l) }
     static func pts(_ l: AppLanguage) -> String       { t("点", "pts", l) }
     static func close(_ l: AppLanguage) -> String     { t("閉じる", "Close", l) }
@@ -71,13 +75,15 @@ enum L {
     }
 
     // 詳細
-    static func detailTitle(_ y: Int, _ m: Int, _ l: AppLanguage) -> String {
-        t("\(y)年\(m)月の詳細", "\(monthsEN[m-1]) \(y)", l)
+    static func detailTitle(_ l: AppLanguage) -> String {
+        t("最近\(Journal.recentDays)日の詳細", "Last \(Journal.recentDays) days", l)
     }
     static func otherEx(_ l: AppLanguage) -> String  { t("その他の運動", "Other exercise", l) }
     static func total(_ l: AppLanguage) -> String    { t("合計", "Total", l) }
     static func perDay(_ l: AppLanguage) -> String   { t("1日あたり", "Per day", l) }
-    static func noneYet(_ l: AppLanguage) -> String  { t("今月はまだありません", "Nothing yet this month", l) }
+    static func noneYet(_ l: AppLanguage) -> String  {
+        t("最近\(Journal.recentDays)日はまだありません", "Nothing in the last \(Journal.recentDays) days", l)
+    }
     static func since(_ d: YMD, _ l: AppLanguage) -> String {
         t("\(d.year)年\(d.month)月\(d.day)日から集計しています（初めて運動を記録した日）",
           "Counting from \(monthShort(d.month, l)) \(d.day), \(d.year) — the first day you logged exercise", l)
@@ -87,8 +93,6 @@ enum L {
     }
 
     // 年
-    static func ySumPass(_ l: AppLanguage) -> String   { t("達成した日", "Days passed", l) }
-    static func ySumLogged(_ l: AppLanguage) -> String { t("記録した日", "Days logged", l) }
     static func chartTitle(_ l: AppLanguage) -> String { t("月ごとの達成率（%）", "Pass rate by month (%)", l) }
 
     // 設定

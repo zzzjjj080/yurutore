@@ -123,9 +123,10 @@ final class AppStore {
                           : (viewYear == today.year && viewMonth == today.month)
     }
 
-    var monthSummary: MonthSummary {
-        journal.monthSummary(year: viewYear, month: viewMonth, today: today,
-                             activities: activities, settings: settings)
+    /// 画面に出す集計は、見ている月に関係なく**いつでも最近30日**。
+    /// 月ごとだと、月初は数日ぶんしか無く、月末になるほど動かなくなる。
+    var recentSummary: PeriodSummary {
+        journal.recentSummary(today: today, activities: activities, settings: settings)
     }
     var yearSummary: YearSummary {
         journal.yearSummary(year: viewYear, today: today,

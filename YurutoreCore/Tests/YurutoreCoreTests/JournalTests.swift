@@ -172,6 +172,54 @@ struct JournalTests {
         #expect(y.monthlyPassRate[6] == nil)   // 7月は起点より前
     }
 
+    // MARK: - 最近30日
+
+    @Test("最近30日は今日も数えるが、平均と達成した日には今日を入れない")
+    func recentSummaryIncludesTodayOnlyForParts() {
+        var j = sample()
+        j.settleAll(today: today, activities: acts, settings: settings)
+        let s = j.recentSummary(today: today, activities: acts, settings: settings)
+        // 起点(8/1)から昨日(8/13)までの13日
+        #expect(s.countedDays == 13)
+        // 今日の腕×2 も部位には入る
+        #expect(s.partCounts[.arm] == 3)
+        #expect(s.partCounts[.chest] == 4)
+        // 歩数の合計に今日(12600)は入らない
+        #expect(s.totalSteps == 9120 + 4300 + 5200 + 8100 + 7400)
+    }
+
+    @Test("月をまたいでも窓の長さは変わらない（月初でも29日ぶん数える）")
+    func recentSummaryCrossesMonths() {
+        var j = sample()
+        let later = YMD(2026, 9, 2)
+        j[YMD(2026, 9, 1)] = DayLog(steps: 9000, parts: [.leg: .one])
+        let s = j.recentSummary(today: later, activities: acts, settings: settings)
+        // 8/4〜9/1 の29日（今日=9/2 は分母に入れない）
+        #expect(s.countedDays == 29)
+        #expect(s.partCounts[.leg] == 1)
+        // 起点より前(7月)は窓に入らないので、8/1・8/2 の記録は落ちる
+        #expect(s.partCounts[.chest] == 2)
+    }
+
+    @Test("起点より前は数えない")
+    func recentSummaryStopsAtStart() {
+        var j = Journal()
+        j[YMD(2026, 8, 12)] = DayLog(steps: 8100, parts: [.core: .one])
+        let s = j.recentSummary(today: today, activities: acts, settings: settings)
+        #expect(s.countedDays == 2)          // 8/12・8/13（今日=8/14 は入れない）
+        #expect(s.partCounts[.core] == 1)
+    }
+
+    @Test("記録が無ければ最近30日でも達成率は出さない（0除算しない）")
+    func emptyRecentSummary() {
+        let s = Journal().recentSummary(today: today, activities: acts, settings: settings)
+        #expect(s.countedDays == 0)
+        #expect(s.passRate == nil)
+        #expect(s.averageSteps == nil)
+        #expect(s.averageScore == nil)
+        #expect(s.partCounts[.chest] == 0)
+    }
+
     // MARK: - 状態
 
     @Test("1日は3つの状態のどれか")

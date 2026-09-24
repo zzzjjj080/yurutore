@@ -17,39 +17,39 @@ struct ContentView: View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()
 
-            VStack(spacing: 10) {
-                header
-                if !store.healthAuthorized { healthBanner }
-                else if store.stepsLookMissing { stepsStoppedBanner }
+            // 小さい端末では下の集計がはみ出す。**収まるときは動かない**
+            // （.basedOnSize）ので、大きい端末の見た目はこれまでと同じ。
+            ScrollView {
+                VStack(spacing: 10) {
+                    header
+                    if !store.healthAuthorized { healthBanner }
+                    else if store.stepsLookMissing { stepsStoppedBanner }
 
-                Group {
-                    if store.viewMode == .month {
-                        MonthGrid(store: store)
-                    } else {
-                        YearGrid(store: store)
-                    }
-                }
-                .contentShape(.rect)
-                .gesture(
-                    // 縦スクロールと誤認しないよう、横に振れたときだけ月を送る
-                    DragGesture(minimumDistance: 24)
-                        .onEnded { v in
-                            guard abs(v.translation.width) > abs(v.translation.height) else { return }
-                            withAnimation(.easeOut(duration: 0.2)) {
-                                store.moveMonth(v.translation.width < 0 ? 1 : -1)
-                            }
-                            Haptics.light()
+                    Group {
+                        if store.viewMode == .month {
+                            MonthGrid(store: store)
+                        } else {
+                            YearGrid(store: store)
                         }
-                )
+                    }
+                    .contentShape(.rect)
+                    .gesture(
+                        // 縦スクロールと誤認しないよう、横に振れたときだけ月を送る
+                        DragGesture(minimumDistance: 24)
+                            .onEnded { v in
+                                guard abs(v.translation.width) > abs(v.translation.height) else { return }
+                                withAnimation(.easeOut(duration: 0.2)) {
+                                    store.moveMonth(v.translation.width < 0 ? 1 : -1)
+                                }
+                                Haptics.light()
+                            }
+                    )
 
-                stats
-                Button(L.detailBtn(lang)) { Haptics.light(); store.showDetail = true }
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 2)
-                Spacer(minLength: 0)
+                    stats
+                }
+                .padding(.horizontal, 12)
             }
-            .padding(.horizontal, 12)
+            .scrollBounceBehavior(.basedOnSize)
         }
         .preferredColorScheme(store.theme == .system ? nil : (store.theme == .dark ? .dark : .light))
         .sheet(item: $store.editingDate) { date in
@@ -186,35 +186,49 @@ struct ContentView: View {
 
     // MARK: - 指標
 
-    @ViewBuilder
+    /// 数字はどの月を見ていても**いつでも最近30日**。
+    ///
+    /// 月ごとに切り替えていたのをやめた（2026-09-24 本人決定）。
+    /// 月初は数日ぶんしか無く、月末は動かなくなるので、
+    /// 「いま自分がどうなっているか」が読み取れなかった。
     private var stats: some View {
-        // 年表示のときは年の集計に切り替える。月の数字のままだと、
-        // 何を見ている数字なのか分からなくなる。
-        if store.viewMode == .year {
-            let y = store.yearSummary
-            return HStack(spacing: 7) {
-                statTile(L.ySumPass(lang), value: "\(y.passedDays)",
-                         unit: L.t("日", "d", lang), sub: "", tint: store.accent(dark: dark))
-                statTile(L.ySumLogged(lang), value: "\(y.loggedDays)",
-                         unit: L.t("日", "d", lang), sub: "", tint: .primary)
-                statTile(L.statScore(lang), value: y.averageScore.map { "\($0)" } ?? "—",
-                         unit: y.averageScore != nil ? L.pts(lang) : nil, sub: "", tint: .primary)
+        let s = store.recentSummary
+        return VStack(spacing: 7) {
+            HStack(spacing: 6) {
+                Text(L.recentLabel(lang))
+                    .font(.system(size: 11, weight: .heavy))
+                    .foregroundStyle(.secondary)
+                Spacer(minLength: 0)
+                Button {
+                    Haptics.light(); store.showDetail = true
+                } label: {
+                    HStack(spacing: 2) {
+                        Text(L.detailBtn(lang))
+                        Image(systemName: "chevron.right").font(.system(size: 9, weight: .bold))
+                    }
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
             }
-        }
-        let s = store.monthSummary
-        return HStack(spacing: 7) {
-            statTile(L.statPass(lang),
-                     value: s.passRate.map { "\($0)" } ?? "—",
-                     unit: s.passRate != nil ? "%" : nil,
-                     sub: s.countedDays > 0 ? "\(s.passedDays)/\(s.countedDays)" : "",
-                     tint: store.accent(dark: dark))
-            statTile(L.statSteps(lang),
-                     value: s.averageSteps.map { $0.formatted() } ?? "—",
-                     unit: nil, sub: "", tint: .primary)
-            statTile(L.statScore(lang),
-                     value: s.averageScore.map { "\($0)" } ?? "—",
-                     unit: s.averageScore != nil ? L.pts(lang) : nil,
-                     sub: "", tint: .primary)
+            .padding(.horizontal, 4)
+
+            HStack(spacing: 7) {
+                statTile(L.statPass(lang),
+                         value: s.passRate.map { "\($0)" } ?? "—",
+                         unit: s.passRate != nil ? "%" : nil,
+                         sub: s.countedDays > 0 ? "\(s.passedDays)/\(s.countedDays)" : "",
+                         tint: store.accent(dark: dark))
+                statTile(L.statSteps(lang),
+                         value: s.averageSteps.map { $0.formatted() } ?? "—",
+                         unit: nil, sub: "", tint: .primary)
+                statTile(L.statScore(lang),
+                         value: s.averageScore.map { "\($0)" } ?? "—",
+                         unit: s.averageScore != nil ? L.pts(lang) : nil,
+                         sub: "", tint: .primary)
+            }
+
+            RecentParts(store: store, counts: s.partCounts, dark: dark)
         }
     }
 
