@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import YurutoreCore
 
@@ -364,5 +365,37 @@ struct StepsMissingTests {
         j[YMD(2026, 9, 9)] = DayLog(steps: 0)
         #expect(!j.stepsLookMissing(today: YMD(2026, 9, 9),
                                     start: j.startDate(activities: acts)))
+    }
+}
+
+/// 部位の見せ方。良し悪しを付けず、見た目だけを選べるようにしたもの。
+struct PartsStyleTests {
+
+    @Test("5通りある")
+    func fiveStyles() {
+        #expect(PartsStyle.allCases.count == 5)
+    }
+
+    @Test("保存して読み直しても同じ")
+    func roundTrip() throws {
+        for s in PartsStyle.allCases {
+            let data = try JSONEncoder().encode(s)
+            #expect(try JSONDecoder().decode(PartsStyle.self, from: data) == s)
+        }
+    }
+
+    @Test("知らない名前・未設定は既定に落ちる（前の版の保存を壊さない）")
+    func unknownFallsBack() {
+        #expect(PartsStyle.from(nil) == .default)
+        #expect(PartsStyle.from("pie") == .default)
+        #expect(PartsStyle.from("rings") == .rings)
+    }
+
+    @Test("名前は日英とも空でない")
+    func names() {
+        for s in PartsStyle.allCases {
+            #expect(!s.japanese.isEmpty)
+            #expect(!s.english.isEmpty)
+        }
     }
 }

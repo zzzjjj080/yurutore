@@ -31,6 +31,8 @@ final class AppStore {
                               ja: L.customPalette(.ja), en: L.customPalette(.en))
             : Palettes.named(paletteID)
     }
+    /// 最近30日の部位の見せ方。5通りから選ぶ（1.5で追加）
+    var partsStyle: PartsStyle = .default
     var reminderOn = false
     var reminderHour = 21
     /// 前の日の入れ忘れと、歩数が届いていないことを朝に知らせる
@@ -241,6 +243,7 @@ final class AppStore {
         theme = .light; language = .ja; weekStart = .monday
         paletteID = Palettes.defaultID
         customColors = Palettes.named(Palettes.defaultID).colors(dark: false).tiers
+        partsStyle = .default
         reminderOn = false; reminderHour = 21
         morningOn = false; morningHour = 8
         save()
@@ -287,6 +290,7 @@ final class AppStore {
         var passColor: String?
         var paletteID: String?
         var customColors: [UInt32]?
+        var partsStyle: String?
         var reminderOn: Bool
         var reminderHour: Int
         var morningOn: Bool?
@@ -301,7 +305,8 @@ final class AppStore {
                           weekStart: weekStart.rawValue, theme: theme.rawValue,
                           language: language.rawValue, failColor: nil,
                           passColor: nil, paletteID: paletteID,
-                          customColors: customColors, reminderOn: reminderOn,
+                          customColors: customColors,
+                          partsStyle: partsStyle.rawValue, reminderOn: reminderOn,
                           reminderHour: reminderHour,
                           morningOn: morningOn, morningHour: morningHour,
                           didOnboard: didOnboard)
@@ -335,6 +340,7 @@ final class AppStore {
         // 1.2より前の記録には paletteID が無い。2色の設定から一番近いものへ移す
         paletteID = p.paletteID ?? Palettes.migrating(fail: p.failColor, pass: p.passColor)
         customColors = Palettes.normalizedCustom(p.customColors ?? [])
+        partsStyle = PartsStyle.from(p.partsStyle)
         reminderOn = p.reminderOn
         reminderHour = p.reminderHour
         morningOn = p.morningOn ?? false

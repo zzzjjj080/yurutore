@@ -228,7 +228,7 @@ struct ContentView: View {
                          sub: "", tint: .primary)
             }
 
-            RecentParts(store: store, counts: s.partCounts, dark: dark)
+            RecentParts(store: store, counts: s.partCounts, dark: dark, style: store.partsStyle)
         }
     }
 

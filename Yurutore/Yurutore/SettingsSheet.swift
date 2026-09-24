@@ -168,6 +168,10 @@ struct SettingsSheet: View {
                     .onChange(of: store.morningHour) { store.save(); Notifications.reschedule(store) }
                 }
             }
+            section(L.partsStyle(lang)) {
+                hint(L.partsStyleHint(lang))
+                partsStyleList
+            }
             section(L.calColors(lang)) {
                 hint(L.colorHint(lang))
                 tierSample                       // いま選んでいる配色を、意味つきで大きく見せる
@@ -181,6 +185,39 @@ struct SettingsSheet: View {
                         message: L.t("配色・言語・週の始まり・リマインダー・カレンダーの色を、最初の設定に戻します。点数の設定と記録はそのままです。",
                                      "Reset appearance, language, week start, reminder and calendar colors. Scoring settings and your records are kept.", lang)) {
                 store.resetDisplaySettings()
+            }
+        }
+    }
+
+    /// 5通りの見せ方を、**いまの自分の記録で**並べる。
+    /// 見本の数字だと、自分の画面がどうなるか分からない。
+    private var partsStyleList: some View {
+        let counts = store.recentSummary.partCounts
+        return VStack(spacing: 7) {
+            ForEach(PartsStyle.allCases, id: \.rawValue) { style in
+                let selected = style == store.partsStyle
+                Button {
+                    Haptics.light()
+                    store.partsStyle = style
+                    store.save()
+                } label: {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(L.partsStyleName(style, lang))
+                            .font(.system(size: 10, weight: .heavy))
+                            .foregroundStyle(.secondary)
+                        RecentParts(store: store, counts: counts, dark: dark, style: style)
+                    }
+                    .padding(7)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(.systemGroupedBackground), in: .rect(cornerRadius: 13))
+                    .overlay(RoundedRectangle(cornerRadius: 13)
+                        .strokeBorder(selected ? Color.primary : .clear, lineWidth: 2))
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("partsStyle-\(style.rawValue)")
+                .accessibilityLabel(Text(L.partsStyleName(style, lang)))
+                .accessibilityAddTraits(selected ? .isSelected : [])
             }
         }
     }

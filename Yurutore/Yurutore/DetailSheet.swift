@@ -20,18 +20,17 @@ struct DetailSheet: View {
                     let maxCount = max(1, s.partCounts.values.max() ?? 1)
                     ForEach(BodyPart.allCases, id: \.self) { p in
                         let n = s.partCounts[p] ?? 0
-                        let low = Double(n) <= Double(maxCount) * 0.34
                         HStack(spacing: 9) {
+                            // 少ない部位を警告の色にしない（2026-09-24 本人指摘）。
+                            // 足りているかどうかを決めるのは本人
                             Text(L.partName(p, lang))
                                 .font(.system(size: 13, weight: .heavy))
-                                .foregroundStyle(low ? .orange : .primary)
                                 .frame(width: 30, alignment: .leading)
                             GeometryReader { geo in
                                 ZStack(alignment: .leading) {
                                     Capsule().fill(Color(.tertiarySystemGroupedBackground))
-                                    // 少ない側はオレンジ。ホームの帯と同じ見分け方にする
                                     Capsule()
-                                        .fill(low ? Color.orange : store.accent(dark: dark))
+                                        .fill(store.accent(dark: dark))
                                         .frame(width: geo.size.width * Double(n) / Double(maxCount))
                                 }
                             }

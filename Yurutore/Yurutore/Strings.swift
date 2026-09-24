@@ -56,6 +56,16 @@ enum L {
     // 入力
     static func steps(_ l: AppLanguage) -> String     { t("歩数", "Steps", l) }
     static func bodyParts(_ l: AppLanguage) -> String { t("動かした部位", "Body parts", l) }
+    static func partsStyle(_ l: AppLanguage) -> String {
+        t("部位の見せ方", "Body-part display", l)
+    }
+    static func partsStyleHint(_ l: AppLanguage) -> String {
+        t("カレンダーの下に出る、最近\(Journal.recentDays)日に動かした部位です。見せ方だけが変わり、数は同じです。",
+          "How the last \(Journal.recentDays) days of body parts appear under the calendar. Only the look changes.", l)
+    }
+    static func partsStyleName(_ s: PartsStyle, _ l: AppLanguage) -> String {
+        l == .en ? s.english : s.japanese
+    }
     static func otherActs(_ l: AppLanguage) -> String { t("その他の運動", "Other exercise", l) }
     static func restDay(_ l: AppLanguage) -> String   { t("休養日", "Rest day", l) }
     static func notLogged(_ l: AppLanguage) -> String { t("まだ未入力", "Not logged yet", l) }
