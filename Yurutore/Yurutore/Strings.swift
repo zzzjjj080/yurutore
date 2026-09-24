@@ -66,6 +66,18 @@ enum L {
     static func partsStyleName(_ s: PartsStyle, _ l: AppLanguage) -> String {
         l == .en ? s.english : s.japanese
     }
+    static func partsColorLabel(_ l: AppLanguage) -> String { t("色", "Color", l) }
+    static func partsShadeLabel(_ l: AppLanguage) -> String { t("濃淡", "Shading", l) }
+    static func partsShadeHint(_ l: AppLanguage) -> String {
+        t("多い部位ほど濃くなります。「なし」ならどれも同じ濃さです。",
+          "The more you did, the deeper the color. \"Off\" keeps them all the same.", l)
+    }
+    static func partsShadeName(_ s: PartsShade, _ l: AppLanguage) -> String {
+        l == .en ? s.english : s.japanese
+    }
+    static func partsColorName(_ c: PartsColor, _ l: AppLanguage) -> String {
+        c.name(japanese: l != .en)
+    }
     static func otherActs(_ l: AppLanguage) -> String { t("その他の運動", "Other exercise", l) }
     static func restDay(_ l: AppLanguage) -> String   { t("休養日", "Rest day", l) }
     static func notLogged(_ l: AppLanguage) -> String { t("まだ未入力", "Not logged yet", l) }

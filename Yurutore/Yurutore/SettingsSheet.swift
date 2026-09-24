@@ -171,6 +171,19 @@ struct SettingsSheet: View {
             section(L.partsStyle(lang)) {
                 hint(L.partsStyleHint(lang))
                 partsStyleList
+                Text(L.partsColorLabel(lang)).font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(.secondary).padding(.top, 2)
+                partsColorGrid
+                Text(L.partsShadeLabel(lang)).font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(.secondary).padding(.top, 2)
+                Picker("", selection: $store.partsShade) {
+                    ForEach(PartsShade.allCases, id: \.rawValue) { s in
+                        Text(L.partsShadeName(s, lang)).tag(s)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .onChange(of: store.partsShade) { store.save() }
+                hint(L.partsShadeHint(lang))
             }
             section(L.calColors(lang)) {
                 hint(L.colorHint(lang))
@@ -189,7 +202,42 @@ struct SettingsSheet: View {
         }
     }
 
-    /// 5通りの見せ方を、**いまの自分の記録で**並べる。
+    /// 部位の色。カレンダーの配色とは別に選べる。
+    /// 先頭の「カレンダー」は、配色を変えると一緒に変わる。
+    private var partsColorGrid: some View {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 7), count: 4),
+                  spacing: 7) {
+            ForEach(PartsColors.all) { c in
+                let selected = c.id == store.partsColorID
+                let swatch = c.hex(dark: dark).map { Color(hex: $0) } ?? store.accent(dark: dark)
+                Button {
+                    Haptics.light()
+                    store.partsColorID = c.id
+                    store.save()
+                } label: {
+                    VStack(spacing: 5) {
+                        RoundedRectangle(cornerRadius: 5).fill(swatch).frame(height: 20)
+                        Text(L.partsColorName(c, lang))
+                            .font(.system(size: 10, weight: .heavy))
+                            .foregroundStyle(.primary)
+                            .lineLimit(1).minimumScaleFactor(0.7)
+                    }
+                    .padding(7)
+                    .frame(maxWidth: .infinity)
+                    .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 10))
+                    .overlay(RoundedRectangle(cornerRadius: 10)
+                        .strokeBorder(selected ? Color.primary : .clear, lineWidth: 2))
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("partsColor-\(c.id)")
+                .accessibilityLabel(Text(L.partsColorName(c, lang)))
+                .accessibilityAddTraits(selected ? .isSelected : [])
+            }
+        }
+    }
+
+    /// 見せ方を、**いまの自分の記録で**並べる。
     /// 見本の数字だと、自分の画面がどうなるか分からない。
     private var partsStyleList: some View {
         let counts = store.recentSummary.partCounts
@@ -205,7 +253,8 @@ struct SettingsSheet: View {
                         Text(L.partsStyleName(style, lang))
                             .font(.system(size: 10, weight: .heavy))
                             .foregroundStyle(.secondary)
-                        RecentParts(store: store, counts: counts, dark: dark, style: style)
+                        RecentParts(store: store, counts: counts, dark: dark, style: style,
+                                    colorID: store.partsColorID, shade: store.partsShade)
                     }
                     .padding(7)
                     .frame(maxWidth: .infinity, alignment: .leading)

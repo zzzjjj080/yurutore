@@ -371,9 +371,11 @@ struct StepsMissingTests {
 /// 部位の見せ方。良し悪しを付けず、見た目だけを選べるようにしたもの。
 struct PartsStyleTests {
 
-    @Test("5通りある")
-    func fiveStyles() {
-        #expect(PartsStyle.allCases.count == 5)
+    @Test("見せ方は棒と札の2つ")
+    func twoStyles() {
+        #expect(PartsStyle.allCases.count == 2)
+        #expect(PartsStyle.allCases.contains(.bars))
+        #expect(PartsStyle.allCases.contains(.tiles))
     }
 
     @Test("保存して読み直しても同じ")
@@ -384,11 +386,13 @@ struct PartsStyleTests {
         }
     }
 
-    @Test("知らない名前・未設定は既定に落ちる（前の版の保存を壊さない）")
+    /// 5通りあった版で「輪」を選んでいた端末が更新されても、落ちずに既定へ戻る
+    @Test("知らない名前・未設定は既定に落ちる")
     func unknownFallsBack() {
         #expect(PartsStyle.from(nil) == .default)
-        #expect(PartsStyle.from("pie") == .default)
-        #expect(PartsStyle.from("rings") == .rings)
+        #expect(PartsStyle.from("rings") == .default)
+        #expect(PartsStyle.from("numbers") == .default)
+        #expect(PartsStyle.from("tiles") == .tiles)
     }
 
     @Test("名前は日英とも空でない")
@@ -397,5 +401,73 @@ struct PartsStyleTests {
             #expect(!s.japanese.isEmpty)
             #expect(!s.english.isEmpty)
         }
+        for c in PartsColors.all {
+            #expect(!c.name(japanese: true).isEmpty)
+            #expect(!c.name(japanese: false).isEmpty)
+        }
+    }
+}
+
+/// 色と濃淡。**数字が読めるかどうかまでここで測る。**
+/// 画面側に置くと測れないので、色の計算は Core に持たせてある。
+struct PartsColorTests {
+
+    @Test("カレンダーに合わせるは色を持たない。ほかは明暗どちらも持つ")
+    func colorTable() {
+        let follow = PartsColors.named(PartsColors.followID)
+        #expect(follow.hex(dark: false) == nil)
+        #expect(follow.hex(dark: true) == nil)
+        for c in PartsColors.all where c.id != PartsColors.followID {
+            #expect(c.hex(dark: false) != nil)
+            #expect(c.hex(dark: true) != nil)
+        }
+    }
+
+    @Test("知らない色は「カレンダーに合わせる」に落ちる")
+    func unknownColor() {
+        #expect(PartsColors.named(nil).id == PartsColors.followID)
+        #expect(PartsColors.named("gold").id == PartsColors.followID)
+        #expect(PartsColors.named("rose").id == "rose")
+    }
+
+    @Test("濃淡なしは全部同じ濃さ。強いほど少ない側が薄くなる")
+    func shadeCurve() {
+        #expect(PartsShade.none.opacity(0) == 1)
+        #expect(PartsShade.none.opacity(1) == 1)
+        for s in PartsShade.allCases {
+            // いちばん多い部位は、どの強さでも濃さいっぱい
+            #expect(s.opacity(1) == 1)
+            // 範囲の外を渡されても 0〜1 に収まる
+            #expect(s.opacity(-5) >= 0 && s.opacity(-5) <= 1)
+            #expect(s.opacity(9) == 1)
+        }
+        #expect(PartsShade.weak.opacity(0) > PartsShade.medium.opacity(0))
+        #expect(PartsShade.medium.opacity(0) > PartsShade.strong.opacity(0))
+    }
+
+    /// 札は色の上に数字が乗る。**どの色・どの濃さでも読めること。**
+    @Test("札の数字は、どの組み合わせでも読める")
+    func tileTextIsReadable() {
+        // 札の下地（カードの色）。明暗それぞれ
+        let grounds: [(bg: UInt32, dark: Bool)] = [(0xFFFFFF, false), (0x1C1C1E, true)]
+        for c in PartsColors.all {
+            for (bg, dark) in grounds {
+                guard let hex = c.hex(dark: dark) else { continue }
+                for shade in PartsShade.allCases {
+                    for ratio in [0.0, 0.25, 0.5, 0.75, 1.0] {
+                        let seen = ColorMath.blend(hex, over: bg, alpha: shade.tileAlpha(ratio))
+                        let ink = ColorMath.readableText(on: seen)
+                        #expect(ColorMath.contrast(ink, seen) >= 4.5,
+                                "\(c.id) shade=\(shade) ratio=\(ratio) dark=\(dark)")
+                    }
+                }
+            }
+        }
+    }
+
+    @Test("重ねた色は、濃さ0で背景そのもの・1で元の色")
+    func blendEnds() {
+        #expect(ColorMath.blend(0x2F6FD0, over: 0xFFFFFF, alpha: 0) == 0xFFFFFF)
+        #expect(ColorMath.blend(0x2F6FD0, over: 0xFFFFFF, alpha: 1) == 0x2F6FD0)
     }
 }

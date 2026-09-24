@@ -31,8 +31,10 @@ final class AppStore {
                               ja: L.customPalette(.ja), en: L.customPalette(.en))
             : Palettes.named(paletteID)
     }
-    /// 最近30日の部位の見せ方。5通りから選ぶ（1.5で追加）
+    /// 最近30日の部位の見せ方（棒か札）と、その色・濃淡（1.5で追加）
     var partsStyle: PartsStyle = .default
+    var partsColorID: String = PartsColors.defaultID
+    var partsShade: PartsShade = .default
     var reminderOn = false
     var reminderHour = 21
     /// 前の日の入れ忘れと、歩数が届いていないことを朝に知らせる
@@ -244,6 +246,8 @@ final class AppStore {
         paletteID = Palettes.defaultID
         customColors = Palettes.named(Palettes.defaultID).colors(dark: false).tiers
         partsStyle = .default
+        partsColorID = PartsColors.defaultID
+        partsShade = .default
         reminderOn = false; reminderHour = 21
         morningOn = false; morningHour = 8
         save()
@@ -291,6 +295,8 @@ final class AppStore {
         var paletteID: String?
         var customColors: [UInt32]?
         var partsStyle: String?
+        var partsColorID: String?
+        var partsShade: Int?
         var reminderOn: Bool
         var reminderHour: Int
         var morningOn: Bool?
@@ -306,7 +312,9 @@ final class AppStore {
                           language: language.rawValue, failColor: nil,
                           passColor: nil, paletteID: paletteID,
                           customColors: customColors,
-                          partsStyle: partsStyle.rawValue, reminderOn: reminderOn,
+                          partsStyle: partsStyle.rawValue,
+                          partsColorID: partsColorID, partsShade: partsShade.rawValue,
+                          reminderOn: reminderOn,
                           reminderHour: reminderHour,
                           morningOn: morningOn, morningHour: morningHour,
                           didOnboard: didOnboard)
@@ -341,6 +349,8 @@ final class AppStore {
         paletteID = p.paletteID ?? Palettes.migrating(fail: p.failColor, pass: p.passColor)
         customColors = Palettes.normalizedCustom(p.customColors ?? [])
         partsStyle = PartsStyle.from(p.partsStyle)
+        partsColorID = PartsColors.named(p.partsColorID).id
+        partsShade = PartsShade.from(p.partsShade)
         reminderOn = p.reminderOn
         reminderHour = p.reminderHour
         morningOn = p.morningOn ?? false
@@ -395,6 +405,8 @@ final class AppStore {
     }
 
     func accent(dark: Bool) -> Color { palette.ink(dark: dark) }
+    /// 「カレンダーに合わせる」部位の色。数字が読めるかの計算に数値が要る
+    func accentHex(dark: Bool) -> UInt32 { palette.colors(dark: dark).ink }
     func onAccent(dark: Bool) -> Color { palette.onInk(dark: dark) }
 }
 

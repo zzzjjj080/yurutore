@@ -6,16 +6,27 @@ import YurutoreCore
 /// **良し悪しは付けない。** 少ない部位を警告の色にしていたのをやめた
 /// （2026-09-24 本人指摘）。どこをどれだけ動かしたかが分かればよく、
 /// 足りているかどうかを決めるのは本人。
-/// 見せ方は5通りあり、設定で選ぶ。数字の意味はどれも同じ。
+///
+/// 見せ方は棒と札の2つ。色と濃淡は設定で選ぶ（2026-09-25）。
 struct RecentParts: View {
     let store: AppStore
     let counts: [BodyPart: Int]
     let dark: Bool
     var style: PartsStyle
+    var colorID: String
+    var shade: PartsShade
 
     private var lang: AppLanguage { store.language }
-    private var accent: Color { store.accent(dark: dark) }
     private var track: Color { Color(.tertiarySystemGroupedBackground) }
+
+    /// 札の下地。数字が読めるかの計算に使うので、実際のカードと同じ値にする
+    private var cardHex: UInt32 { dark ? 0x1C1C1E : 0xFFFFFF }
+    /// 「カレンダーに合わせる」なら、その時の配色の色を借りる
+    private var baseHex: UInt32 {
+        PartsColors.named(colorID).hex(dark: dark) ?? store.accentHex(dark: dark)
+    }
+    private var base: Color { Color(hex: baseHex) }
+
     private var maxCount: Int { max(1, counts.values.max() ?? 1) }
     private func n(_ part: BodyPart) -> Int { counts[part] ?? 0 }
     private func ratio(_ part: BodyPart) -> Double { Double(n(part)) / Double(maxCount) }
@@ -27,11 +38,8 @@ struct RecentParts: View {
     var body: some View {
         Group {
             switch style {
-            case .bars:    bars
-            case .rows:    rows
-            case .rings:   rings
-            case .tiles:   tiles
-            case .numbers: numbers
+            case .bars:  bars
+            case .tiles: tiles
             }
         }
         .padding(.horizontal, 12)
@@ -47,10 +55,13 @@ struct RecentParts: View {
     private var bars: some View {
         columns { part in
             VStack(spacing: 3) {
-                count(part, size: 11)
+                Text("\(n(part))")
+                    .font(.system(size: 11, weight: .heavy))
+                    .monospacedDigit()
                 ZStack(alignment: .bottom) {
                     RoundedRectangle(cornerRadius: 3).fill(track)
-                    RoundedRectangle(cornerRadius: 3).fill(accent)
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(base.opacity(shade.opacity(ratio(part))))
                         .frame(height: n(part) == 0 ? 0 : max(3, art * ratio(part)))
                 }
                 .frame(height: art)
@@ -59,81 +70,22 @@ struct RecentParts: View {
         }
     }
 
-    /// 横の棒を2列。名前と数がいちばん読みやすい
-    private var rows: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 14), count: 2),
-                  spacing: 7) {
-            ForEach(BodyPart.allCases, id: \.self) { part in
-                HStack(spacing: 6) {
-                    Text(L.partName(part, lang))
-                        .font(.system(size: 11, weight: .heavy))
-                        .foregroundStyle(.secondary)
-                        .frame(width: 22, alignment: .leading)
-                    GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            Capsule().fill(track)
-                            Capsule().fill(accent)
-                                .frame(width: n(part) == 0 ? 0 : max(4, geo.size.width * ratio(part)))
-                        }
-                    }
-                    .frame(height: 7)
-                    Text("\(n(part))")
-                        .font(.system(size: 11, weight: .heavy))
-                        .monospacedDigit()
-                        .frame(width: 18, alignment: .trailing)
-                }
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel("\(L.partName(part, lang)) \(n(part))")
-            }
-        }
-    }
-
-    /// 輪の長さで量を見る。真ん中に数
-    private var rings: some View {
-        columns { part in
-            VStack(spacing: 3) {
-                ZStack {
-                    Circle().stroke(track, lineWidth: 4)
-                    Circle()
-                        .trim(from: 0, to: ratio(part))
-                        .stroke(accent, style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                        .rotationEffect(.degrees(-90))
-                    Text("\(n(part))")
-                        .font(.system(size: 11, weight: .heavy))
-                        .monospacedDigit()
-                        .minimumScaleFactor(0.7)
-                }
-                .frame(width: 30, height: 30)
-                name(part)
-            }
-        }
-    }
-
     /// 色の濃さで量を見る札
     private var tiles: some View {
         columns { part in
+            let alpha = n(part) == 0 ? 0.10 : shade.tileAlpha(ratio(part))
             VStack(spacing: 3) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 7)
-                        // 濃さは相対。0 でも枠は残すので、空白には見えない
-                        .fill(accent.opacity(n(part) == 0 ? 0.10 : 0.2 + 0.35 * ratio(part)))
+                    RoundedRectangle(cornerRadius: 7).fill(base.opacity(alpha))
                     Text("\(n(part))")
                         .font(.system(size: 15, weight: .heavy))
                         .monospacedDigit()
+                        // 塗りの上に乗る数字は、**見えている色**から決める。
+                        // 元の色から決めると、薄い札で読めなくなる
+                        .foregroundStyle(Color(hex: ColorMath.readableText(
+                            on: ColorMath.blend(baseHex, over: cardHex, alpha: alpha))))
                 }
                 .frame(height: 30)
-                name(part)
-            }
-        }
-    }
-
-    /// 絵を使わず数字だけ。いちばん静か
-    private var numbers: some View {
-        columns { part in
-            VStack(spacing: 0) {
-                Text("\(n(part))")
-                    .font(.system(size: 20, weight: .heavy))
-                    .monospacedDigit()
                 name(part)
             }
         }
@@ -150,12 +102,6 @@ struct RecentParts: View {
                     .accessibilityLabel("\(L.partName(part, lang)) \(n(part))")
             }
         }
-    }
-
-    private func count(_ part: BodyPart, size: CGFloat) -> some View {
-        Text("\(n(part))")
-            .font(.system(size: size, weight: .heavy))
-            .monospacedDigit()
     }
 
     private func name(_ part: BodyPart) -> some View {

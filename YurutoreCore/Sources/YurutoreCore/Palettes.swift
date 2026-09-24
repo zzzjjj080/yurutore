@@ -198,6 +198,18 @@ public enum ColorMath {
          Double(hex & 0xFF) / 255)
     }
 
+    /// 半透明の色を背景に重ねたときに、実際に見える色。
+    /// **札の数字の色は、この見える色から決める。** 元の色から決めると、
+    /// 薄い札のときに白抜きになって読めなくなる。
+    public static func blend(_ fg: UInt32, over bg: UInt32, alpha: Double) -> UInt32 {
+        let a = min(1, max(0, alpha))
+        let (fr, fg_, fb) = rgb(fg), (br, bg_, bb) = rgb(bg)
+        func mix(_ f: Double, _ b: Double) -> UInt32 {
+            UInt32(((f * a + b * (1 - a)) * 255).rounded())
+        }
+        return (mix(fr, br) << 16) | (mix(fg_, bg_) << 8) | mix(fb, bb)
+    }
+
     /// WCAG の相対輝度
     public static func relativeLuminance(_ hex: UInt32) -> Double {
         func f(_ c: Double) -> Double {
