@@ -67,9 +67,13 @@ enum L {
         l == .en ? s.english : s.japanese
     }
     static func partsColorLabel(_ l: AppLanguage) -> String { t("色", "Color", l) }
-    static func partsShadeLabel(_ l: AppLanguage) -> String { t("濃淡", "Shading", l) }
+    static func partsDepthLabel(_ l: AppLanguage) -> String { t("濃さ", "Depth", l) }
+    static func partsDepthName(_ d: PartsDepth, _ l: AppLanguage) -> String {
+        l == .en ? d.english : d.japanese
+    }
+    static func partsShadeLabel(_ l: AppLanguage) -> String { t("量で濃さを変える", "Vary by amount", l) }
     static func partsShadeHint(_ l: AppLanguage) -> String {
-        t("多い部位ほど濃くなります。「なし」ならどれも同じ濃さです。",
+        t("多い部位ほど濃く塗ります。「なし」ならどれも同じ濃さです。",
           "The more you did, the deeper the color. \"Off\" keeps them all the same.", l)
     }
     static func partsShadeName(_ s: PartsShade, _ l: AppLanguage) -> String {

@@ -230,7 +230,7 @@ struct ContentView: View {
 
             RecentParts(store: store, counts: s.partCounts, dark: dark,
                                 style: store.partsStyle, colorID: store.partsColorID,
-                                shade: store.partsShade)
+                                depth: store.partsDepth, shade: store.partsShade)
         }
     }
 

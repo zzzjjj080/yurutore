@@ -68,6 +68,41 @@ public enum PartsColors {
     }
 }
 
+// MARK: - 濃さ
+
+/// 全体の濃さ。**「濃淡」とは別の軸。**
+/// 濃淡は部位どうしの差、こちらは全体をどれだけ濃く塗るか
+/// （2026-09-25 本人希望「もっと濃くしたい」）。
+public enum PartsDepth: Int, Codable, CaseIterable, Sendable {
+    case light = 0, normal = 1, deep = 2
+
+    public var japanese: String {
+        switch self { case .light: "薄い"; case .normal: "ふつう"; case .deep: "濃い" }
+    }
+    public var english: String {
+        switch self { case .light: "Light"; case .normal: "Normal"; case .deep: "Deep" }
+    }
+
+    public static let `default` = PartsDepth.normal
+
+    public static func from(_ raw: Int?) -> PartsDepth {
+        guard let raw, let d = PartsDepth(rawValue: raw) else { return .default }
+        return d
+    }
+
+    /// 札の塗りの上限。`deep` はべた塗り。
+    /// **べた塗りでも数字が読めるのは `ColorMath.readableFill` が色を寄せるから**で、
+    /// ここだけ見て上限を外してはいけない。
+    public var tileMax: Double {
+        switch self { case .light: 0.40; case .normal: 0.62; case .deep: 1.0 }
+    }
+
+    /// 棒の塗りの上限。棒には文字が乗らないので、読みやすさの制約は無い。
+    public var barMax: Double {
+        switch self { case .light: 0.50; case .normal: 0.75; case .deep: 1.0 }
+    }
+}
+
 // MARK: - 濃淡
 
 /// 量の差を、色の濃さでどれだけ出すか。
@@ -103,13 +138,14 @@ public enum PartsShade: Int, Codable, CaseIterable, Sendable {
         return 1 - span + span * r
     }
 
-    /// 札の塗りの濃さ。
-    ///
-    /// **札には数字が乗るので、上限を付ける。** べた塗りにすると、
-    /// 色によっては黒文字も白文字も読めない明るさに入ってしまう
-    /// （実測で 4.2:1 まで落ちた）。上限 0.55 なら、どの色・どの濃淡でも
-    /// 4.5:1 を超える（`PartsColorTests`）。
-    public func tileAlpha(_ ratio: Double) -> Double {
-        0.18 + 0.37 * opacity(ratio)
+    /// 札の塗りの濃さ。全体の濃さ × 量の比。
+    /// 薄くなりすぎると札が消えるので、下限を置いてある。
+    public func tileAlpha(_ ratio: Double, depth: PartsDepth) -> Double {
+        max(0.12, depth.tileMax * opacity(ratio))
+    }
+
+    /// 棒の塗りの濃さ
+    public func barAlpha(_ ratio: Double, depth: PartsDepth) -> Double {
+        max(0.15, depth.barMax * opacity(ratio))
     }
 }

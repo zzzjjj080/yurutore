@@ -7,13 +7,14 @@ import YurutoreCore
 /// （2026-09-24 本人指摘）。どこをどれだけ動かしたかが分かればよく、
 /// 足りているかどうかを決めるのは本人。
 ///
-/// 見せ方は棒と札の2つ。色と濃淡は設定で選ぶ（2026-09-25）。
+/// 見せ方は棒と札の2つ。色・濃さ・濃淡は設定で選ぶ（2026-09-25）。
 struct RecentParts: View {
     let store: AppStore
     let counts: [BodyPart: Int]
     let dark: Bool
     var style: PartsStyle
     var colorID: String
+    var depth: PartsDepth
     var shade: PartsShade
 
     private var lang: AppLanguage { store.language }
@@ -42,7 +43,7 @@ struct RecentParts: View {
             case .tiles: tiles
             }
         }
-        .padding(.horizontal, 12)
+        .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity)
         .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 11))
@@ -56,12 +57,12 @@ struct RecentParts: View {
         columns { part in
             VStack(spacing: 3) {
                 Text("\(n(part))")
-                    .font(.system(size: 11, weight: .heavy))
+                    .font(.system(size: 13, weight: .heavy))
                     .monospacedDigit()
                 ZStack(alignment: .bottom) {
                     RoundedRectangle(cornerRadius: 3).fill(track)
                     RoundedRectangle(cornerRadius: 3)
-                        .fill(base.opacity(shade.opacity(ratio(part))))
+                        .fill(base.opacity(shade.barAlpha(ratio(part), depth: depth)))
                         .frame(height: n(part) == 0 ? 0 : max(3, art * ratio(part)))
                 }
                 .frame(height: art)
@@ -73,19 +74,18 @@ struct RecentParts: View {
     /// 色の濃さで量を見る札
     private var tiles: some View {
         columns { part in
-            let alpha = n(part) == 0 ? 0.10 : shade.tileAlpha(ratio(part))
+            // 塗りと数字の色はひと組で決める。**濃い色のときは白抜きに変わる**
+            let a = n(part) == 0 ? 0.10 : shade.tileAlpha(ratio(part), depth: depth)
+            let paint = ColorMath.readableFill(baseHex, over: cardHex, alpha: a)
             VStack(spacing: 3) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 7).fill(base.opacity(alpha))
+                    RoundedRectangle(cornerRadius: 7).fill(Color(hex: paint.fill))
                     Text("\(n(part))")
-                        .font(.system(size: 15, weight: .heavy))
+                        .font(.system(size: 17, weight: .heavy))
                         .monospacedDigit()
-                        // 塗りの上に乗る数字は、**見えている色**から決める。
-                        // 元の色から決めると、薄い札で読めなくなる
-                        .foregroundStyle(Color(hex: ColorMath.readableText(
-                            on: ColorMath.blend(baseHex, over: cardHex, alpha: alpha))))
+                        .foregroundStyle(n(part) == 0 ? Color.secondary : Color(hex: paint.ink))
                 }
-                .frame(height: 30)
+                .frame(height: 32)
                 name(part)
             }
         }
@@ -94,7 +94,7 @@ struct RecentParts: View {
     // MARK: - 部品
 
     private func columns<C: View>(@ViewBuilder _ item: @escaping (BodyPart) -> C) -> some View {
-        HStack(alignment: .bottom, spacing: 6) {
+        HStack(alignment: .bottom, spacing: 5) {
             ForEach(BodyPart.allCases, id: \.self) { part in
                 item(part)
                     .frame(maxWidth: .infinity)
@@ -104,9 +104,10 @@ struct RecentParts: View {
         }
     }
 
+    /// 部位の名前。**小さすぎて読めないと言われたので大きくした**（2026-09-25）
     private func name(_ part: BodyPart) -> some View {
         Text(L.partName(part, lang))
-            .font(.system(size: 10, weight: .bold))
+            .font(.system(size: 13, weight: .heavy))
             .foregroundStyle(.secondary)
             .lineLimit(1)
             .minimumScaleFactor(0.7)

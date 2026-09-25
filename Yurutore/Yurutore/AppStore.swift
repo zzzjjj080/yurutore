@@ -34,6 +34,7 @@ final class AppStore {
     /// 最近30日の部位の見せ方（棒か札）と、その色・濃淡（1.5で追加）
     var partsStyle: PartsStyle = .default
     var partsColorID: String = PartsColors.defaultID
+    var partsDepth: PartsDepth = .default
     var partsShade: PartsShade = .default
     var reminderOn = false
     var reminderHour = 21
@@ -247,6 +248,7 @@ final class AppStore {
         customColors = Palettes.named(Palettes.defaultID).colors(dark: false).tiers
         partsStyle = .default
         partsColorID = PartsColors.defaultID
+        partsDepth = .default
         partsShade = .default
         reminderOn = false; reminderHour = 21
         morningOn = false; morningHour = 8
@@ -296,6 +298,7 @@ final class AppStore {
         var customColors: [UInt32]?
         var partsStyle: String?
         var partsColorID: String?
+        var partsDepth: Int?
         var partsShade: Int?
         var reminderOn: Bool
         var reminderHour: Int
@@ -313,7 +316,8 @@ final class AppStore {
                           passColor: nil, paletteID: paletteID,
                           customColors: customColors,
                           partsStyle: partsStyle.rawValue,
-                          partsColorID: partsColorID, partsShade: partsShade.rawValue,
+                          partsColorID: partsColorID, partsDepth: partsDepth.rawValue,
+                          partsShade: partsShade.rawValue,
                           reminderOn: reminderOn,
                           reminderHour: reminderHour,
                           morningOn: morningOn, morningHour: morningHour,
@@ -350,6 +354,7 @@ final class AppStore {
         customColors = Palettes.normalizedCustom(p.customColors ?? [])
         partsStyle = PartsStyle.from(p.partsStyle)
         partsColorID = PartsColors.named(p.partsColorID).id
+        partsDepth = PartsDepth.from(p.partsDepth)
         partsShade = PartsShade.from(p.partsShade)
         reminderOn = p.reminderOn
         reminderHour = p.reminderHour

@@ -174,6 +174,15 @@ struct SettingsSheet: View {
                 Text(L.partsColorLabel(lang)).font(.system(size: 10, weight: .bold))
                     .foregroundStyle(.secondary).padding(.top, 2)
                 partsColorGrid
+                Text(L.partsDepthLabel(lang)).font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(.secondary).padding(.top, 2)
+                Picker("", selection: $store.partsDepth) {
+                    ForEach(PartsDepth.allCases, id: \.rawValue) { d in
+                        Text(L.partsDepthName(d, lang)).tag(d)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .onChange(of: store.partsDepth) { store.save() }
                 Text(L.partsShadeLabel(lang)).font(.system(size: 10, weight: .bold))
                     .foregroundStyle(.secondary).padding(.top, 2)
                 Picker("", selection: $store.partsShade) {
@@ -254,7 +263,8 @@ struct SettingsSheet: View {
                             .font(.system(size: 10, weight: .heavy))
                             .foregroundStyle(.secondary)
                         RecentParts(store: store, counts: counts, dark: dark, style: style,
-                                    colorID: store.partsColorID, shade: store.partsShade)
+                                    colorID: store.partsColorID, depth: store.partsDepth,
+                                    shade: store.partsShade)
                     }
                     .padding(7)
                     .frame(maxWidth: .infinity, alignment: .leading)

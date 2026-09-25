@@ -210,6 +210,21 @@ public enum ColorMath {
         return (mix(fr, br) << 16) | (mix(fg_, bg_) << 8) | mix(fb, bb)
     }
 
+    /// 札の塗りと、その上に乗せる数字の色。
+    ///
+    /// 塗りを濃くしていくと、**黒でも白でも読めない明るさ**を必ず通る
+    /// （実測で 4.2:1 まで落ちた）。そこを通るときは、見えている色のほうを
+    /// 暗いほうへ寄せて、白文字で読めるところまで持っていく。
+    /// 濃さの選択肢を「濃い」まで伸ばせるのは、この寄せがあるから。
+    public static func readableFill(_ hex: UInt32, over bg: UInt32,
+                                    alpha: Double) -> (fill: UInt32, ink: UInt32) {
+        let seen = blend(hex, over: bg, alpha: alpha)
+        let ink = readableText(on: seen)
+        if contrast(ink, seen) >= 4.5 { return (seen, ink) }
+        let darker = adjusted(seen, toContrast: 4.5, against: [0xFFFFFF], darker: true)
+        return (darker, 0xFFFFFF)
+    }
+
     /// WCAG の相対輝度
     public static func relativeLuminance(_ hex: UInt32) -> Double {
         func f(_ c: Double) -> Double {

@@ -445,7 +445,8 @@ struct PartsColorTests {
         #expect(PartsShade.medium.opacity(0) > PartsShade.strong.opacity(0))
     }
 
-    /// 札は色の上に数字が乗る。**どの色・どの濃さでも読めること。**
+    /// 札は色の上に数字が乗る。**どの色・どの濃さ・どの濃淡でも読めること。**
+    /// 「濃い」を選べるようにした以上、ここが崩れていないかは毎回測る。
     @Test("札の数字は、どの組み合わせでも読める")
     func tileTextIsReadable() {
         // 札の下地（カードの色）。明暗それぞれ
@@ -453,16 +454,33 @@ struct PartsColorTests {
         for c in PartsColors.all {
             for (bg, dark) in grounds {
                 guard let hex = c.hex(dark: dark) else { continue }
-                for shade in PartsShade.allCases {
-                    for ratio in [0.0, 0.25, 0.5, 0.75, 1.0] {
-                        let seen = ColorMath.blend(hex, over: bg, alpha: shade.tileAlpha(ratio))
-                        let ink = ColorMath.readableText(on: seen)
-                        #expect(ColorMath.contrast(ink, seen) >= 4.5,
-                                "\(c.id) shade=\(shade) ratio=\(ratio) dark=\(dark)")
+                for depth in PartsDepth.allCases {
+                    for shade in PartsShade.allCases {
+                        for ratio in [0.0, 0.25, 0.5, 0.75, 1.0] {
+                            let a = shade.tileAlpha(ratio, depth: depth)
+                            let (fill, ink) = ColorMath.readableFill(hex, over: bg, alpha: a)
+                            #expect(ColorMath.contrast(ink, fill) >= 4.5,
+                                    "\(c.id) depth=\(depth) shade=\(shade) ratio=\(ratio) dark=\(dark)")
+                        }
                     }
                 }
             }
         }
+    }
+
+    @Test("濃いほど塗りが濃くなる。薄いほうにも下限がある")
+    func depthOrder() {
+        for shade in PartsShade.allCases {
+            #expect(shade.tileAlpha(1, depth: .light) < shade.tileAlpha(1, depth: .normal))
+            #expect(shade.tileAlpha(1, depth: .normal) < shade.tileAlpha(1, depth: .deep))
+            #expect(shade.barAlpha(1, depth: .deep) == 1)
+            // いちばん少ない部位でも消えない
+            #expect(shade.tileAlpha(0, depth: .light) >= 0.12)
+            #expect(shade.barAlpha(0, depth: .light) >= 0.15)
+        }
+        #expect(PartsDepth.from(nil) == .default)
+        #expect(PartsDepth.from(9) == .default)
+        #expect(PartsDepth.from(2) == .deep)
     }
 
     @Test("重ねた色は、濃さ0で背景そのもの・1で元の色")
