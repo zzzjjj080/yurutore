@@ -12,7 +12,9 @@ func dismissHealthPrompts(_ app: XCUIApplication, timeout: TimeInterval = 20) {
     let hosts = [app,
                  XCUIApplication(bundleIdentifier: "com.apple.springboard"),
                  XCUIApplication(bundleIdentifier: "com.apple.Health")]
-    let labels = ["OK", "許可しない"]
+    // **端末の言語が英語の新しいシミュレータでは英語で出る。**
+    // 日本語だけを見ていると、真新しい撮影用シミュレータで必ず詰まる（2026-09-27）
+    let labels = ["OK", "許可しない", "Don't Allow", "Don’t Allow", "Cancel"]
     let deadline = Date().addingTimeInterval(timeout)
     var quiet = 0
 

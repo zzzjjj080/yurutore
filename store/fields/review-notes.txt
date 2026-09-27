@@ -1,10 +1,10 @@
 No account, login, or credentials are required. There is no user-generated content.
 
-IN-APP PURCHASE (new in this version): the app contains one consumable in-app purchase, "コーヒー1杯" (com.zzzjjj080.Yurutore.coffee, JPY 200). It is an optional tip to the developer. It unlocks nothing: no feature, no content, and no setting changes after buying it. The app only shows a thank-you line and a counter of how many cups have been bought. Because it is consumable, nothing is restored on a new device, and there is no restore button. To reach it: tap the gear icon, then scroll to the bottom of Settings ("開発者にコーヒーを奢る" / "Buy the developer a coffee"). The price shown is always product.displayPrice from StoreKit; it is never hard-coded.
+IN-APP PURCHASE: the app contains one consumable in-app purchase, "コーヒー1杯" (com.zzzjjj080.Yurutore.coffee, JPY 200). It is an optional tip to the developer. It unlocks nothing: no feature, no content, and no setting changes after buying it. The app only shows a thank-you line and a counter of how many cups have been bought. Because it is consumable, nothing is restored on a new device, and there is no restore button. To reach it: tap the gear icon, then scroll to the bottom of Settings ("開発者にコーヒーを奢る" / "Buy the developer a coffee"). The price shown is always product.displayPrice from StoreKit; it is never hard-coded.
 
 HOME SCREEN WIDGET: a 2x2 widget shows today's score, steps and exercise count. The app writes a small summary into a shared App Group container and the widget reads it. The widget also reads today's step count from HealthKit directly (read-only), so that it stays current on days the app is not opened; only the main app ever asks for HealthKit permission, and if access is denied the widget simply shows the value the app last wrote. The widget makes no network calls.
 
-NOTIFICATIONS (new in this version): all notifications are local (UserNotifications), off by default, and scheduled on the device. One optional morning notification says the previous day has no exercise logged, or that step counts have stopped arriving from Health. No push server is involved.
+NOTIFICATIONS: all notifications are local (UserNotifications), off by default, and scheduled on the device. One optional morning notification says the previous day has no exercise logged, or that step counts have stopped arriving from Health. No push server is involved.
 
 NETWORK USE: the app does not send or receive any of the user's data. The only network activity is StoreKit talking to the App Store for the tip above. The "不具合の報告・要望を送る" button at the bottom of Settings opens the system Mail app through a mailto: link with the app version, iOS version and device model pre-filled; the app has no server and does not send the mail itself.
 
@@ -20,7 +20,8 @@ How to exercise the app:
 7. Tap the month title to switch to the year view. Tap the gear icon for Settings (Display / Scoring / Data).
 8. Scroll to the bottom of any Settings tab for the feedback button and the coffee tip.
 9. Tapping any empty space inside the calendar card opens today's sheet, so the small cell for today does not have to be hit exactly.
-10. To see the widget: long-press the Home Screen, tap the plus button, search for this app and add the small widget. It shows placeholder values until the app has been opened once.
+10. Under the calendar, a strip shows how much each body part was trained over the last 30 days. Its look (bars or tiles), color, depth and shading can be changed in Settings > Display > "部位の見せ方". This is display only; it changes no data.
+11. To see the widget: long-press the Home Screen, tap the plus button, search for this app and add the small widget. It shows placeholder values until the app has been opened once.
 
 External services: none. Only Apple frameworks (SwiftUI, Swift Charts, HealthKit read-only, StoreKit, WidgetKit, local UserNotifications). All records stay on the device.
 

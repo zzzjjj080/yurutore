@@ -17,11 +17,11 @@ struct Shot {
 }
 
 let shots = [
-    Shot(file: "01-month.png",    title: "今月、何日できたか", subtitle: "80点以上で合格。色が4段階で変わるので一目で分かります"),
+    Shot(file: "01-month.png",    title: "最近30日で、何日できたか", subtitle: "80点以上で合格。色が4段階で変わるので一目で分かります"),
     Shot(file: "02-input.png",    title: "押すのは運動だけ", subtitle: "歩数はヘルスケアから自動。重さも回数も入れません"),
     Shot(file: "03-widget.png",   title: "ホーム画面で、あと少しが分かる", subtitle: "輪はどちらも40点で一周。開かなくても今日が見えます"),
     Shot(file: "04-year.png",     title: "1年を、まるごと見渡す", subtitle: "続いていることが目に見えます"),
-    Shot(file: "05-settings.png", title: "色は自分で決められる", subtitle: "8つのパターンから選ぶか、4色とも自分で決める"),
+    Shot(file: "05-settings.png", title: "見た目は自分で決められる", subtitle: "カレンダーの配色も、下に出る部位の色と濃さも選べます"),
 ]
 
 let inputDir = URL(fileURLWithPath: CommandLine.arguments[1])
