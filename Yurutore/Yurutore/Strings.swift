@@ -332,18 +332,9 @@ enum L {
           "Goal lines (\(Scorer.goalPoints) points) and the exercise list can be set later.", l)
     }
 
-    // 投げ銭（コーヒーを奢る）
-    static func tipHeader(_ l: AppLanguage) -> String { t("このアプリが気に入ったら", "If you like this app", l) }
-    static func tipBuy(_ l: AppLanguage) -> String    { t("開発者にコーヒーを奢る", "Buy the developer a coffee", l) }
-    static func tipThanks(_ l: AppLanguage) -> String { t("ありがとうございます", "Thank you", l) }
-    static func tipClose(_ l: AppLanguage) -> String  { t("閉じる", "Close", l) }
-    static func tipNone(_ l: AppLanguage) -> String   { t("いまは受け付けられません", "Not available right now", l) }
-    static func tipFailed(_ l: AppLanguage) -> String { t("購入できませんでした", "The purchase did not go through", l) }
-    /// 1杯目と2杯目以降で言い方を変える
-    static func tipGratitude(_ cups: Int, _ l: AppLanguage) -> String {
-        cups <= 1
-            ? t("奢ってくれてありがとうございました", "Thank you for the coffee", l)
-            : t("\(cups) 回も奢ってくれてありがとうございました", "Thank you for the \(cups) coffees", l)
+    // 作者のほかのアプリ（投げ銭を外した跡地。2026-09-30）
+    static func otherApps(_ l: AppLanguage) -> String {
+        t("作者のほかのアプリ", "More apps by the developer", l)
     }
 
     // 不具合の報告・要望

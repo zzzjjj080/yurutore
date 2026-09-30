@@ -15,7 +15,6 @@ struct SettingsSheet: View {
     @State private var exporting = false
     @State private var importing = false
     @State private var importNote = ""
-    @State private var tipJar = TipJar(productID: TipJar.productID)
 
     private var dark: Bool { store.isDark(scheme) }
     private var lang: AppLanguage { store.language }
@@ -40,8 +39,7 @@ struct SettingsSheet: View {
 
                     // タブによらず、設定のいちばん下に出す
                     FeedbackButtonYurutore(lang: lang, accent: store.accent(dark: dark))
-                    CoffeeTipSectionYurutore(tipJar: tipJar, lang: lang,
-                                             accent: store.accent(dark: dark))
+                    OtherAppsLinkYurutore(lang: lang, accent: store.accent(dark: dark))
 
                     // いま入っているのがどのビルドかを確かめられるように、
                     // いちばん下に小さく出す（引き継ぎ書 4-145）
